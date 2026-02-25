@@ -1,6 +1,7 @@
-# Sync state for git-based path sync jobs
-# Auto-updated by .github/workflows/sync-jobs.yml
-
 version = 1
 
 [jobs]
+[jobs."dpdisp-submit"]
+last_upstream_commit = "e3b6594184a25e066cc1f4d004200ea04f655efc"
+last_upstream_ref = "v1.0.2"
+updated_at = "2026-02-28T00:11:03.124418+00:00"
