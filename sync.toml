@@ -1,7 +1,11 @@
-# Sync config for upstream skill import
-# This repo is destination; no destination_repo needed.
+# Declarative sync jobs for Copybara workflow
+# Add more [[jobs]] blocks to extend.
 
-[dpdisp_run]
+version = 1
+
+[[jobs]]
+name = "dpdisp-run"
+enabled = true
 upstream_repo = "deepmodeling/dpdispatcher"
 source_path = "skills/dpdisp-run"
 target_path = "tools/dpdisp-run"

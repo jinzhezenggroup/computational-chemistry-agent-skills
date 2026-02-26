@@ -1,12 +1,16 @@
-name: Sync dpdisp-run from dpdispatcher tags
+name: Copybara Multi-Job Sync
 
 on:
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
     inputs:
+      job:
+        description: "Optional job name in sync.toml (e.g. dpdisp-run). Empty = all enabled jobs"
+        required: false
+        type: string
       tag:
-        description: "Optional upstream tag (e.g. v0.9.0)"
+        description: "Optional override tag for selected job(s)"
         required: false
         type: string
 
@@ -14,12 +18,99 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-dpdisp-run
+  group: copybara-multi-sync
   cancel-in-progress: true
 
 jobs:
-  sync:
+  plan:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      has_jobs: ${{ steps.plan.outputs.has_jobs }}
+    steps:
+      - name: Checkout destination repo
+        uses: actions/checkout@v4
+
+      - name: Build job matrix from sync.toml
+        id: plan
+        shell: bash
+        env:
+          INPUT_JOB: ${{ github.event.inputs.job || '' }}
+          INPUT_TAG: ${{ github.event.inputs.tag || '' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          import tomllib
+          from pathlib import Path
+
+          cfg = tomllib.loads(Path('sync.toml').read_text(encoding='utf-8'))
+          jobs = cfg.get('jobs', [])
+          requested = os.environ.get('INPUT_JOB', '').strip()
+          override_tag = os.environ.get('INPUT_TAG', '').strip()
+
+          selected = []
+          for j in jobs:
+              if not j.get('enabled', True):
+                  continue
+              name = j.get('name', '').strip()
+              if not name:
+                  continue
+              if requested and name != requested:
+                  continue
+
+              upstream = j['upstream_repo']
+              tag_re = j.get('tag_regex', '^v.*')
+
+              if override_tag:
+                  tag = override_tag
+              else:
+                  out = subprocess.check_output(
+                      ['git', 'ls-remote', '--tags', '--refs', f'https://github.com/{upstream}.git'],
+                      text=True,
+                  )
+                  tags = []
+                  for line in out.splitlines():
+                      ref = line.split()[1]
+                      tag = ref.removeprefix('refs/tags/')
+                      if re.match(tag_re, tag):
+                          tags.append(tag)
+                  if not tags:
+                      raise SystemExit(f'No tag matching {tag_re} found for {upstream}')
+
+                  def ver_key(s):
+                      return [int(x) if x.isdigit() else x for x in re.split(r'(\d+)', s)]
+
+                  tags.sort(key=ver_key)
+                  tag = tags[-1]
+
+              item = {
+                  'name': name,
+                  'upstream_repo': upstream,
+                  'source_path': j['source_path'],
+                  'target_path': j['target_path'],
+                  'destination_branch': j.get('destination_branch', 'main'),
+                  'tag': tag,
+              }
+              selected.append(item)
+
+          out_path = Path(os.environ['GITHUB_OUTPUT'])
+          with out_path.open('a', encoding='utf-8') as f:
+              f.write(f"matrix={json.dumps(selected, ensure_ascii=False)}\n")
+              f.write(f"has_jobs={'true' if selected else 'false'}\n")
+          PY
+
+  sync:
+    needs: plan
+    if: needs.plan.outputs.has_jobs == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        job: ${{ fromJson(needs.plan.outputs.matrix) }}
 
     steps:
       - name: Checkout destination repo
@@ -27,61 +118,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Load sync.toml
-        id: cfg
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import tomllib
-          from pathlib import Path
-
-          data = tomllib.loads(Path('sync.toml').read_text(encoding='utf-8'))
-          cfg = data['dpdisp_run']
-
-          out = Path(__import__('os').environ['GITHUB_OUTPUT'])
-          with out.open('a', encoding='utf-8') as f:
-              for key in ['upstream_repo', 'source_path', 'target_path', 'tag_regex', 'destination_branch']:
-                  f.write(f"{key}={cfg[key]}\n")
-          PY
-
-      - name: Resolve upstream tag
-        id: tag
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          INPUT_TAG='${{ github.event.inputs.tag || '' }}'
-          if [ -n "$INPUT_TAG" ]; then
-            TAG="$INPUT_TAG"
-          else
-            TAG=$(git ls-remote --tags --refs "https://github.com/${{ steps.cfg.outputs.upstream_repo }}.git" \
-              | awk '{print $2}' \
-              | sed 's#refs/tags/##' \
-              | grep -E '${{ steps.cfg.outputs.tag_regex }}' \
-              | sort -V \
-              | tail -n1)
-          fi
-
-          if [ -z "$TAG" ]; then
-            echo "No upstream tag found" >&2
-            exit 1
-          fi
-
-          echo "Selected upstream tag: $TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Run Copybara sync
+      - name: Sync ${{ matrix.job.name }} via Copybara
         uses: olivr/copybara-action@v1.2.5
         with:
           ssh_key: ${{ secrets.SYNC_SSH_KEY }}
           access_token: ${{ secrets.SYNC_GH_TOKEN }}
-          sot_repo: ${{ steps.cfg.outputs.upstream_repo }}
-          sot_branch: ${{ steps.tag.outputs.tag }}
+          sot_repo: ${{ matrix.job.upstream_repo }}
+          sot_branch: ${{ matrix.job.tag }}
           destination_repo: ${{ github.repository }}
-          destination_branch: ${{ steps.cfg.outputs.destination_branch }}
+          destination_branch: ${{ matrix.job.destination_branch }}
           workflow: push
           create_repo: no
-          push_include: ${{ steps.cfg.outputs.source_path }}/**
-          push_move: ${{ steps.cfg.outputs.source_path }}||${{ steps.cfg.outputs.target_path }}
+          push_include: ${{ matrix.job.source_path }}/**
+          push_move: ${{ matrix.job.source_path }}||${{ matrix.job.target_path }}
           committer: OpenClaw Sync Bot <actions@github.com>
+
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo "### Synced job"
+            echo "- name: ${{ matrix.job.name }}"
+            echo "- upstream: ${{ matrix.job.upstream_repo }} @ ${{ matrix.job.tag }}"
+            echo "- mapping: ${{ matrix.job.source_path }} -> ${{ matrix.job.target_path }}"
+          } >> "$GITHUB_STEP_SUMMARY"
