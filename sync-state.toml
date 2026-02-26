@@ -2,9 +2,9 @@ version = 1
 
 [jobs]
 [jobs."dpdata-cli"]
-last_upstream_commit = "10312fb1b2b5994f2bf4d8cc8b7e6cb20595b1d3"
+last_upstream_commit = "ae134fe2940d4241b89d386d3838b9df5d1460b5"
 last_upstream_ref = "v1.0.1"
-updated_at = "2026-02-28T01:06:23.671884+00:00"
+updated_at = "2026-02-28T01:06:23.876945+00:00"
 
 [jobs."dpdisp-submit"]
 last_upstream_commit = "e3b6594184a25e066cc1f4d004200ea04f655efc"
