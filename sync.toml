@@ -1,0 +1,9 @@
+# Sync config for upstream skill import
+# This repo is destination; no destination_repo needed.
+
+[dpdisp_run]
+upstream_repo = "deepmodeling/dpdispatcher"
+source_path = "skills/dpdisp-run"
+target_path = "tools/dpdisp-run"
+tag_regex = "^v.*"
+destination_branch = "main"

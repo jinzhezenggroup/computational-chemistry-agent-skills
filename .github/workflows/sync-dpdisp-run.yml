@@ -1,0 +1,87 @@
+name: Sync dpdisp-run from dpdispatcher tags
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Optional upstream tag (e.g. v0.9.0)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-dpdisp-run
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout destination repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Load sync.toml
+        id: cfg
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import tomllib
+          from pathlib import Path
+
+          data = tomllib.loads(Path('sync.toml').read_text(encoding='utf-8'))
+          cfg = data['dpdisp_run']
+
+          out = Path(__import__('os').environ['GITHUB_OUTPUT'])
+          with out.open('a', encoding='utf-8') as f:
+              for key in ['upstream_repo', 'source_path', 'target_path', 'tag_regex', 'destination_branch']:
+                  f.write(f"{key}={cfg[key]}\n")
+          PY
+
+      - name: Resolve upstream tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          INPUT_TAG='${{ github.event.inputs.tag || '' }}'
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG=$(git ls-remote --tags --refs "https://github.com/${{ steps.cfg.outputs.upstream_repo }}.git" \
+              | awk '{print $2}' \
+              | sed 's#refs/tags/##' \
+              | grep -E '${{ steps.cfg.outputs.tag_regex }}' \
+              | sort -V \
+              | tail -n1)
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "No upstream tag found" >&2
+            exit 1
+          fi
+
+          echo "Selected upstream tag: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Run Copybara sync
+        uses: olivr/copybara-action@v1.2.5
+        with:
+          ssh_key: ${{ secrets.SYNC_SSH_KEY }}
+          access_token: ${{ secrets.SYNC_GH_TOKEN }}
+          sot_repo: ${{ steps.cfg.outputs.upstream_repo }}
+          sot_branch: ${{ steps.tag.outputs.tag }}
+          destination_repo: ${{ github.repository }}
+          destination_branch: ${{ steps.cfg.outputs.destination_branch }}
+          workflow: push
+          create_repo: no
+          push_include: ${{ steps.cfg.outputs.source_path }}/**
+          push_move: ${{ steps.cfg.outputs.source_path }}||${{ steps.cfg.outputs.target_path }}
+          committer: OpenClaw Sync Bot <actions@github.com>
