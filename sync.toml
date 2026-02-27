@@ -14,12 +14,12 @@
 version = 1
 
 [[jobs]]
-name = "dpdisp-run"
+name = "dpdisp-submit"
 enabled = true
 upstream_repo = "deepmodeling/dpdispatcher"
 upstream_ref = "master"
-path = "skills/dpdisp-run"
-dest = "tools/dpdisp-run"
+path = "skills/dpdisp-submit"
+dest = "tools/dpdisp-submit"
 
 # optional: only run when upstream has a tag matching this regex (leave empty to ignore)
 tag_regex = "^v.*"
