@@ -1,0 +1,6 @@
+# Sync state for git-based path sync jobs
+# Auto-updated by .github/workflows/sync-jobs.yml
+
+version = 1
+
+[jobs]
