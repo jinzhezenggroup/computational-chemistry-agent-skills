@@ -1,0 +1,25 @@
+# Git-based sync jobs
+#
+# Each job describes an upstream repo + directory to import into this repo.
+# The workflow will:
+# - detect jobs to run
+# - for each job, find new upstream commits since last recorded commit
+# - re-apply them into this repo (directory-only) and commit
+#
+# Notes:
+# - `upstream_ref` can be a branch (e.g. "master") or a tag (e.g. "v0.9.0").
+# - `path` is the directory in the upstream repo to import.
+# - `dest` is the directory in THIS repo where the content lands.
+
+version = 1
+
+[[jobs]]
+name = "dpdisp-run"
+enabled = true
+upstream_repo = "deepmodeling/dpdispatcher"
+upstream_ref = "master"
+path = "skills/dpdisp-run"
+dest = "tools/dpdisp-run"
+
+# optional: only run when upstream has a tag matching this regex (leave empty to ignore)
+tag_regex = "^v.*"

@@ -1,0 +1,80 @@
+name: Sync Jobs (pure git)
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'sync.toml'
+      - 'scripts/sync_jobs.py'
+      - '.github/workflows/sync-jobs.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Optional job name in sync.toml. Empty = all enabled jobs'
+        required: false
+        type: string
+      rev:
+        description: 'Optional upstream ref/tag/SHA override'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-jobs-pure-git
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout destination repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup git identity
+        run: |
+          git config user.name "OpenClaw"
+          git config user.email "actions@github.com"
+
+      - name: Run sync script
+        env:
+          INPUT_JOB: ${{ github.event.inputs.job || '' }}
+          INPUT_REV: ${{ github.event.inputs.rev || '' }}
+        run: |
+          set -euo pipefail
+          ARGS=""
+          if [ -n "${INPUT_JOB}" ]; then
+            ARGS="$ARGS --job ${INPUT_JOB}"
+          fi
+          if [ -n "${INPUT_REV}" ]; then
+            ARGS="$ARGS --rev ${INPUT_REV}"
+          fi
+          python3 scripts/sync_jobs.py $ARGS
+
+      - name: Push sync commits
+        run: |
+          set -euo pipefail
+          if [ -z "$(git log origin/master..HEAD --oneline)" ]; then
+            echo "No new commits to push"
+            exit 0
+          fi
+          git push origin HEAD:master
+
+      - name: Summary
+        run: |
+          {
+            echo "### Sync run done"
+            echo "- branch: master"
+            echo "- job override: ${{ github.event.inputs.job || '(none)' }}"
+            echo "- rev override: ${{ github.event.inputs.rev || '(none)' }}"
+            echo "- new commits:"
+            git log --oneline origin/master..HEAD || true
+          } >> "$GITHUB_STEP_SUMMARY"
