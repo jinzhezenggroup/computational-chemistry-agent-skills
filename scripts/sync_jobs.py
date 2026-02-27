@@ -190,6 +190,11 @@ def checkout_snapshot(up_repo: Path, sha: str, src_path: str, dst_path: str) -> 
         shutil.copytree(src, dst)
 
 
+def path_exists_in_commit(up_repo: Path, sha: str, path: str) -> bool:
+    p = run(["git", "cat-file", "-e", f"{sha}:{path}"], cwd=up_repo, check=False)
+    return p.returncode == 0
+
+
 def commit_if_changed(message: str, author_name: str, author_email: str, author_date: str) -> bool:
     git(["add", "-A"], cwd=ROOT)
     if not git(["diff", "--cached", "--name-only"], cwd=ROOT).strip():
@@ -237,12 +242,28 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
         git(["fetch", "--tags", "origin"], cwd=up_repo)
 
         target_sha = resolve_upstream_commit(up_repo, logical_ref)
+
+        # Fail fast: do not allow state-only updates for missing source path.
+        if not path_exists_in_commit(up_repo, target_sha, job.path):
+            raise SystemExit(
+                f"Source path not found in upstream at {logical_ref} ({target_sha}): {job.path}"
+            )
+
         commits = list_commits_for_path(up_repo, last_commit, target_sha, job.path)
 
         made = 0
         for sha in commits:
             checkout_snapshot(up_repo, sha, job.path, job.dest)
             an, ae, ai, subject = commit_meta(up_repo, sha)
+
+            # Keep state in the same commit to avoid a noisy extra state-only commit.
+            state_jobs[job.name] = {
+                "last_upstream_commit": sha,
+                "last_upstream_ref": logical_ref,
+                "updated_at": now_iso(),
+            }
+            save_state(state)
+
             msg = (
                 f"sync({job.name}): {subject}\n\n"
                 f"Upstream-Ref: {logical_ref}\n"
@@ -252,25 +273,26 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
             if commit_if_changed(msg, an, ae, ai):
                 made += 1
 
-        new_state = {
-            "last_upstream_commit": target_sha,
-            "last_upstream_ref": logical_ref,
-            "updated_at": now_iso(),
-        }
-        state_jobs[job.name] = new_state
-        save_state(state)
+        # If no replayed commit but state differs, write one state update commit.
+        if made == 0:
+            prev_commit = (prev.get("last_upstream_commit") or "").strip()
+            prev_ref = (prev.get("last_upstream_ref") or "").strip()
+            if prev_commit != target_sha or prev_ref != logical_ref:
+                state_jobs[job.name] = {
+                    "last_upstream_commit": target_sha,
+                    "last_upstream_ref": logical_ref,
+                    "updated_at": now_iso(),
+                }
+                save_state(state)
 
-        # Persist state changes (if any) as a dedicated commit.
-        git(["add", str(STATE_TOML.relative_to(ROOT))], cwd=ROOT)
-        if git(["diff", "--cached", "--name-only"], cwd=ROOT).strip():
-            msg = (
-                f"chore(sync): update state for {job.name}\n\n"
-                f"Upstream-Ref: {logical_ref}\n"
-                f"Upstream-Commit: {target_sha}\n"
-                f"Authored by OpenClaw (model: gpt-5.3-codex)"
-            )
-            if commit_if_changed(msg, "OpenClaw", "actions@github.com", now_iso()):
-                made += 1
+                msg = (
+                    f"chore(sync): update state for {job.name}\n\n"
+                    f"Upstream-Ref: {logical_ref}\n"
+                    f"Upstream-Commit: {target_sha}\n"
+                    f"Authored by OpenClaw (model: gpt-5.3-codex)"
+                )
+                if commit_if_changed(msg, "OpenClaw", "actions@github.com", now_iso()):
+                    made += 1
 
         print(f"[done] {job.name}: commits={made}, target={target_sha}")
         return made
