@@ -44,6 +44,11 @@ jobs:
           git config user.name "OpenClaw"
           git config user.email "actions@github.com"
 
+      - name: Create/update sync branch
+        run: |
+          set -euo pipefail
+          git checkout -B sync/auto
+
       - name: Run sync script
         env:
           INPUT_JOB: ${{ github.event.inputs.job || '' }}
@@ -59,22 +64,40 @@ jobs:
           fi
           python3 scripts/sync_jobs.py $ARGS
 
-      - name: Push sync commits
+      - name: Push sync branch
+        id: push
         run: |
           set -euo pipefail
-          if [ -z "$(git log origin/master..HEAD --oneline)" ]; then
-            echo "No new commits to push"
-            exit 0
+          if [ -z "$(git log origin/sync/auto..HEAD --oneline 2>/dev/null || true)" ]; then
+            if git ls-remote --heads origin sync/auto | grep -q sync/auto; then
+              if [ -z "$(git log HEAD..origin/sync/auto --oneline)" ] && [ -z "$(git log origin/sync/auto..HEAD --oneline)" ]; then
+                echo "changed=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            else
+              if [ -z "$(git log origin/master..HEAD --oneline)" ]; then
+                echo "changed=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+            fi
           fi
-          git push origin HEAD:master
+          git push -f origin sync/auto
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Summary
+      - name: Open or update PR
+        if: steps.push.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "### Sync run done"
-            echo "- branch: master"
-            echo "- job override: ${{ github.event.inputs.job || '(none)' }}"
-            echo "- rev override: ${{ github.event.inputs.rev || '(none)' }}"
-            echo "- new commits:"
-            git log --oneline origin/master..HEAD || true
-          } >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          existing=$(gh pr list --base master --head sync/auto --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "PR already open: #$existing"
+            gh pr edit "$existing" --title "chore(sync): update synced directories" --body "Automated pure-git sync updates from upstream repositories.\n\nAuthored by OpenClaw (model: gpt-5.3-codex)"
+          else
+            gh pr create \
+              --base master \
+              --head sync/auto \
+              --title "chore(sync): update synced directories" \
+              --body "Automated pure-git sync updates from upstream repositories.\n\nAuthored by OpenClaw (model: gpt-5.3-codex)"
+          fi

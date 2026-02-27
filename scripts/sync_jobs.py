@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 """
-Git-native path sync (commit-by-commit) driven by sync.toml + sync-state.toml.
+Pure-git sync runner.
 
-Flow per job:
-1. Resolve target upstream revision (latest tag by regex or configured ref)
-2. Read last synced upstream commit from sync-state.toml
-3. List upstream commits touching `path` in (last, target]
-4. For each commit, materialize snapshot of that path and commit into destination repo
-5. Update sync-state.toml
-
-This creates one destination commit per upstream commit (方案1).
+- Reads jobs from sync.toml
+- Reads/writes last synced upstream commit in sync-state.toml
+- For each job, replays upstream commits (that touched job.path) into job.dest
+  as one destination commit per upstream commit (方案1)
 """
 
 from __future__ import annotations
@@ -26,7 +22,6 @@ from pathlib import Path
 from typing import Any
 
 import tomllib
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SYNC_TOML = ROOT / "sync.toml"
@@ -55,16 +50,27 @@ def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> subproce
     )
 
 
-def git(cmd: list[str], cwd: Path | None = None, check: bool = True) -> str:
-    p = run(["git", *cmd], cwd=cwd, check=check)
+def git(args: list[str], cwd: Path | None = None, check: bool = True) -> str:
+    p = run(["git", *args], cwd=cwd, check=check)
     return p.stdout.strip()
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def ensure_clean_worktree() -> None:
+    if git(["status", "--porcelain"], cwd=ROOT).strip():
+        raise SystemExit("Destination repo is dirty; aborting")
 
 
 def load_jobs() -> list[Job]:
     if not SYNC_TOML.exists():
         raise SystemExit(f"Missing {SYNC_TOML}")
+
     data = tomllib.loads(SYNC_TOML.read_text(encoding="utf-8"))
     rows = data.get("jobs", [])
+
     jobs: list[Job] = []
     for row in rows:
         jobs.append(
@@ -84,43 +90,54 @@ def load_jobs() -> list[Job]:
 def load_state() -> dict[str, dict[str, Any]]:
     if not STATE_TOML.exists():
         return {"jobs": {}}
+
     data = tomllib.loads(STATE_TOML.read_text(encoding="utf-8"))
-    if "jobs" not in data or not isinstance(data["jobs"], dict):
-        return {"jobs": {}}
-    return {"jobs": dict(data["jobs"])}
+    jobs = data.get("jobs", {})
+    if not isinstance(jobs, dict):
+        jobs = {}
+    return {"jobs": dict(jobs)}
 
 
-def dumps_toml(obj: dict[str, Any]) -> str:
-    # Minimal TOML writer for our constrained structure.
-    out: list[str] = ["version = 1", "", "[jobs]"]
-    jobs = obj.get("jobs", {})
+def dump_state_toml(state: dict[str, dict[str, Any]]) -> str:
+    out = ["version = 1", "", "[jobs]"]
+    jobs = state.get("jobs", {})
     for name in sorted(jobs.keys()):
         meta = jobs[name] or {}
         out.append(f"[jobs.\"{name}\"]")
-        for k in ["last_upstream_commit", "last_upstream_ref", "updated_at"]:
-            v = meta.get(k, "")
-            esc = str(v).replace("\\", "\\\\").replace("\"", "\\\"")
-            out.append(f"{k} = \"{esc}\"")
+        for k in ("last_upstream_commit", "last_upstream_ref", "updated_at"):
+            v = str(meta.get(k, "")).replace("\\", "\\\\").replace('"', '\\"')
+            out.append(f'{k} = "{v}"')
         out.append("")
     return "\n".join(out).rstrip() + "\n"
 
 
 def save_state(state: dict[str, dict[str, Any]]) -> None:
-    STATE_TOML.write_text(dumps_toml(state), encoding="utf-8")
+    STATE_TOML.write_text(dump_state_toml(state), encoding="utf-8")
 
 
-def latest_tag(repo_url: str, tag_regex: str) -> str:
+def rev_parse_commit(repo: Path, ref: str) -> str:
+    p = run(["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], cwd=repo, check=False)
+    return p.stdout.strip() if p.returncode == 0 else ""
+
+
+def resolve_upstream_commit(up_repo: Path, ref: str) -> str:
+    for cand in (f"origin/{ref}", f"refs/tags/{ref}", ref):
+        sha = rev_parse_commit(up_repo, cand)
+        if sha:
+            return sha
+    raise SystemExit(f"Cannot resolve upstream ref: {ref}")
+
+
+def latest_matching_tag(repo_url: str, pattern: str) -> str:
     out = git(["ls-remote", "--tags", "--refs", repo_url])
     tags: list[str] = []
     for line in out.splitlines():
-        if not line.strip():
-            continue
         ref = line.split()[1]
         tag = ref.removeprefix("refs/tags/")
-        if re.match(tag_regex, tag):
+        if re.match(pattern, tag):
             tags.append(tag)
     if not tags:
-        raise SystemExit(f"No tag matching {tag_regex!r} in {repo_url}")
+        raise SystemExit(f"No tag matches {pattern!r} in {repo_url}")
 
     def ver_key(s: str):
         return [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s)]
@@ -129,30 +146,53 @@ def latest_tag(repo_url: str, tag_regex: str) -> str:
     return tags[-1]
 
 
-def ensure_clean_worktree() -> None:
-    st = git(["status", "--porcelain"], cwd=ROOT)
-    if st.strip():
-        raise SystemExit("Destination repo is dirty; aborting")
+def resolve_target_ref(job: Job, rev_override: str = "") -> str:
+    if rev_override:
+        return rev_override
+    if job.tag_regex:
+        repo_url = f"https://github.com/{job.upstream_repo}.git"
+        return latest_matching_tag(repo_url, job.tag_regex)
+    return job.upstream_ref
 
 
-def rsync_snapshot(up_repo: Path, up_rev: str, src_path: str, dest_path: str) -> None:
-    # Materialize source directory snapshot at up_rev into destination path.
-    git(["checkout", "--force", up_rev], cwd=up_repo)
-    src_abs = up_repo / src_path
-    dest_abs = ROOT / dest_path
+def list_commits_for_path(up_repo: Path, last_commit: str | None, target_sha: str, path: str) -> list[str]:
+    if last_commit:
+        # If upstream rewrote history, degrade to one-shot baseline at target.
+        anc = run(["git", "merge-base", "--is-ancestor", last_commit, target_sha], cwd=up_repo, check=False)
+        if anc.returncode != 0:
+            return [target_sha]
+        rev_range = f"{last_commit}..{target_sha}"
+    else:
+        rev_range = target_sha
 
-    dest_abs.parent.mkdir(parents=True, exist_ok=True)
-    if dest_abs.exists():
-        shutil.rmtree(dest_abs)
+    out = git(["log", "--reverse", "--format=%H", rev_range, "--", path], cwd=up_repo)
+    commits = [x for x in out.splitlines() if x.strip()]
 
-    if src_abs.exists():
-        shutil.copytree(src_abs, dest_abs)
+    # If state exists but no path commit in range, nothing to replay.
+    return commits
 
 
-def commit_if_changed(msg: str, author_name: str, author_email: str, author_date: str) -> bool:
+def commit_meta(up_repo: Path, sha: str) -> tuple[str, str, str, str]:
+    raw = git(["show", "-s", "--format=%an%x00%ae%x00%aI%x00%s", sha], cwd=up_repo)
+    an, ae, ai, subject = raw.split("\x00", 3)
+    return an, ae, ai, subject
+
+
+def checkout_snapshot(up_repo: Path, sha: str, src_path: str, dst_path: str) -> None:
+    git(["checkout", "--force", sha], cwd=up_repo)
+    src = up_repo / src_path
+    dst = ROOT / dst_path
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.exists():
+        shutil.rmtree(dst)
+    if src.exists():
+        shutil.copytree(src, dst)
+
+
+def commit_if_changed(message: str, author_name: str, author_email: str, author_date: str) -> bool:
     git(["add", "-A"], cwd=ROOT)
-    changed = git(["diff", "--cached", "--name-only"], cwd=ROOT)
-    if not changed.strip():
+    if not git(["diff", "--cached", "--name-only"], cwd=ROOT).strip():
         return False
 
     env = os.environ.copy()
@@ -167,7 +207,7 @@ def commit_if_changed(msg: str, author_name: str, author_email: str, author_date
         }
     )
     p = subprocess.run(
-        ["git", "commit", "-m", msg],
+        ["git", "commit", "-m", message],
         cwd=str(ROOT),
         env=env,
         text=True,
@@ -179,39 +219,6 @@ def commit_if_changed(msg: str, author_name: str, author_email: str, author_date
     return True
 
 
-def list_commits_for_path(up_repo: Path, last_commit: str | None, target: str, path: str) -> list[str]:
-    # Return oldest -> newest commits that touched path.
-    if last_commit:
-        code = run(["git", "merge-base", "--is-ancestor", last_commit, target], cwd=up_repo, check=False).returncode
-        if code != 0:
-            return []
-        rev_range = f"{last_commit}..{target}"
-    else:
-        rev_range = target
-
-    out = git(["log", "--reverse", "--format=%H", rev_range, "--", path], cwd=up_repo)
-    return [x for x in out.splitlines() if x.strip()]
-
-
-def commit_meta(up_repo: Path, sha: str) -> tuple[str, str, str, str]:
-    fmt = "%an%x00%ae%x00%aI%x00%s"
-    raw = git(["show", "-s", f"--format={fmt}", sha], cwd=up_repo)
-    an, ae, ai, subject = raw.split("\x00", 3)
-    return an, ae, ai, subject
-
-
-def resolve_target_ref(job: Job) -> tuple[str, str]:
-    repo_url = f"https://github.com/{job.upstream_repo}.git"
-    if job.tag_regex:
-        tag = latest_tag(repo_url, job.tag_regex)
-        return tag, tag
-    return job.upstream_ref, job.upstream_ref
-
-
-def now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
 def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") -> int:
     if not job.enabled:
         print(f"[skip] {job.name}: disabled")
@@ -221,46 +228,21 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
     prev = state_jobs.get(job.name, {}) or {}
     last_commit = (prev.get("last_upstream_commit") or "").strip() or None
 
-    logical_ref, fetch_ref = (rev_override, rev_override) if rev_override else resolve_target_ref(job)
-    print(f"[job] {job.name}: upstream={job.upstream_repo} ref={logical_ref} path={job.path} -> {job.dest}")
+    logical_ref = resolve_target_ref(job, rev_override=rev_override)
+    print(f"[job] {job.name}: {job.upstream_repo}@{logical_ref}  {job.path} -> {job.dest}")
 
     with tempfile.TemporaryDirectory(prefix=f"sync-{job.name}-") as tmp:
-        up = Path(tmp) / "upstream"
-        git(["clone", "--no-tags", "--filter=blob:none", f"https://github.com/{job.upstream_repo}.git", str(up)])
+        up_repo = Path(tmp) / "upstream"
+        git(["clone", "--no-tags", f"https://github.com/{job.upstream_repo}.git", str(up_repo)])
+        git(["fetch", "--tags", "origin"], cwd=up_repo)
 
-        if job.tag_regex:
-            git(["fetch", "--tags", "origin"], cwd=up)
-
-        target_sha = git(["rev-parse", f"origin/{fetch_ref}"], cwd=up, check=False)
-        if not target_sha:
-            target_sha = git(["rev-parse", fetch_ref], cwd=up)
-
-        commits = list_commits_for_path(up, last_commit, target_sha, job.path)
-
-        # Baseline if first run (no state) OR history rewrite.
-        needs_baseline = last_commit is None
-        if last_commit:
-            code = run(["git", "merge-base", "--is-ancestor", last_commit, target_sha], cwd=up, check=False).returncode
-            if code != 0:
-                needs_baseline = True
+        target_sha = resolve_upstream_commit(up_repo, logical_ref)
+        commits = list_commits_for_path(up_repo, last_commit, target_sha, job.path)
 
         made = 0
-        if needs_baseline:
-            rsync_snapshot(up, target_sha, job.path, job.dest)
-            an, ae, ai, _ = commit_meta(up, target_sha)
-            msg = (
-                f"chore(sync): baseline {job.dest} from {job.upstream_repo}:{job.path}\n\n"
-                f"Upstream-Ref: {logical_ref}\n"
-                f"Upstream-Commit: {target_sha}\n"
-                f"Authored by OpenClaw (model: gpt-5.3-codex)"
-            )
-            if commit_if_changed(msg, an, ae, ai):
-                made += 1
-            commits = []
-
         for sha in commits:
-            rsync_snapshot(up, sha, job.path, job.dest)
-            an, ae, ai, subject = commit_meta(up, sha)
+            checkout_snapshot(up_repo, sha, job.path, job.dest)
+            an, ae, ai, subject = commit_meta(up_repo, sha)
             msg = (
                 f"sync({job.name}): {subject}\n\n"
                 f"Upstream-Ref: {logical_ref}\n"
@@ -270,16 +252,16 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
             if commit_if_changed(msg, an, ae, ai):
                 made += 1
 
-        state_jobs[job.name] = {
+        new_state = {
             "last_upstream_commit": target_sha,
             "last_upstream_ref": logical_ref,
             "updated_at": now_iso(),
         }
+        state_jobs[job.name] = new_state
         save_state(state)
 
-        # Always persist state update if changed.
-        state_rel = str(STATE_TOML.relative_to(ROOT))
-        git(["add", state_rel], cwd=ROOT)
+        # Persist state changes (if any) as a dedicated commit.
+        git(["add", str(STATE_TOML.relative_to(ROOT))], cwd=ROOT)
         if git(["diff", "--cached", "--name-only"], cwd=ROOT).strip():
             msg = (
                 f"chore(sync): update state for {job.name}\n\n"
