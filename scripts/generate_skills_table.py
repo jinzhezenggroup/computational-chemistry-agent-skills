@@ -31,7 +31,7 @@ class SkillMeta:
     version: str
     description: str
     location: Path
-    requires: str
+    compatibility: str
 
 
 def parse_front_matter(text: str) -> dict:
@@ -45,26 +45,20 @@ def parse_front_matter(text: str) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def normalize_requires(meta: dict) -> str:
+def normalize_compatibility(meta: dict) -> str:
+    val = meta.get("compatibility")
+    if isinstance(val, str) and val.strip():
+        return val.strip()
+    return "-"
+
+
+def normalize_version(meta: dict) -> str:
     md = meta.get("metadata")
-    if not isinstance(md, dict):
-        return "-"
-    oc = md.get("openclaw")
-    if not isinstance(oc, dict):
-        return "-"
-    req = oc.get("requires")
-    if not isinstance(req, dict):
-        return "-"
-
-    parts: List[str] = []
-    bins = req.get("bins")
-    if isinstance(bins, list) and bins:
-        parts.append("bins: " + ", ".join(str(x) for x in bins))
-    env = req.get("env")
-    if isinstance(env, list) and env:
-        parts.append("env: " + ", ".join(str(x) for x in env))
-
-    return "; ".join(parts) if parts else "-"
+    if isinstance(md, dict):
+        v = md.get("version")
+        if v is not None and str(v).strip():
+            return str(v).strip()
+    return "-"
 
 
 def collect_skills() -> list[SkillMeta]:
@@ -75,9 +69,9 @@ def collect_skills() -> list[SkillMeta]:
 
         name = str(fm.get("name") or skill_file.parent.name)
         slug = str(fm.get("slug") or skill_file.parent.name)
-        version = str(fm.get("version") or "-")
+        version = normalize_version(fm)
         description = str(fm.get("description") or "").replace("\n", " ").strip()
-        requires = normalize_requires(fm)
+        compatibility = normalize_compatibility(fm)
 
         rows.append(
             SkillMeta(
@@ -86,7 +80,7 @@ def collect_skills() -> list[SkillMeta]:
                 version=version,
                 description=description,
                 location=skill_file,
-                requires=requires,
+                compatibility=compatibility,
             )
         )
     return rows
@@ -94,7 +88,7 @@ def collect_skills() -> list[SkillMeta]:
 
 def build_table(rows: list[SkillMeta]) -> str:
     header = [
-        "| Skill | Description | Version | Requires |",
+        "| Skill | Description | Version | Compatibility |",
         "|---|---|---|---|",
     ]
     body: list[str] = []
@@ -103,7 +97,7 @@ def build_table(rows: list[SkillMeta]) -> str:
         skill_link = f"[{r.name}]({rel})"
         desc = r.description.replace("|", "\\|") or "-"
         ver = r.version.replace("|", "\\|")
-        req = r.requires.replace("|", "\\|")
+        req = r.compatibility.replace("|", "\\|")
         body.append(f"| {skill_link} | {desc} | {ver} | {req} |")
     if not body:
         body = ["| - | - | - | - |"]
