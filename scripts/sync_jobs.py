@@ -206,8 +206,8 @@ def commit_if_changed(message: str, author_name: str, author_email: str, author_
             "GIT_AUTHOR_NAME": author_name,
             "GIT_AUTHOR_EMAIL": author_email,
             "GIT_AUTHOR_DATE": author_date,
-            "GIT_COMMITTER_NAME": "OpenClaw",
-            "GIT_COMMITTER_EMAIL": "actions@github.com",
+            "GIT_COMMITTER_NAME": "GitHub Actions",
+            "GIT_COMMITTER_EMAIL": "41898282+github-actions[bot]@users.noreply.github.com",
             "GIT_COMMITTER_DATE": author_date,
         }
     )
@@ -267,8 +267,7 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
             msg = (
                 f"sync({job.name}): {subject}\n\n"
                 f"Upstream-Ref: {logical_ref}\n"
-                f"Upstream-Commit: {sha}\n"
-                f"Authored by OpenClaw (model: gpt-5.3-codex)"
+                f"Upstream-Commit: {sha}"
             )
             if commit_if_changed(msg, an, ae, ai):
                 made += 1
@@ -288,10 +287,14 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
                 msg = (
                     f"chore(sync): update state for {job.name}\n\n"
                     f"Upstream-Ref: {logical_ref}\n"
-                    f"Upstream-Commit: {target_sha}\n"
-                    f"Authored by OpenClaw (model: gpt-5.3-codex)"
+                    f"Upstream-Commit: {target_sha}"
                 )
-                if commit_if_changed(msg, "OpenClaw", "actions@github.com", now_iso()):
+                if commit_if_changed(
+                    msg,
+                    "GitHub Actions",
+                    "41898282+github-actions[bot]@users.noreply.github.com",
+                    now_iso(),
+                ):
                     made += 1
 
         print(f"[done] {job.name}: commits={made}, target={target_sha}")
