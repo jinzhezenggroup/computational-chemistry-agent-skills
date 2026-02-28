@@ -25,4 +25,3 @@ repos:
         language: python
         entry: scripts/generate_skills_table.py
         pass_filenames: false
-

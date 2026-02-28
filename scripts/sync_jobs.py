@@ -39,7 +39,9 @@ class Job:
     tag_regex: str | None
 
 
-def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
+def run(
+    cmd: list[str], cwd: Path | None = None, check: bool = True
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         cmd,
         cwd=str(cwd) if cwd else None,
@@ -103,7 +105,7 @@ def dump_state_toml(state: dict[str, dict[str, Any]]) -> str:
     jobs = state.get("jobs", {})
     for name in sorted(jobs.keys()):
         meta = jobs[name] or {}
-        out.append(f"[jobs.\"{name}\"]")
+        out.append(f'[jobs."{name}"]')
         for k in ("last_upstream_commit", "last_upstream_ref", "updated_at"):
             v = str(meta.get(k, "")).replace("\\", "\\\\").replace('"', '\\"')
             out.append(f'{k} = "{v}"')
@@ -116,7 +118,9 @@ def save_state(state: dict[str, dict[str, Any]]) -> None:
 
 
 def rev_parse_commit(repo: Path, ref: str) -> str:
-    p = run(["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], cwd=repo, check=False)
+    p = run(
+        ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], cwd=repo, check=False
+    )
     return p.stdout.strip() if p.returncode == 0 else ""
 
 
@@ -155,10 +159,16 @@ def resolve_target_ref(job: Job, rev_override: str = "") -> str:
     return job.upstream_ref
 
 
-def list_commits_for_path(up_repo: Path, last_commit: str | None, target_sha: str, path: str) -> list[str]:
+def list_commits_for_path(
+    up_repo: Path, last_commit: str | None, target_sha: str, path: str
+) -> list[str]:
     if last_commit:
         # If upstream rewrote history, degrade to one-shot baseline at target.
-        anc = run(["git", "merge-base", "--is-ancestor", last_commit, target_sha], cwd=up_repo, check=False)
+        anc = run(
+            ["git", "merge-base", "--is-ancestor", last_commit, target_sha],
+            cwd=up_repo,
+            check=False,
+        )
         if anc.returncode != 0:
             return [target_sha]
         rev_range = f"{last_commit}..{target_sha}"
@@ -195,7 +205,9 @@ def path_exists_in_commit(up_repo: Path, sha: str, path: str) -> bool:
     return p.returncode == 0
 
 
-def commit_if_changed(message: str, author_name: str, author_email: str, author_date: str) -> bool:
+def commit_if_changed(
+    message: str, author_name: str, author_email: str, author_date: str
+) -> bool:
     git(["add", "-A"], cwd=ROOT)
     if not git(["diff", "--cached", "--name-only"], cwd=ROOT).strip():
         return False
@@ -234,11 +246,20 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
     last_commit = (prev.get("last_upstream_commit") or "").strip() or None
 
     logical_ref = resolve_target_ref(job, rev_override=rev_override)
-    print(f"[job] {job.name}: {job.upstream_repo}@{logical_ref}  {job.path} -> {job.dest}")
+    print(
+        f"[job] {job.name}: {job.upstream_repo}@{logical_ref}  {job.path} -> {job.dest}"
+    )
 
     with tempfile.TemporaryDirectory(prefix=f"sync-{job.name}-") as tmp:
         up_repo = Path(tmp) / "upstream"
-        git(["clone", "--no-tags", f"https://github.com/{job.upstream_repo}.git", str(up_repo)])
+        git(
+            [
+                "clone",
+                "--no-tags",
+                f"https://github.com/{job.upstream_repo}.git",
+                str(up_repo),
+            ]
+        )
         git(["fetch", "--tags", "origin"], cwd=up_repo)
 
         target_sha = resolve_upstream_commit(up_repo, logical_ref)
@@ -304,7 +325,9 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--job", default="", help="Run one named job only")
-    parser.add_argument("--rev", default="", help="Override upstream ref/tag/SHA for selected job(s)")
+    parser.add_argument(
+        "--rev", default="", help="Override upstream ref/tag/SHA for selected job(s)"
+    )
     args = parser.parse_args()
 
     ensure_clean_worktree()

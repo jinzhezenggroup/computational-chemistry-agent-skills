@@ -18,7 +18,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 import yaml
 
@@ -110,12 +109,7 @@ def build_table(rows: list[SkillMeta]) -> str:
 
 
 def update_readme(content: str, table: str) -> str:
-    block = (
-        f"{START_MARK}\n"
-        "## Skills Summary\n\n"
-        f"{table}\n"
-        f"{END_MARK}"
-    )
+    block = f"{START_MARK}\n## Skills Summary\n\n{table}\n{END_MARK}"
 
     pattern = re.compile(rf"{re.escape(START_MARK)}.*?{re.escape(END_MARK)}", re.S)
     if pattern.search(content):
@@ -130,7 +124,11 @@ def main() -> int:
     rows = collect_skills()
     table = build_table(rows)
 
-    readme_text = README.read_text(encoding="utf-8", errors="replace") if README.exists() else "# Skills\n"
+    readme_text = (
+        README.read_text(encoding="utf-8", errors="replace")
+        if README.exists()
+        else "# Skills\n"
+    )
     updated = update_readme(readme_text, table)
     README.write_text(updated, encoding="utf-8")
 
