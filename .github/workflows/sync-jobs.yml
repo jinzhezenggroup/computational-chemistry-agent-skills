@@ -41,8 +41,8 @@ jobs:
 
       - name: Setup git identity
         run: |
-          git config user.name "OpenClaw"
-          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Create/update sync branch
         run: |
@@ -93,11 +93,11 @@ jobs:
           existing=$(gh pr list --base master --head sync/auto --state open --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             echo "PR already open: #$existing"
-            gh pr edit "$existing" --title "chore(sync): update synced directories" --body "Automated pure-git sync updates from upstream repositories.\n\nAuthored by OpenClaw (model: gpt-5.3-codex)"
+            gh pr edit "$existing" --title "chore(sync): update synced directories" --body "Automated pure-git sync updates from upstream repositories."
           else
             gh pr create \
               --base master \
               --head sync/auto \
               --title "chore(sync): update synced directories" \
-              --body "Automated pure-git sync updates from upstream repositories.\n\nAuthored by OpenClaw (model: gpt-5.3-codex)"
+              --body "Automated pure-git sync updates from upstream repositories."
           fi
