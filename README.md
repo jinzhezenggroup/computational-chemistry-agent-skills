@@ -8,4 +8,5 @@ Agent skills to run computational-chemistry tasks, used in OpenClaw
 |---|---|---|---|
 | [dpdata-cli](tools/dpdata-cli/SKILL.md) | Convert and manipulate atomic simulation data formats using dpdata CLI. Use when converting between DFT/MD output formats (VASP, LAMMPS, QE, CP2K, Gaussian, ABACUS, etc.), preparing training data for DeePMD-kit, or working with DeePMD formats. Supports 50+ formats including deepmd/raw, deepmd/comp, deepmd/npy, deepmd/hdf5. | 1.0 | Requires uvx (uv) for running dpdata |
 | [dpdisp-submit](tools/dpdisp-submit/SKILL.md) | Run Shell commands as computational jobs, on local machines or HPC clusters, through Shell, Slurm, PBS, LSF, Bohrium, etc. | 1.0 | Requires uv and access to the internet. |
+| [openbabel](tools/openbabel/SKILL.md) | Use Open Babel CLI to convert molecular file formats, generate 3D structures from SMILES, render 2D structure images, and prepare Gaussian input files for computational chemistry workflows. | 1.1 | Requires uv and internet access (uses `uvx --from openbabel-wheel obabel ...`). |
 <!-- SKILLS_TABLE_END -->
