@@ -68,20 +68,24 @@ jobs:
         id: push
         run: |
           set -euo pipefail
-          if [ -z "$(git log origin/sync/auto..HEAD --oneline 2>/dev/null || true)" ]; then
-            if git ls-remote --heads origin sync/auto | grep -q sync/auto; then
-              if [ -z "$(git log HEAD..origin/sync/auto --oneline)" ] && [ -z "$(git log origin/sync/auto..HEAD --oneline)" ]; then
-                echo "changed=false" >> "$GITHUB_OUTPUT"
-                exit 0
-              fi
-            else
-              if [ -z "$(git log origin/master..HEAD --oneline)" ]; then
-                echo "changed=false" >> "$GITHUB_OUTPUT"
-                exit 0
-              fi
-            fi
+
+          # If no commits ahead of master, never create/update PR.
+          AHEAD_MASTER=$(git rev-list --count origin/master..HEAD)
+          if [ "$AHEAD_MASTER" -eq 0 ]; then
+            echo "No commits ahead of master"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          git push -f origin sync/auto
+
+          LOCAL_SHA=$(git rev-parse HEAD)
+          REMOTE_SHA=$(git rev-parse --verify origin/sync/auto 2>/dev/null || true)
+
+          if [ -n "$REMOTE_SHA" ] && [ "$REMOTE_SHA" = "$LOCAL_SHA" ]; then
+            echo "sync/auto already up to date on remote"
+          else
+            git push -f origin sync/auto
+          fi
+
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Open or update PR
@@ -90,6 +94,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+
+          # Extra guard for createPullRequest: no commits between base/head.
+          git fetch origin master sync/auto
+          AHEAD_REMOTE=$(git rev-list --count origin/master..origin/sync/auto)
+          if [ "$AHEAD_REMOTE" -eq 0 ]; then
+            echo "No commits between master and sync/auto; skip PR create/update"
+            exit 0
+          fi
+
           existing=$(gh pr list --base master --head sync/auto --state open --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
             echo "PR already open: #$existing"
