@@ -64,6 +64,11 @@ jobs:
           fi
           python3 scripts/sync_jobs.py $ARGS
 
+      - name: Generate README skills summary
+        run: |
+          set -euo pipefail
+          python3 scripts/generate_skills_table.py
+
       - name: Push sync branch
         id: push
         run: |
