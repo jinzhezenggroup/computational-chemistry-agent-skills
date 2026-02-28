@@ -18,7 +18,6 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
-TOOLS_DIR = ROOT / "tools"
 
 START_MARK = "<!-- SKILLS_TABLE_START -->"
 END_MARK = "<!-- SKILLS_TABLE_END -->"
@@ -63,7 +62,7 @@ def normalize_version(meta: dict) -> str:
 
 def collect_skills() -> list[SkillMeta]:
     rows: list[SkillMeta] = []
-    for skill_file in sorted(TOOLS_DIR.glob("**/SKILL.md")):
+    for skill_file in sorted(ROOT.glob("**/SKILL.md")):
         text = skill_file.read_text(encoding="utf-8", errors="replace")
         fm = parse_front_matter(text)
 
@@ -108,7 +107,6 @@ def update_readme(content: str, table: str) -> str:
     block = (
         f"{START_MARK}\n"
         "## Skills Summary\n\n"
-        "Auto-generated from `tools/**/SKILL.md`.\n\n"
         f"{table}\n"
         f"{END_MARK}"
     )

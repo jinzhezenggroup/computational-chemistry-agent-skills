@@ -1,0 +1,13 @@
+name: Pre-commit
+on:
+  push:
+  pull_request:
+  merge_group:
+jobs:
+  pre_commit:
+    permissions:
+      contents: write
+    runs-on: ubuntu-slim
+    steps:
+      - name: Run pre-commit
+        uses: njzjz/pre-commit-action@master
