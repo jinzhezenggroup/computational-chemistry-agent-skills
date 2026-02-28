@@ -267,7 +267,7 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
             msg = (
                 f"sync({job.name}): {subject}\n\n"
                 f"Upstream-Ref: {logical_ref}\n"
-                f"Upstream-Commit: {sha}"
+                f"Upstream-Commit: {up_repo}@{sha}"
             )
             if commit_if_changed(msg, an, ae, ai):
                 made += 1
