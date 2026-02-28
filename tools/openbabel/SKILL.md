@@ -1,6 +1,6 @@
 ---
 name: openbabel
-description: Use Open Babel via uvx to convert molecular file formats, generate 3D structures from SMILES, render 2D structure images, and prepare Gaussian input files. Use when working across XYZ/MOL/MOL2/PDB/SMILES/Gaussian formats in computational chemistry workflows.
+description: Use Open Babel CLI to convert molecular file formats, generate 3D structures from SMILES, render 2D structure images, and prepare Gaussian input files for computational chemistry workflows.
 compatibility: Requires uv and internet access (uses `uvx --from openbabel-wheel obabel ...`).
 metadata:
   author: njzjz-bot
