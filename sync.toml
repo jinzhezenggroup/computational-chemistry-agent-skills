@@ -21,6 +21,9 @@ upstream_ref = "master"
 path = "skills/dpdisp-submit"
 dest = "tools/dpdisp-submit"
 
+# optional: only run when upstream has a tag matching this regex (leave empty to ignore)
+tag_regex = "^v.*"
+
 [[jobs]]
 name = "dpdata-cli"
 enabled = true
@@ -28,3 +31,6 @@ upstream_repo = "deepmodeling/dpdata"
 upstream_ref = "master"
 path = "skills/dpdata-cli"
 dest = "tools/dpdata-cli"
+
+# optional: only run when upstream has a tag matching this regex (leave empty to ignore)
+tag_regex = "^v.*"
