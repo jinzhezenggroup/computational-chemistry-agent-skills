@@ -23,5 +23,6 @@ repos:
       - id: generate-readme
         name: Generate README.md
         language: system
-        entry: python scripts/generate_skill_table.py
+        entry: python scripts/generate_skills_table.py
         pass_filenames: false
+
