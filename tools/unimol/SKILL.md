@@ -3,7 +3,7 @@ name: unimol
 description: Use Uni-Mol (via unimol-tools) through a standardized CLI wrapper (`unimol_helper.py`) to extract molecular representations, train models, and run property prediction in one-line shell commands.
 compatibility: Requires `uv` and a Python environment that has `unimol_tools` available. RDKit is recommended for robust SMILES validation (bad SMILES will be skipped and logged).
 metadata:
-  author: njzjz-bot
+  author: luzitian
   version: "1.0"
   repository: https://github.com/fanxiaoyu0/Uni-Mol
 ---
