@@ -1,16 +1,16 @@
 ---
 name: unimol
-description: Use Uni-Mol (via unimol-tools) through a standardized CLI wrapper (`unimol_helper.py`) to extract molecular representations, train models, and run property prediction in one-line shell commands.
-compatibility: Requires `uv` and a Python environment that has `unimol_tools` available. RDKit is recommended for robust SMILES validation (bad SMILES will be skipped and logged).
+description: A robust, end-to-end CLI wrapper for Uni-Mol that standardizes molecular ML workflows. It enables one-line execution for representation extraction, model training, and property prediction, featuring built-in SMILES validation via RDKit for high-throughput reliability.
+compatibility: Requires uv. Dependencies (unimol-tools, rdkit, etc.) are handled automatically via inline script metadata in unimol_helper.py.
 metadata:
   author: luzitian
   version: "1.0"
-  repository: https://github.com/fanxiaoyu0/Uni-Mol
+  repository: https://github.com/deepmodeling/Uni-Mol
 ---
 
 # Uni-Mol
 
-This skill provides practical command patterns for **Uni-Mol molecular representation / training / prediction** using the standardized CLI wrapper: `tools/unimol/unimol_helper.py`.
+This skill provides practical command patterns for **Uni-Mol molecular representation / training / prediction** using the standardized CLI wrapper: `<skill_path>/scripts/unimol_helper.py`.
 
 Key behaviors (important for Agents):
 
@@ -26,21 +26,21 @@ Key behaviors (important for Agents):
 Check CLI help:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py --help
+uv run python <skill_path>/scripts/unimol_helper.py --help
 ```
 
 Check subcommand help:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py repr --help
-uv run python tools/unimol/unimol_helper.py train --help
-uv run python tools/unimol/unimol_helper.py predict --help
+uv run python <skill_path>/scripts/unimol_helper.py repr --help
+uv run python <skill_path>/scripts/unimol_helper.py train --help
+uv run python <skill_path>/scripts/unimol_helper.py predict --help
 ```
 
 Disable environment printing (optional):
 
 ```bash
-uv run python tools/unimol/unimol_helper.py --no-env repr --smiles "CCO" --output out.npy
+uv run python <skill_path>/scripts/unimol_helper.py --no-env repr --smiles "CCO" --output out.npy
 ```
 
 ## Core Tasks
@@ -50,7 +50,7 @@ uv run python tools/unimol/unimol_helper.py --no-env repr --smiles "CCO" --outpu
 Single SMILES:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py repr \
+uv run python <skill_path>/scripts/unimol_helper.py repr \
   --smiles "CCO" \
   --output /tmp/ccO.repr.npy
 ```
@@ -58,7 +58,7 @@ uv run python tools/unimol/unimol_helper.py repr \
 From CSV (default SMILES column is `smiles`):
 
 ```bash
-uv run python tools/unimol/unimol_helper.py repr \
+uv run python <skill_path>/scripts/unimol_helper.py repr \
   --file data.csv \
   --smiles-col smiles \
   --output data.repr.npy
@@ -67,7 +67,7 @@ uv run python tools/unimol/unimol_helper.py repr \
 From SMI:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py repr \
+uv run python <skill_path>/scripts/unimol_helper.py repr \
   --file molecules.smi \
   --output molecules.repr.npy
 ```
@@ -76,10 +76,10 @@ Force CPU / GPU:
 
 ```bash
 # Force CPU
-uv run python tools/unimol/unimol_helper.py repr --smiles "CCO" --no-gpu --output out.npy
+uv run python <skill_path>/scripts/unimol_helper.py repr --smiles "CCO" --no-gpu --output out.npy
 
 # Force GPU (will warn & fall back if CUDA is unavailable)
-uv run python tools/unimol/unimol_helper.py repr --smiles "CCO" --use-gpu --output out.npy
+uv run python <skill_path>/scripts/unimol_helper.py repr --smiles "CCO" --use-gpu --output out.npy
 ```
 
 ### 2) Train a property model (classification / regression)
@@ -87,7 +87,7 @@ uv run python tools/unimol/unimol_helper.py repr --smiles "CCO" --use-gpu --outp
 Regression training (CSV must contain `smiles` and `target` columns):
 
 ```bash
-uv run python tools/unimol/unimol_helper.py train \
+uv run python <skill_path>/scripts/unimol_helper.py train \
   --task regression \
   --input train.csv \
   --smiles-col smiles \
@@ -99,7 +99,7 @@ uv run python tools/unimol/unimol_helper.py train \
 Classification training:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py train \
+uv run python <skill_path>/scripts/unimol_helper.py train \
   --task classification \
   --input train.csv \
   --smiles-col smiles \
@@ -111,7 +111,7 @@ uv run python tools/unimol/unimol_helper.py train \
 Force CPU:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py train \
+uv run python <skill_path>/scripts/unimol_helper.py train \
   --task regression \
   --input train.csv \
   --epochs 50 \
@@ -124,7 +124,7 @@ uv run python tools/unimol/unimol_helper.py train \
 Predict from CSV:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py predict \
+uv run python <skill_path>/scripts/unimol_helper.py predict \
   --model ./model_reg \
   --input test.csv \
   --smiles-col smiles \
@@ -134,7 +134,7 @@ uv run python tools/unimol/unimol_helper.py predict \
 Predict from SMI:
 
 ```bash
-uv run python tools/unimol/unimol_helper.py predict \
+uv run python <skill_path>/scripts/unimol_helper.py predict \
   --model ./model_reg \
   --input test.smi \
   --output pred.csv
@@ -163,7 +163,7 @@ When using this skill for users:
 5. Always capture absolute output paths:
    - Look for `[RESULT] ...=/abs/path` in stdout
 6. If debugging is needed, enable full traceback:
-   - `UNIMOL_HELPER_TRACE=1 uv run python tools/unimol/unimol_helper.py ...`
+   - `UNIMOL_HELPER_TRACE=1 uv run python <skill_path>/scripts/unimol_helper.py ...`
 
 ## References
 
