@@ -18,7 +18,7 @@ A minimal CLI wrapper for unimol-tools:
 - train   : Train models (outputs model directory)
 - predict : Property prediction (outputs .csv)
 
-Design goal: Work with `uv run` to complete common molecular ML tasks in a single command, 
+Design goal: Work with `uv run` to complete common molecular ML tasks in a single command,
 printing absolute paths of result files/directories upon completion.
 """
 
@@ -31,7 +31,7 @@ import sys
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 
 def _eprint(*args, **kwargs):
@@ -130,7 +130,9 @@ def validate_smiles(smiles: Sequence[str]) -> Tuple[List[str], List[SmilesRecord
     return valid, bad
 
 
-def validate_smiles_with_idx(smiles: Sequence[str]) -> Tuple[List[Tuple[int, str]], List[SmilesRecord]]:
+def validate_smiles_with_idx(
+    smiles: Sequence[str],
+) -> Tuple[List[Tuple[int, str]], List[SmilesRecord]]:
     Chem = _try_import_rdkit()
     valid: List[Tuple[int, str]] = []
     bad: List[SmilesRecord] = []
@@ -236,7 +238,9 @@ def cmd_repr(args: argparse.Namespace) -> int:
     valid_pairs, skipped = validate_smiles_with_idx(raw_smiles)
     if skipped:
         write_skipped_csv(skipped_path, skipped)
-        _eprint(f"[WARN] Found {len(skipped)} invalid/empty SMILES. Skipped and logged to: {skipped_path}")
+        _eprint(
+            f"[WARN] Found {len(skipped)} invalid/empty SMILES. Skipped and logged to: {skipped_path}"
+        )
 
     if not valid_pairs:
         raise RuntimeError("No valid SMILES available (all parsing failed or empty).")
@@ -252,7 +256,9 @@ def cmd_repr(args: argparse.Namespace) -> int:
         _eprint("[WARN] CUDA not detected in current environment, falling back to CPU.")
         use_gpu = False
 
-    repr_model = UniMolRepr(data_type="molecule", remove_hs=bool(args.remove_hs), use_gpu=use_gpu)
+    repr_model = UniMolRepr(
+        data_type="molecule", remove_hs=bool(args.remove_hs), use_gpu=use_gpu
+    )
 
     import numpy as np  # type: ignore
 
@@ -276,7 +282,11 @@ def cmd_repr(args: argparse.Namespace) -> int:
                         raise RuntimeError("empty_cls_repr")
                     out.append(np.asarray(cls1[0], dtype=np.float32))
                 except Exception as e:
-                    skipped.append(SmilesRecord(orig_idx, s, f"unimol_repr_failed:{type(e).__name__}:{e}"))
+                    skipped.append(
+                        SmilesRecord(
+                            orig_idx, s, f"unimol_repr_failed:{type(e).__name__}:{e}"
+                        )
+                    )
             return out
 
     for i in range(0, len(valid_pairs), batch):
@@ -306,7 +316,9 @@ def cmd_train(args: argparse.Namespace) -> int:
     if not data_path.exists():
         raise FileNotFoundError(f"Training data not found: {data_path}")
     if data_path.suffix.lower() != ".csv":
-        raise ValueError("--input currently only supports .csv (containing smiles and target columns)")
+        raise ValueError(
+            "--input currently only supports .csv (containing smiles and target columns)"
+        )
 
     out_dir = Path(args.output).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -317,14 +329,70 @@ def cmd_train(args: argparse.Namespace) -> int:
         raise RuntimeError("Training requires pandas for CSV reading.") from e
 
     df = pd.read_csv(data_path)
-    if args.smiles_col not in df.columns:
+
+    smiles_col = str(args.smiles_col)
+    if smiles_col not in df.columns:
+        candidates = [c for c in df.columns if c.lower() == smiles_col.lower()]
+        if candidates:
+            smiles_col = candidates[0]
+        else:
+            raise ValueError(
+                f"SMILES column '{args.smiles_col}' not found in training CSV. Columns: {list(df.columns)}"
+            )
+
+    def _resolve_col(col_name: str, label: str) -> str:
+        if col_name in df.columns:
+            return col_name
+        candidates = [c for c in df.columns if c.lower() == col_name.lower()]
+        if candidates:
+            return candidates[0]
         raise ValueError(
-            f"SMILES column '{args.smiles_col}' not found in training CSV. Columns: {list(df.columns)}"
+            f"{label} column '{col_name}' not found in training CSV. Columns: {list(df.columns)}"
         )
-    if args.target_col not in df.columns:
-        raise ValueError(
-            f"Target column '{args.target_col}' not found in training CSV. Columns: {list(df.columns)}"
-        )
+
+    is_multilabel = str(args.task) in {
+        "multilabel_classification",
+        "multilabel_regression",
+    }
+    target_cols: List[str]
+    if is_multilabel:
+        requested_cols: List[str] = []
+        if args.target_cols:
+            requested_cols = [
+                x.strip() for x in str(args.target_cols).split(",") if x.strip()
+            ]
+        elif (
+            str(args.target_col).strip()
+            and str(args.target_col).strip().lower() != "target"
+        ):
+            requested_cols = [str(args.target_col).strip()]
+        else:
+            # Auto-detect common multilabel target naming patterns.
+            # Exclude SMILES column even if its name starts with "target" unexpectedly.
+            requested_cols = [
+                c
+                for c in df.columns
+                if c != smiles_col
+                and (c.lower() == "target" or c.lower().startswith("target_"))
+            ]
+
+        if not requested_cols:
+            raise ValueError(
+                "No target columns detected for multilabel task. "
+                "Please provide --target-cols (comma-separated), e.g. --target-cols target_0,target_1."
+            )
+
+        resolved: List[str] = []
+        seen = set()
+        for c in requested_cols:
+            rc = _resolve_col(c, "Target")
+            if rc not in seen:
+                seen.add(rc)
+                resolved.append(rc)
+        target_cols = resolved
+    else:
+        target_col = _resolve_col(str(args.target_col), "Target")
+        target_cols = [target_col]
 
     env = detect_env()
     use_cuda = (not bool(args.no_cuda)) and bool(env.get("cuda_available"))
@@ -338,8 +406,8 @@ def cmd_train(args: argparse.Namespace) -> int:
         learning_rate=float(args.learning_rate),
         batch_size=int(args.batch_size),
         save_path=str(out_dir),
-        smiles_col=str(args.smiles_col),
-        target_cols=[str(args.target_col)],
+        smiles_col=smiles_col,
+        target_cols=target_cols,
         smiles_check="filter",
         use_cuda=use_cuda,
         model_name=str(args.model_name),
@@ -398,18 +466,37 @@ def cmd_predict(args: argparse.Namespace) -> int:
     )
     if skipped:
         write_skipped_csv(skipped_path, skipped)
-        _eprint(f"[WARN] Found {len(skipped)} invalid/empty SMILES. Skipped and logged to: {skipped_path}")
+        _eprint(
+            f"[WARN] Found {len(skipped)} invalid/empty SMILES. Skipped and logged to: {skipped_path}"
+        )
 
     if not valid_pairs:
         raise RuntimeError("No valid SMILES available (all parsing failed or empty).")
 
     valid_idxs = [i for i, _ in valid_pairs]
     valid_smiles = [s for _, s in valid_pairs]
-    
+
     df_valid = df.iloc[valid_idxs].copy()
     df_valid[smiles_col] = valid_smiles
     predictor = MolPredict(load_model=str(model_dir))
-    y_pred = predictor.predict(df_valid[[smiles_col]], save_path=None, metrics=str(args.metrics))
+    pred_input = df_valid[[smiles_col]]
+    try:
+        y_pred = predictor.predict(
+            pred_input, save_path=None, metrics=str(args.metrics)
+        )
+    except ValueError as e:
+        # Some unimol_tools versions reject DataFrame inputs in predict() despite
+        # accepting CSV path strings. Fall back to a temporary CSV for compatibility.
+        if "Unknown data type" not in str(e):
+            raise
+        import tempfile
+
+        with tempfile.TemporaryDirectory(prefix="unimol_predict_") as td:
+            tmp_csv = Path(td) / "predict_input.csv"
+            pred_input.to_csv(tmp_csv, index=False)
+            y_pred = predictor.predict(
+                str(tmp_csv), save_path=None, metrics=str(args.metrics)
+            )
 
     import numpy as np  # type: ignore
 
@@ -440,47 +527,111 @@ def build_parser() -> argparse.ArgumentParser:
         description="General CLI wrapper for unimol-tools (repr/train/predict).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--no-env", action="store_true", help="Do not print environment detection info")
+    p.add_argument(
+        "--no-env", action="store_true", help="Do not print environment detection info"
+    )
     sub = p.add_subparsers(dest="cmd", required=True)
 
     # repr
-    pr = sub.add_parser("repr", help="Extract molecular representations (embeddings), output as .npy")
+    pr = sub.add_parser(
+        "repr", help="Extract molecular representations (embeddings), output as .npy"
+    )
     g = pr.add_mutually_exclusive_group(required=True)
     g.add_argument("--smiles", type=str, help="Single SMILES string input")
     g.add_argument("--file", type=str, help="Input file: .csv or .smi")
-    pr.add_argument("--smiles-col", type=str, default="smiles", help="SMILES column name in CSV")
+    pr.add_argument(
+        "--smiles-col", type=str, default="smiles", help="SMILES column name in CSV"
+    )
     pr.add_argument("--output", type=str, default=None, help="Output path for .npy")
-    pr.add_argument("--batch-size", type=int, default=64, help="Batch size for representation extraction")
+    pr.add_argument(
+        "--batch-size",
+        type=int,
+        default=64,
+        help="Batch size for representation extraction",
+    )
     pr.add_argument("--use-gpu", action="store_true", help="Force GPU usage")
-    pr.add_argument("--no-gpu", action="store_true", help="Force CPU usage (disable GPU)")
+    pr.add_argument(
+        "--no-gpu", action="store_true", help="Force CPU usage (disable GPU)"
+    )
     pr.add_argument("--remove-hs", action="store_true", help="Remove explicit H atoms")
-    pr.add_argument("--error-log", type=str, default=None, help="Path to log bad SMILES as CSV")
+    pr.add_argument(
+        "--error-log", type=str, default=None, help="Path to log bad SMILES as CSV"
+    )
     pr.set_defaults(func=cmd_repr)
 
     # train
     pt = sub.add_parser("train", help="Train model, output model directory")
-    pt.add_argument("--task", type=str, required=True, choices=["classification", "regression"], help="Task type")
-    pt.add_argument("--input", type=str, required=True, help="Training CSV data (must contain smiles and target)")
-    pt.add_argument("--smiles-col", type=str, default="smiles", help="SMILES column name")
-    pt.add_argument("--target-col", type=str, default="target", help="Target column name")
+    pt.add_argument(
+        "--task",
+        type=str,
+        required=True,
+        choices=[
+            "classification",
+            "regression",
+            "multilabel_classification",
+            "multilabel_regression",
+        ],
+        help="Task type (including future-facing multilabel variants)",
+    )
+    pt.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Training CSV data (must contain smiles and target column(s))",
+    )
+    pt.add_argument(
+        "--smiles-col", type=str, default="smiles", help="SMILES column name"
+    )
+    pt.add_argument(
+        "--target-col", type=str, default="target", help="Target column name"
+    )
+    pt.add_argument(
+        "--target-cols",
+        type=str,
+        default=None,
+        help="Comma-separated target columns for multilabel tasks (e.g. target_0,target_1)",
+    )
     pt.add_argument("--epochs", type=int, default=100, help="Number of training epochs")
-    pt.add_argument("--output", type=str, required=True, help="Output directory for model")
+    pt.add_argument(
+        "--output", type=str, required=True, help="Output directory for model"
+    )
     pt.add_argument("--batch-size", type=int, default=32, help="Batch size")
     pt.add_argument("--learning-rate", type=float, default=1e-4, help="Learning rate")
     pt.add_argument("--no-cuda", action="store_true", help="Force CPU usage")
-    pt.add_argument("--model-name", type=str, default="unimolv1", choices=["unimolv1", "unimolv2"], help="Model family")
-    pt.add_argument("--model-size", type=str, default="84m", help="Model size for unimolv2")
+    pt.add_argument(
+        "--model-name",
+        type=str,
+        default="unimolv1",
+        choices=["unimolv1", "unimolv2"],
+        help="Model family",
+    )
+    pt.add_argument(
+        "--model-size", type=str, default="84m", help="Model size for unimolv2"
+    )
     pt.add_argument("--metrics", type=str, default="none", help="Evaluation metrics")
     pt.set_defaults(func=cmd_train)
 
     # predict
     pp = sub.add_parser("predict", help="Load model for inference, output as .csv")
-    pp.add_argument("--model", type=str, required=True, help="Model directory or path (save_path from MolTrain)")
+    pp.add_argument(
+        "--model",
+        type=str,
+        required=True,
+        help="Model directory or path (save_path from MolTrain)",
+    )
     pp.add_argument("--input", type=str, required=True, help="Input data: .csv or .smi")
-    pp.add_argument("--smiles-col", type=str, default="smiles", help="SMILES column name in CSV")
-    pp.add_argument("--output", type=str, required=True, help="Output path for prediction CSV")
-    pp.add_argument("--metrics", type=str, default="none", help="Optional evaluation metrics")
-    pp.add_argument("--error-log", type=str, default=None, help="Path to log bad SMILES as CSV")
+    pp.add_argument(
+        "--smiles-col", type=str, default="smiles", help="SMILES column name in CSV"
+    )
+    pp.add_argument(
+        "--output", type=str, required=True, help="Output path for prediction CSV"
+    )
+    pp.add_argument(
+        "--metrics", type=str, default="none", help="Optional evaluation metrics"
+    )
+    pp.add_argument(
+        "--error-log", type=str, default=None, help="Path to log bad SMILES as CSV"
+    )
     pp.set_defaults(func=cmd_predict)
 
     return p
@@ -504,6 +655,12 @@ if __name__ == "__main__":
         raise
     except Exception as e:
         _eprint(f"[ERROR] {type(e).__name__}: {e}")
-        if os.environ.get("UNIMOL_HELPER_TRACE", "").strip() in {"1", "true", "TRUE", "yes", "YES"}:
+        if os.environ.get("UNIMOL_HELPER_TRACE", "").strip() in {
+            "1",
+            "true",
+            "TRUE",
+            "yes",
+            "YES",
+        }:
             _eprint(traceback.format_exc())
         raise SystemExit(2)

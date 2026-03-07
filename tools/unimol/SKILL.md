@@ -82,7 +82,7 @@ uv run python <skill_path>/scripts/unimol_helper.py repr --smiles "CCO" --no-gpu
 uv run python <skill_path>/scripts/unimol_helper.py repr --smiles "CCO" --use-gpu --output out.npy
 ```
 
-### 2) Train a property model (classification / regression)
+### 2) Train a property model (classification / regression / multilabel_*)
 
 Regression training (CSV must contain `smiles` and `target` columns):
 
@@ -107,6 +107,36 @@ uv run python <skill_path>/scripts/unimol_helper.py train \
   --epochs 50 \
   --output ./model_cls
 ```
+
+Multilabel regression training (explicit multi-target columns):
+
+```bash
+uv run python <skill_path>/scripts/unimol_helper.py train \
+  --task multilabel_regression \
+  --input train.csv \
+  --smiles-col smiles \
+  --target-cols target_0,target_1,target_2 \
+  --epochs 50 \
+  --output ./model_mreg
+```
+
+Multilabel classification training:
+
+```bash
+uv run python <skill_path>/scripts/unimol_helper.py train \
+  --task multilabel_classification \
+  --input train.csv \
+  --smiles-col smiles \
+  --target-cols y_cls_0,y_cls_1,y_cls_2 \
+  --epochs 50 \
+  --output ./model_mcls
+```
+
+Target recognition for training:
+
+- Single-task (`classification` / `regression`): use `--target-col` (default `target`).
+- Multilabel tasks: prefer `--target-cols` (comma-separated).
+- If `--target-cols` is omitted for multilabel tasks, the helper auto-detects columns named `target` or prefixed with `target_` (case-insensitive).
 
 Force CPU:
 
@@ -156,7 +186,7 @@ When using this skill for users:
    - Example: `--smiles "[C]([H])([H])[H]"`
 3. For CSV workflows, verify column names:
    - `repr`: `--smiles-col`
-   - `train`: `--smiles-col` and `--target-col`
+   - `train`: `--smiles-col` and `--target-col` / `--target-cols`
    - `predict`: `--smiles-col`
 4. Watch for skipped SMILES:
    - Check `*.skipped.csv` and decide whether to fix or permanently drop them
@@ -169,4 +199,3 @@ When using this skill for users:
 
 - Uni-Mol project: https://github.com/fanxiaoyu0/Uni-Mol
 - RDKit: https://www.rdkit.org/
-
