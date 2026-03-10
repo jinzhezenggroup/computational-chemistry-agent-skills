@@ -22,7 +22,6 @@ repos:
     hooks:
       - id: generate-readme
         name: Generate README.md
-        entry: python scripts/generate_skills_table.py
-        language: system
+        language: python
+        entry: scripts/generate_skills_table.py
         pass_filenames: false
-        always_run: true
