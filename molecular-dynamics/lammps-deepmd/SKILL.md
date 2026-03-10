@@ -1,10 +1,8 @@
 ---
 name: lammps-deepmd
-description: >
-  A tool and knowledge base for running molecular dynamics (MD) simulations in LAMMPS with the DeePMD-kit plugin. It handles input script preparation, ensemble selection (NVE/NVT/NPT), and job execution via `uv` or offline binaries.
-  USE WHEN you need to set up, write, explain, or execute a LAMMPS molecular dynamics simulation using a DeePMD machine learning potential (e.g., `graph.pb`).
-compatibility: Requires LAMMPS with DeePMD-kit support. Online mode prefers `uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp`; offline mode requires a user-provided LAMMPS executable or module.
-license: LGPL-3.0-or-later
+description: Run molecular dynamics simulations in LAMMPS with the DeePMD-kit plugin, including preparing input scripts, choosing ensembles such as NVE/NVT/NPT, validating commands against LAMMPS documentation, and executing jobs either with `uvx --from lammps --with deepmd-kit[gpu,torch] lmp` when internet access is available or with a user-specified offline LAMMPS executable.
+compatibility: Requires LAMMPS with DeePMD-kit support. Online mode prefers `uvx --from lammps --with deepmd-kit[gpu,torch] lmp`; offline mode requires a user-provided LAMMPS executable or module.
+license: MIT
 metadata:
   author: OpenClaw
   version: '1.0'
@@ -20,12 +18,11 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a De
 
 1. Confirm the available execution mode:
    - **Online mode**: if internet access is available and `uv` is installed, prefer
-     `uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp ...`
+     `uvx --from lammps --with deepmd-kit[gpu,torch] lmp ...`
    - **Offline mode**: do **not** guess the executable. Ask the user which LAMMPS command, module, or container should be used.
 1. Confirm the minimum simulation inputs:
    - structure/data file (for example `data.system`)
    - DeePMD model file (for example `graph.pb` or compressed model)
-   - atom type to element mapping, including required per-type masses if the data file does not define them
    - target ensemble (NVE, NVT, NPT, or another explicitly requested setup)
    - temperature, pressure if applicable, timestep, and total number of steps
 1. Write the LAMMPS input script yourself instead of asking the user to hand-write it.
@@ -40,19 +37,19 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a De
 Use:
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -in input.lammps
+uvx --from lammps --with deepmd-kit[gpu,torch] lmp -in input.lammps
 ```
 
 If you need to inspect the local command-line help:
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -h | tee /dev/tty
+uvx --from lammps --with deepmd-kit[gpu,torch] lmp -h | tee /dev/tty
 ```
 
 Notes:
 
 - This is the preferred path because it can provision LAMMPS and DeePMD-kit on demand.
-- The `gpu,torch,lmp` extras match the requested runtime pattern from the user.
+- The `gpu,torch` extras match the requested runtime pattern from the user.
 - If the environment is slow or the packages are large, warn the user that the first run may take time.
 
 ### Offline mode
@@ -105,8 +102,6 @@ atom_style      atomic
 neighbor        1.0 bin
 
 read_data       data.system
-mass            1 28.0855
-mass            2 15.999
 pair_style      deepmd graph_compressed.pb
 pair_coeff      * *
 
@@ -173,11 +168,6 @@ run             ${NSTEPS}
 
   - Reads the initial atomic structure, atom types, simulation box, and related information from the LAMMPS data file `data.system`.
   - Replace this filename with the actual user file.
-
-- `mass 1 28.0855`, `mass 2 15.999`
-
-  - Defines per-type atomic masses when the data file does not contain a `Masses` section.
-  - These example values correspond to a two-type Si/O mapping; adjust them to the actual atom type to element mapping. LAMMPS velocity creation and thermostats require masses; without them, runs can fail with `Not all per-type masses are set`.
 
 - `pair_style deepmd graph_compressed.pb`
 
@@ -280,13 +270,13 @@ When using NPT, it is often useful to keep `vol`, `lx`, `ly`, and `lz` in the th
 ### Online run
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -in input.lammps
+uvx --from lammps --with deepmd-kit[gpu,torch] lmp -in input.lammps
 ```
 
 ### Online help
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -h | tee /dev/tty
+uvx --from lammps --with deepmd-kit[gpu,torch] lmp -h | tee /dev/tty
 ```
 
 ### Offline run
