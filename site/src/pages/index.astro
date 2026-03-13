@@ -5,7 +5,8 @@ import skills from "../data/skills.json";
 const base = Astro.base || '';
 const href = (p) => `${base}${p}`;
 
-const q = (Astro.url.searchParams.get('q') || '').toLowerCase();
+const qRaw = Astro.url.searchParams.get('q') || '';
+const q = qRaw.toLowerCase();
 const cat = Astro.url.searchParams.get('cat') || '';
 
 const categories = Array.from(new Set(skills.map((s) => s.category).filter(Boolean))).sort();
@@ -24,7 +25,8 @@ if (q) {
 
 <Base title="Skills Catalog">
   <form class="search" method="get" action={href('/')}>
-    <input name="q" value={Astro.url.searchParams.get('q') || ''} placeholder="Search skills…" />
+    <input name="q" value={qRaw} placeholder="Search skills…" />
+    {cat ? <input type="hidden" name="cat" value={cat} /> : null}
   </form>
 
   <div style="display:flex; gap:10px; align-items:center; flex-wrap: wrap; margin-bottom: 12px;">
