@@ -1,16 +1,29 @@
 ---
 name: search-species
 description: USE WHEN requesting core chemical structural data (SMILES, formula, mass, 2D images) via IUPAC, common, or multilingual names. You MUST actively retrieve the data using this skill; DO NOT hallucinate or generate structures yourself. DO NOT USE WHEN asking for physical properties (melting point, solubility), safety/toxicity data (MSDS), or synthesis pathways.
-compatibility: Requires `search-species` installed in the Python environment.
+compatibility: Requires `search-species` installed via pip (`pip install search-species`).
 metadata:
   author: light-cyan
-  version: "1.0"
+  version: "0.1.0"
   repository: https://github.com/light-cyan/search-species
 ---
 
 # Search Species
 
-This skill provides practical command patterns for retrieving chemical structural information and generating visual species cards.
+This toolkit consists of **two core tools**—`search` and `render`—designed to retrieve chemical structural information and generate visual species cards.
+
+## 🔄 Core Workflow (CRITICAL)
+
+When assisting users with chemical searches, you **MUST** adhere to the following step-by-step workflow:
+
+1. **Acquire Target**: Identify the chemical name, identifier, or SMILES the user wants to query.
+2. **Select Engine**: Choose the most appropriate search backend (`pubchem`, `opsin`, `wikidata`, or `all`) based on the query type.
+3. **Execute Search**: Use the `search` command to query the database.
+4. **Evaluate Results**: Carefully review the returned summary data and candidate JSON file paths in the output. **Do not blindly render all results.**
+5. **Render Card**: Select the most accurate candidate JSON file and use the `render` command to generate a visual species card.
+6. **Confirm & Iterate**: Present the generated card/data to the user for confirmation. If the result is ambiguous or incorrect, communicate with the user to adjust the search keywords and restart the process.
+
+---
 
 ## Search Backend Overview
 
@@ -30,7 +43,8 @@ This skill provides practical command patterns for retrieving chemical structura
 
 Typical search syntax:
 ```bash
-search <engine> "<query>" [max_cands] -o <output_dir>
+uvx search-species <engine> "<query>" [max_cands] -o <output_dir>
+
 ```
 
 > **Output:** Prints the retrieved species data summary and the file path where each candidate's JSON is saved (e.g., `SpeciesCandidate(...) written -> ./cache/xyz.json`).
@@ -38,7 +52,8 @@ search <engine> "<query>" [max_cands] -o <output_dir>
 Typical render syntax:
 
 ```bash
-render <candidate_files...> -o <output_dir>
+uvx --from search-species render-species <candidate_files...> -o <output_dir>
+
 ```
 
 > **Output:** Prints the file path of the successfully generated image card (e.g., `Successfully rendered -> ./gallery/xyz.png`).
@@ -50,7 +65,8 @@ render <candidate_files...> -o <output_dir>
 Search across all available backends (PubChem, OPSIN, and Wikidata) for a common name:
 
 ```bash
-search all "Aspirin"
+uvx search-species all "Aspirin"
+
 ```
 
 ### 2) Engine-specific searches
@@ -58,45 +74,50 @@ search all "Aspirin"
 **PubChem** (Standard database lookups):
 
 ```bash
-search pubchem "benzene" 5 -o ./results
+uvx search-species pubchem "benzene" 5 -o ./results
+
 ```
 
 **OPSIN** (Theoretical molecules & strict IUPAC):
 
 ```bash
-search opsin "2-acetyloxybenzoic acid"
+uvx search-species opsin "2-acetyloxybenzoic acid"
+
 ```
 
 **Wikidata** (Multilingual & common/trade names):
 
 ```bash
-search wikidata "Аспирин"
-search wikidata "TNT"
+uvx search-species wikidata "Аспирин"
+uvx search-species wikidata "TNT"
+
 ```
 
 ### 3) Render species cards
 
-Generate visual image cards from specific JSON files:
+Generate visual image cards from specific JSON files (selected after reviewing search results):
 
 ```bash
-render ./cache/candidate_1.json ./cache/candidate_2.json -o ./gallery
+uvx --from search-species render-species  ./cache/candidate_1.json ./cache/candidate_2.json -o ./gallery
+
 ```
 
 Render all JSON files in a directory (Use with caution):
 
 ```bash
-render ./cache/*.json -o ./gallery
+uvx --from search-species render-species  ./cache/*.json -o ./gallery
+
 ```
 
 ## Agent Checklist
 
-When using this skill for users:
+When using this toolkit for users, ensure you cross-check these points with the Core Workflow:
 
-1. **Select the right engine:** Match the engine to the query type based on the overview table.
-2. **Understand data limitations:** This tool *only* retrieves structural identity (Name, Formula, Mass, SMILES, 2D Image).
-3. **Handle missing results:** If `pubchem` fails on a systematic name, fallback to `opsin`.
-4. **Pipeline workflow (Search -> Filter -> Render):** Evaluate the printed data from the `search` command output. **Do not blindly render all results.** Identify and select only the relevant candidate JSON file paths, then pass those specific paths to the `render` command.
-5. **Quote queries:** Always wrap the chemical `<query>` in quotes.
+* **Engine Match:** Match the engine to the query type based on the overview table.
+* **Data Scope:** Remember this tool *only* retrieves structural identity (Name, Formula, Mass, SMILES, 2D Image).
+* **Fallback:** If `pubchem` fails on a systematic name, fallback to `opsin`.
+* **Selective Rendering:** Evaluate the printed data from the `search` command output before passing specific paths to the `render` command.
+* **Quoting:** Always wrap the chemical `<query>` in quotes.
 
 ## References
 

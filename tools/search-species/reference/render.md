@@ -1,7 +1,7 @@
 # Render Module Reference
 
 ## 1. Input Constraints
-* **⚠️ Image Locality (Strict)**: The generated 2D image MUST remain in the **exact same directory** as the `.json` file. **Do not move JSON files** from their original cache directory before rendering, otherwise the image will fallback to a placeholder.
+* **⚠️ Image Locality (Strict)**: The searched 2D image MUST remain in the **exact same directory** as the `.json` file. **Do not move JSON files** from their original cache directory before rendering, otherwise the image will fall back to a placeholder.
 * **Fault Tolerance**: Invalid or corrupted JSON paths are safely skipped without crashing.
 
 ## 2. Rendering Order & Control
@@ -12,4 +12,4 @@ Cards visualize: Index, Source Engine, Name, Formula, Weight, and SMILES.
 * **⚠️ SMILES Truncation**: Strings exceeding the max character limit (e.g., large macromolecules) are visually truncated to prevent layout breaks. The full SMILES is only preserved in the source `.json`.
 
 ## 4. Output
-* **Return Value**: The CLI prints the absolute path of the generated timestamped image (`renderResult_...png`). Use this path to deliver the final image to the user.
+* **Return Value**: The CLI prints the *relative path* (from the current working directory) of the generated timestamped image (`renderResult_...png`). Use this path to deliver the final image to the user.

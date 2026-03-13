@@ -2,15 +2,7 @@
 
 `search-species` integrates three distinct backends. Each serves a specific purpose in the chemical informatics workflow:
 
-| Feature | **OPSIN** | **PubChem** | **Wikidata** |
-| :--- | :--- | :--- | :--- |
-| **Core Method** | Algorithmic Parser | Curated Database | Knowledge Graph |
-| **Primary Input** | IUPAC English Names | Names, CIDs, SMILES | **Common & Multilingual Names** |
-| **Molecular Image** | **Supported** (Rendered) | **Supported** (Stored) | **Rarely Available** |
-| **Mass/Formula** | Calculated | Database Metadata | Database Metadata |
-| **Key Strength** | Handles theoretical molecules. | Highly standardized data. | **Vernacular** & Cross-lingual. |
-
-## 1. OPSIN 
+## 1. OPSIN
 * **Capabilities**: Interprets strict IUPAC grammar to "build" molecules dynamically. Excellent for theoretical or uncatalogued structures. Automatically renders 2D images.
 * **Deficiencies**: **Strict Nomenclature Only**. It will completely fail on common names or trade names (e.g., it understands `2-acetyloxybenzoic acid` but fails on `Aspirin`).
 
