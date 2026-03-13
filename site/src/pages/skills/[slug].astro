@@ -1,0 +1,38 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const skills = await getCollection('skills');
+  return skills.map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const skills = await getCollection('skills');
+const skill = skills.find((s) => s.slug === slug);
+if (!skill) throw new Error(`Skill not found: ${slug}`);
+
+const { Content } = await skill.render();
+const fm = skill.data;
+---
+
+<Base title={`${fm.name} · Skill`}>
+  <div class="subtle" style="margin-bottom: 12px;">
+    <a href={`${Astro.base}/`}>← All skills</a>
+  </div>
+
+  <div class="card" style="margin-bottom: 14px;">
+    <h1 style="margin: 0 0 6px; font-size: 22px;">{fm.name}</h1>
+    <div class="subtle" style="margin-bottom: 10px;">{fm.description}</div>
+    <div class="pills">
+      <span class="pill">v{fm.version}</span>
+      <span class="pill">{fm.compatibility}</span>
+      {fm.repository ? <a class="pill" href={fm.repository} target="_blank">repository</a> : null}
+      {fm.sourcePath ? <a class="pill" href={`https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/blob/master/${fm.sourcePath}`} target="_blank">source</a> : null}
+    </div>
+  </div>
+
+  <article class="prose">
+    <Content />
+  </article>
+</Base>

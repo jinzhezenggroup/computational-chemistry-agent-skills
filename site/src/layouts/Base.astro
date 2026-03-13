@@ -1,0 +1,27 @@
+---
+import "../styles/global.css";
+const { title = "Computational Chemistry Agent Skills" } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <div class="brand"><a href={`${Astro.base}/`}>Computational Chemistry Agent Skills</a></div>
+          <div class="subtle">Auto-generated catalog from the GitHub repo</div>
+        </div>
+        <div class="subtle"><a href="https://github.com/jinzhezenggroup/computational-chemistry-agent-skills">GitHub</a></div>
+      </div>
+      <slot />
+      <div class="footer">
+        Built from <code>**/SKILL.md</code> front matter. Deployed via CI.
+      </div>
+    </div>
+  </body>
+</html>

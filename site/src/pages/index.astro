@@ -1,0 +1,34 @@
+---
+import Base from "../layouts/Base.astro";
+import skills from "../data/skills.json";
+
+const q = (Astro.url.searchParams.get('q') || '').toLowerCase();
+const filtered = q
+  ? skills.filter((s) => (
+      (s.name || '').toLowerCase().includes(q) ||
+      (s.description || '').toLowerCase().includes(q) ||
+      (s.compatibility || '').toLowerCase().includes(q)
+    ))
+  : skills;
+---
+
+<Base title="Skills Catalog">
+  <form class="search" method="get" action={`${Astro.base}/`}>
+    <input name="q" value={Astro.url.searchParams.get('q') || ''} placeholder="Search skills…" />
+  </form>
+
+  <div class="subtle" style="margin-bottom: 10px;">Showing {filtered.length} / {skills.length} skills</div>
+
+  <div class="card-grid">
+    {filtered.map((s) => (
+      <div class="card">
+        <h3><a href={`${Astro.base}/skills/${s.slug}/`}>{s.name}</a></h3>
+        <p>{s.description || '-'}</p>
+        <div class="pills">
+          <span class="pill">v{s.version || '-'}</span>
+          <span class="pill">{s.compatibility || '-'}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+</Base>
