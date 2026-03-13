@@ -13,8 +13,10 @@
   - site/src/data/skills.json
   - site/src/content/skills/<slug>.md (generated)
 
-The generated markdown files keep (most of) the original SKILL.md body content,
-with a normalized front matter schema for Astro Content Collections.
+Also preserves high-level categorization by directory. For a SKILL located at:
+  tools/openbabel/SKILL.md
+category will be:
+  tools
 """
 
 from __future__ import annotations
@@ -41,6 +43,7 @@ class Skill:
     version: str
     repository: str | None
     source_path: str
+    category: str | None
     body: str
 
 
@@ -80,6 +83,14 @@ def get_repo(fm: dict) -> str | None:
     return norm_str(repo) if repo else None
 
 
+def derive_category(rel_path: str) -> str | None:
+    # rel_path like "tools/openbabel/SKILL.md" or "molecular-dynamics/lammps-deepmd/SKILL.md"
+    parts = rel_path.split("/")
+    if len(parts) >= 2:
+        return parts[0]
+    return None
+
+
 def collect() -> list[Skill]:
     rows: list[Skill] = []
     for p in sorted(ROOT.glob("**/SKILL.md")):
@@ -93,6 +104,7 @@ def collect() -> list[Skill]:
         compat = norm_str(fm.get("compatibility"), "-")
         ver = get_version(fm)
         repo = get_repo(fm)
+        category = derive_category(rel)
 
         rows.append(
             Skill(
@@ -103,6 +115,7 @@ def collect() -> list[Skill]:
                 version=ver,
                 repository=repo,
                 source_path=rel,
+                category=category,
                 body=body.strip() + "\n",
             )
         )
@@ -123,10 +136,13 @@ def write_outputs(skills: list[Skill]) -> None:
             "version": s.version,
             "repository": s.repository,
             "sourcePath": s.source_path,
+            "category": s.category,
         }
         for s in skills
     ]
-    OUT_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    OUT_JSON.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
 
     # Content collection markdown pages
     for s in skills:
@@ -138,11 +154,15 @@ def write_outputs(skills: list[Skill]) -> None:
             "version": s.version,
             "repository": s.repository,
             "sourcePath": s.source_path,
+            "category": s.category,
         }
         # remove null values for cleaner front matter
         fm = {k: v for k, v in fm.items() if v is not None}
         out.write_text(
-            "---\n" + yaml.safe_dump(fm, sort_keys=False, allow_unicode=True).strip() + "\n---\n\n" + s.body,
+            "---\n"
+            + yaml.safe_dump(fm, sort_keys=False, allow_unicode=True).strip()
+            + "\n---\n\n"
+            + s.body,
             encoding="utf-8",
         )
 

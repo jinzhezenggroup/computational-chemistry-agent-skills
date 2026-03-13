@@ -7,6 +7,9 @@ export async function getStaticPaths() {
   return skills.map((s) => ({ params: { slug: s.slug } }));
 }
 
+const base = Astro.base || '';
+const href = (p) => `${base}${p}`;
+
 const { slug } = Astro.params;
 const skills = await getCollection('skills');
 const skill = skills.find((s) => s.slug === slug);
@@ -18,11 +21,12 @@ const fm = skill.data;
 
 <Base title={`${fm.name} · Skill`}>
   <div class="subtle" style="margin-bottom: 12px;">
-    <a href={`${Astro.base}/`}>← All skills</a>
+    <a href={href('/')}>← All skills</a>
   </div>
 
   <div class="card" style="margin-bottom: 14px;">
     <h1 style="margin: 0 0 6px; font-size: 22px;">{fm.name}</h1>
+    {fm.category ? <div class="subtle" style="margin-bottom: 8px;">{fm.category}</div> : null}
     <div class="subtle" style="margin-bottom: 10px;">{fm.description}</div>
     <div class="pills">
       <span class="pill">v{fm.version}</span>

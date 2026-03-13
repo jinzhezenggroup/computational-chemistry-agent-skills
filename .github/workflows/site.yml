@@ -44,6 +44,7 @@ jobs:
         env:
           # Optional; set in repo/environment vars if you want canonical URLs.
           SITE_URL: ${{ vars.SITE_URL }}
+          SITE_BASE: ${{ vars.SITE_BASE }}
         run: |
           set -euo pipefail
           npm run build

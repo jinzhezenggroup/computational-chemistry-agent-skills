@@ -54,6 +54,7 @@ jobs:
         working-directory: site
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+          SITE_BASE: ${{ vars.SITE_BASE }}
         run: |
           set -euo pipefail
           npm run build

@@ -8,7 +8,8 @@ const skills = defineCollection({
     compatibility: z.string().optional().default('-'),
     version: z.string().optional().default('-'),
     repository: z.string().optional(),
-    sourcePath: z.string().optional()
+    sourcePath: z.string().optional(),
+    category: z.string().optional()
   })
 });
 

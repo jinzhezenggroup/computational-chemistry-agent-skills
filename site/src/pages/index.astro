@@ -2,27 +2,52 @@
 import Base from "../layouts/Base.astro";
 import skills from "../data/skills.json";
 
+const base = Astro.base || '';
+const href = (p) => `${base}${p}`;
+
 const q = (Astro.url.searchParams.get('q') || '').toLowerCase();
-const filtered = q
-  ? skills.filter((s) => (
-      (s.name || '').toLowerCase().includes(q) ||
-      (s.description || '').toLowerCase().includes(q) ||
-      (s.compatibility || '').toLowerCase().includes(q)
-    ))
-  : skills;
+const cat = Astro.url.searchParams.get('cat') || '';
+
+const categories = Array.from(new Set(skills.map((s) => s.category).filter(Boolean))).sort();
+
+let filtered = skills;
+if (cat) filtered = filtered.filter((s) => s.category === cat);
+if (q) {
+  filtered = filtered.filter((s) => (
+    (s.name || '').toLowerCase().includes(q) ||
+    (s.description || '').toLowerCase().includes(q) ||
+    (s.compatibility || '').toLowerCase().includes(q) ||
+    (s.category || '').toLowerCase().includes(q)
+  ));
+}
 ---
 
 <Base title="Skills Catalog">
-  <form class="search" method="get" action={`${Astro.base}/`}>
+  <form class="search" method="get" action={href('/')}>
     <input name="q" value={Astro.url.searchParams.get('q') || ''} placeholder="Search skills…" />
   </form>
 
-  <div class="subtle" style="margin-bottom: 10px;">Showing {filtered.length} / {skills.length} skills</div>
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap: wrap; margin-bottom: 12px;">
+    <div class="subtle">Showing {filtered.length} / {skills.length} skills</div>
+    <div style="flex: 1"></div>
+    {categories.length ? (
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="subtle">Category</span>
+        <select name="cat" onchange="const u=new URL(location.href); if(this.value) u.searchParams.set('cat', this.value); else u.searchParams.delete('cat'); location.href=u.toString();" style="padding:8px 10px; border-radius:12px; border:1px solid var(--border); background: var(--panel); color: var(--text);">
+          <option value="" selected={!cat}>All</option>
+          {categories.map((c) => (
+            <option value={c} selected={c === cat}>{c}</option>
+          ))}
+        </select>
+      </div>
+    ) : null}
+  </div>
 
   <div class="card-grid">
     {filtered.map((s) => (
       <div class="card">
-        <h3><a href={`${Astro.base}/skills/${s.slug}/`}>{s.name}</a></h3>
+        <h3><a href={href(`/skills/${s.slug}/`)}>{s.name}</a></h3>
+        {s.category ? <div class="subtle" style="font-size: 12px; margin-bottom: 8px;">{s.category}</div> : null}
         <p>{s.description || '-'}</p>
         <div class="pills">
           <span class="pill">v{s.version || '-'}</span>

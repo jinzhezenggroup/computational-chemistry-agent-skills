@@ -1,8 +1,8 @@
 import { defineConfig } from 'astro/config';
 
-// GitHub Pages typically serves under /<repo>/
-const repo = process.env.GITHUB_REPOSITORY?.split('/')?.[1];
-const base = repo ? `/${repo}` : '/';
+// Default to root for local dev and non-Pages deployments.
+// For GitHub Pages, set SITE_BASE in repo/environment vars (e.g. "/<repo>").
+const base = process.env.SITE_BASE || '/';
 
 export default defineConfig({
   site: process.env.SITE_URL || undefined,
