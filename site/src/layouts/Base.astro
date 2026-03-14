@@ -8,6 +8,7 @@ const href = (p: string) => `${base}${p}`;
 
 const LICENSE_ID = "LGPL-3.0-or-later";
 const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
+const ZIP_URL = `${REPO}/archive/refs/heads/master.zip`;
 ---
 <!doctype html>
 <html lang="en">
@@ -21,6 +22,7 @@ const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-s
       <header class="topbar">
         <a class="brand" href={href("/")}>Computational Chemistry Agent Skills</a>
         <nav class="nav">
+          <a href={ZIP_URL} class="nav-primary" target="_blank" rel="noreferrer">Download repo .zip</a>
           <a href={`${REPO}/blob/master/LICENSE`} target="_blank" rel="noreferrer"><code>{LICENSE_ID}</code></a>
           <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
         </nav>

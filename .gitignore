@@ -11,7 +11,6 @@ site/.astro/
 # Generated site data (generated at build time)
 site/src/data/skills.json
 site/src/content/skills/*.md
-site/public/skill-zips/
 
 # OS
 .DS_Store
