@@ -19,6 +19,7 @@
       "maxLength": 1024,
       "description": "Describe what the skill does and when to use it."
     },
+
     "license": {
       "type": "string",
       "minLength": 1
@@ -28,14 +29,80 @@
       "minLength": 1,
       "maxLength": 500
     },
-    "metadata": {
-      "description": "Free-form metadata. AgentSkills spec allows a YAML mapping. OpenClaw semantics (optional) live under metadata.openclaw.",
-      "oneOf": [{ "type": "object" }, { "type": "string" }]
-    },
     "allowed-tools": {
       "type": "string",
       "minLength": 1,
       "description": "Experimental: space-delimited tool allowlist."
+    },
+
+    "homepage": {
+      "type": "string",
+      "minLength": 1,
+      "description": "(OpenClaw) Optional website URL for the skill."
+    },
+    "user-invocable": {
+      "type": "boolean",
+      "description": "(OpenClaw) When true, the skill is exposed as a user slash command."
+    },
+    "disable-model-invocation": {
+      "type": "boolean",
+      "description": "(OpenClaw) When true, exclude the skill from model prompt (still invocable by user)."
+    },
+    "command-dispatch": {
+      "type": "string",
+      "enum": ["tool"],
+      "description": "(OpenClaw) When set to 'tool', slash command dispatches directly to a tool."
+    },
+    "command-tool": {
+      "type": "string",
+      "minLength": 1,
+      "description": "(OpenClaw) Tool name to invoke when command-dispatch is 'tool'."
+    },
+    "command-arg-mode": {
+      "type": "string",
+      "enum": ["raw"],
+      "description": "(OpenClaw) Argument passing mode for tool dispatch."
+    },
+
+    "metadata": {
+      "description": "Free-form metadata. AgentSkills spec allows a YAML mapping. OpenClaw semantics (optional) live under metadata.openclaw.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "openclaw": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "always": { "type": "boolean" },
+                "emoji": { "type": "string" },
+                "homepage": { "type": "string" },
+                "os": {
+                  "type": "array",
+                  "items": { "type": "string", "enum": ["darwin", "linux", "win32"] }
+                },
+                "requires": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "bins": { "type": "array", "items": { "type": "string" } },
+                    "anyBins": { "type": "array", "items": { "type": "string" } },
+                    "env": { "type": "array", "items": { "type": "string" } },
+                    "config": { "type": "array", "items": { "type": "string" } }
+                  }
+                },
+                "primaryEnv": { "type": "string" },
+                "install": {
+                  "type": "array",
+                  "items": { "type": "object", "additionalProperties": true }
+                }
+              }
+            }
+          }
+        },
+        { "type": "string" }
+      ]
     }
   }
 }
