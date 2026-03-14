@@ -1,27 +1,30 @@
-# Skills Site
+# Skills Catalog Site
 
-This directory contains a small static site that is **auto-generated from this repository**.
+This folder contains the source code for the skills catalog website.
 
-- Source of truth: `**/SKILL.md`
-- Generator: `scripts/generate_site_data.py`
-- Build system: [Astro](https://astro.build/) (static output)
-- License: **LGPL-3.0-or-later** (repo root `LICENSE`)
+## Data generation
 
-## What gets generated
+The site content is derived from `**/SKILL.md` in this repository.
 
-`python3 scripts/generate_site_data.py` scans `**/SKILL.md` and generates:
-
-- `site/src/data/skills.json` (for listing/search)
-- `site/src/content/skills/*.md` (Astro content collection pages)
-
-These generated files are intentionally ignored by git (see `.gitignore`).
-
-## Local preview
+Run the generator from the repo root:
 
 ```bash
-# from repo root
 python3 scripts/generate_site_data.py
+```
 
+It writes:
+
+- `site/src/data/skills.json`
+- `site/src/content/skills/*.md`
+
+These files are generated and are not meant to be edited by hand.
+
+## Local development
+
+From the repo root:
+
+```bash
+python3 scripts/generate_site_data.py
 cd site
 npm install
 npm run dev
@@ -29,19 +32,11 @@ npm run dev
 
 ## Build
 
-```bash
-# from repo root
-python3 scripts/generate_site_data.py
+From the repo root:
 
+```bash
+python3 scripts/generate_site_data.py
 cd site
 npm install
 npm run build
 ```
-
-## Deployment
-
-This repo does **not** ship GitHub Actions workflows for building/deploying the site.
-
-Recommended options:
-- GitHub Pages via your own workflow (outside this repo), or
-- any static hosting (Vercel/Netlify/Nginx) by uploading `site/dist/` after `npm run build`.
