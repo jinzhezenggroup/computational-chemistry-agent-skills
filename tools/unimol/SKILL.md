@@ -4,7 +4,7 @@ description: A robust, end-to-end CLI wrapper for Uni-Mol that standardizes mole
 compatibility: Requires uv. Dependencies (unimol-tools, rdkit, etc.) are handled automatically via inline script metadata in unimol_helper.py.
 metadata:
   author: luzitian
-  version: "1.0"
+  version: '1.0'
   repository: https://github.com/deepmodeling/Uni-Mol
 ---
 
@@ -51,25 +51,25 @@ Single SMILES:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py repr \
-  --smiles "CCO" \
-  --output /tmp/ccO.repr.npy
+    --smiles "CCO" \
+    --output /tmp/ccO.repr.npy
 ```
 
 From CSV (default SMILES column is `smiles`):
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py repr \
-  --file data.csv \
-  --smiles-col smiles \
-  --output data.repr.npy
+    --file data.csv \
+    --smiles-col smiles \
+    --output data.repr.npy
 ```
 
 From SMI:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py repr \
-  --file molecules.smi \
-  --output molecules.repr.npy
+    --file molecules.smi \
+    --output molecules.repr.npy
 ```
 
 Force CPU / GPU:
@@ -82,54 +82,54 @@ uv run python <skill_path>/scripts/unimol_helper.py repr --smiles "CCO" --no-gpu
 uv run python <skill_path>/scripts/unimol_helper.py repr --smiles "CCO" --use-gpu --output out.npy
 ```
 
-### 2) Train a property model (classification / regression / multilabel_*)
+### 2) Train a property model (classification / regression / multilabel\_\*)
 
 Regression training (CSV must contain `smiles` and `target` columns):
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py train \
-  --task regression \
-  --input train.csv \
-  --smiles-col smiles \
-  --target-col target \
-  --epochs 50 \
-  --output ./model_reg
+    --task regression \
+    --input train.csv \
+    --smiles-col smiles \
+    --target-col target \
+    --epochs 50 \
+    --output ./model_reg
 ```
 
 Classification training:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py train \
-  --task classification \
-  --input train.csv \
-  --smiles-col smiles \
-  --target-col target \
-  --epochs 50 \
-  --output ./model_cls
+    --task classification \
+    --input train.csv \
+    --smiles-col smiles \
+    --target-col target \
+    --epochs 50 \
+    --output ./model_cls
 ```
 
 Multilabel regression training (explicit multi-target columns):
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py train \
-  --task multilabel_regression \
-  --input train.csv \
-  --smiles-col smiles \
-  --target-cols target_0,target_1,target_2 \
-  --epochs 50 \
-  --output ./model_mreg
+    --task multilabel_regression \
+    --input train.csv \
+    --smiles-col smiles \
+    --target-cols target_0,target_1,target_2 \
+    --epochs 50 \
+    --output ./model_mreg
 ```
 
 Multilabel classification training:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py train \
-  --task multilabel_classification \
-  --input train.csv \
-  --smiles-col smiles \
-  --target-cols y_cls_0,y_cls_1,y_cls_2 \
-  --epochs 50 \
-  --output ./model_mcls
+    --task multilabel_classification \
+    --input train.csv \
+    --smiles-col smiles \
+    --target-cols y_cls_0,y_cls_1,y_cls_2 \
+    --epochs 50 \
+    --output ./model_mcls
 ```
 
 Target recognition for training:
@@ -142,11 +142,11 @@ Force CPU:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py train \
-  --task regression \
-  --input train.csv \
-  --epochs 50 \
-  --output ./model_cpu \
-  --no-cuda
+    --task regression \
+    --input train.csv \
+    --epochs 50 \
+    --output ./model_cpu \
+    --no-cuda
 ```
 
 ### 3) Predict properties to .csv
@@ -155,19 +155,19 @@ Predict from CSV:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py predict \
-  --model ./model_reg \
-  --input test.csv \
-  --smiles-col smiles \
-  --output pred.csv
+    --model ./model_reg \
+    --input test.csv \
+    --smiles-col smiles \
+    --output pred.csv
 ```
 
 Predict from SMI:
 
 ```bash
 uv run python <skill_path>/scripts/unimol_helper.py predict \
-  --model ./model_reg \
-  --input test.smi \
-  --output pred.csv
+    --model ./model_reg \
+    --input test.smi \
+    --output pred.csv
 ```
 
 Notes:
@@ -182,17 +182,17 @@ When using this skill for users:
 1. Confirm input format:
    - `.csv` requires a SMILES column (default `smiles`)
    - `.smi` uses the first token of each line as SMILES
-2. Quote SMILES containing special characters (brackets/parentheses):
+1. Quote SMILES containing special characters (brackets/parentheses):
    - Example: `--smiles "[C]([H])([H])[H]"`
-3. For CSV workflows, verify column names:
+1. For CSV workflows, verify column names:
    - `repr`: `--smiles-col`
    - `train`: `--smiles-col` and `--target-col` / `--target-cols`
    - `predict`: `--smiles-col`
-4. Watch for skipped SMILES:
+1. Watch for skipped SMILES:
    - Check `*.skipped.csv` and decide whether to fix or permanently drop them
-5. Always capture absolute output paths:
+1. Always capture absolute output paths:
    - Look for `[RESULT] ...=/abs/path` in stdout
-6. If debugging is needed, enable full traceback:
+1. If debugging is needed, enable full traceback:
    - `UNIMOL_HELPER_TRACE=1 uv run python <skill_path>/scripts/unimol_helper.py ...`
 
 ## References

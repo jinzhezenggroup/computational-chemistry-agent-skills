@@ -5,7 +5,7 @@ compatibility: Requires LAMMPS with DeePMD-kit support. Online mode prefers `uvx
 license: MIT
 metadata:
   author: OpenClaw
-  version: "1.0"
+  version: '1.0'
   repository: https://github.com/deepmodeling/deepmd-kit
   lammps_docs: https://docs.lammps.org/
 ---
@@ -20,15 +20,15 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a De
    - **Online mode**: if internet access is available and `uv` is installed, prefer
      `uvx --from lammps --with deepmd-kit[gpu,torch] lmp ...`
    - **Offline mode**: do **not** guess the executable. Ask the user which LAMMPS command, module, or container should be used.
-2. Confirm the minimum simulation inputs:
+1. Confirm the minimum simulation inputs:
    - structure/data file (for example `data.system`)
    - DeePMD model file (for example `graph.pb` or compressed model)
    - target ensemble (NVE, NVT, NPT, or another explicitly requested setup)
    - temperature, pressure if applicable, timestep, and total number of steps
-3. Write the LAMMPS input script yourself instead of asking the user to hand-write it.
-4. Keep the example readable and fully explained. If you include an example input script, explain what **every command** does.
-5. When possible, validate command availability against the LAMMPS docs or local `lmp -h` output before execution.
-6. Report clearly which command was run, which files were used, and where outputs were written.
+1. Write the LAMMPS input script yourself instead of asking the user to hand-write it.
+1. Keep the example readable and fully explained. If you include an example input script, explain what **every command** does.
+1. When possible, validate command availability against the LAMMPS docs or local `lmp -h` output before execution.
+1. Report clearly which command was run, which files were used, and where outputs were written.
 
 ## Decide the execution mode
 
@@ -47,6 +47,7 @@ uvx --from lammps --with deepmd-kit[gpu,torch] lmp -h | tee /dev/tty
 ```
 
 Notes:
+
 - This is the preferred path because it can provision LAMMPS and DeePMD-kit on demand.
 - The `gpu,torch` extras match the requested runtime pattern from the user.
 - If the environment is slow or the packages are large, warn the user that the first run may take time.
@@ -77,11 +78,11 @@ Ask only for what is missing:
 ## Recommended workflow
 
 1. Inspect available files in the working directory.
-2. Draft `input.lammps`.
-3. Explain the script to the user if they asked for an explanation or if the script is nontrivial.
-4. Run a short smoke test first when reasonable.
-5. Run the full simulation.
-6. Summarize outputs such as `log.lammps`, dump trajectories, restart files, and thermodynamic data.
+1. Draft `input.lammps`.
+1. Explain the script to the user if they asked for an explanation or if the script is nontrivial.
+1. Run a short smoke test first when reasonable.
+1. Run the full simulation.
+1. Summarize outputs such as `log.lammps`, dump trajectories, restart files, and thermodynamic data.
 
 ## Example: annotated NVT input
 
@@ -118,56 +119,69 @@ run             ${NSTEPS}
 ### What every command means
 
 - `variable NSTEPS equal 1000000`
+
   - Defines a numeric variable called `NSTEPS` with value `1000000`.
   - Used later by `run ${NSTEPS}` so the run length is easy to modify in one place.
 
 - `variable THERMO_FREQ equal 1000`
+
   - Defines how often LAMMPS prints thermodynamic information.
   - Used by `thermo ${THERMO_FREQ}`.
 
 - `variable DUMP_FREQ equal 1000`
+
   - Defines how often coordinates are written to the trajectory dump.
 
 - `variable TEMP equal 300.0`
+
   - Sets the target temperature in the current unit system.
   - Because `units metal` is used below, this temperature is interpreted in kelvin.
 
 - `variable TAU_T equal 0.1`
+
   - Sets the thermostat damping parameter used by the NVT fix.
   - In `metal` units this is in picoseconds.
 
 - `units metal`
+
   - Selects the LAMMPS `metal` unit system.
   - This determines the physical meaning of timestep, temperature, pressure, energy, distance, and time.
   - In this unit system, distances are in angstrom, time is in picoseconds, and the timestep should be chosen accordingly.
 
 - `boundary p p p`
+
   - Applies periodic boundary conditions in x, y, and z.
   - Suitable for bulk condensed-phase simulations.
 
 - `atom_style atomic`
+
   - Uses the `atomic` atom style, appropriate when atoms have no explicit bonds, angles, or molecular topology in the force field description.
   - Common for DeePMD simulations of condensed phases when the structure is provided as atoms in a box.
 
 - `neighbor 1.0 bin`
+
   - Sets the neighbor-list skin distance to `1.0` in the current distance unit.
   - Uses the `bin` neighbor-building method.
   - Neighbor lists help LAMMPS efficiently find nearby atoms for force evaluation.
 
 - `read_data data.system`
+
   - Reads the initial atomic structure, atom types, simulation box, and related information from the LAMMPS data file `data.system`.
   - Replace this filename with the actual user file.
 
 - `pair_style deepmd graph_compressed.pb`
+
   - Selects the DeePMD pair style.
   - Loads the DeePMD model from `graph_compressed.pb`.
   - Replace the model filename with the actual model path, for example `graph.pb`, `graph-compress.pb`, or another supported exported model.
 
 - `pair_coeff * *`
+
   - Activates the previously selected pair style for all atom types.
   - For DeePMD this often takes the simple form `* *` because the mapping is embedded in the model workflow rather than through conventional pairwise parameters.
 
 - `thermo_style custom step temp pe ke etotal press vol lx ly lz xy xz yz`
+
   - Chooses exactly which thermodynamic quantities to print.
   - `step`: timestep index.
   - `temp`: instantaneous temperature.
@@ -180,9 +194,11 @@ run             ${NSTEPS}
   - `xy xz yz`: triclinic tilt factors, which are harmless to print even for an orthogonal box.
 
 - `thermo ${THERMO_FREQ}`
+
   - Prints the thermo block every `THERMO_FREQ` timesteps.
 
 - `dump 1 all custom ${DUMP_FREQ} traj.lammpstrj id type x y z`
+
   - Creates dump ID `1`.
   - Dumps atoms from group `all`.
   - Uses the `custom` dump format.
@@ -191,23 +207,27 @@ run             ${NSTEPS}
   - Outputs per-atom columns `id type x y z`.
 
 - `velocity all create ${TEMP} 743574`
+
   - Assigns random initial velocities to all atoms.
   - The target temperature is `TEMP`.
   - `743574` is the random seed.
   - Use this when starting a fresh MD trajectory. If restarting from a previous equilibrated state, this command may be unnecessary.
 
 - `fix 1 all nvt temp ${TEMP} ${TEMP} ${TAU_T}`
+
   - Creates fix ID `1` on group `all`.
   - Applies the Nose-Hoover NVT thermostat.
   - The target temperature is ramped from `${TEMP}` to `${TEMP}`, meaning constant temperature here.
   - `${TAU_T}` is the thermostat damping constant.
 
 - `timestep 0.0005`
+
   - Sets the MD timestep.
   - In `metal` units, `0.0005` means `0.0005 ps = 0.5 fs`.
   - The safe choice depends on the system and model quality.
 
 - `run ${NSTEPS}`
+
   - Runs molecular dynamics for `NSTEPS` timesteps.
 
 ## Common ensemble modifications
@@ -221,6 +241,7 @@ fix 1 all nve
 ```
 
 Meaning:
+
 - integrates Newton's equations in the microcanonical ensemble
 - no thermostat or barostat is applied
 - useful for short stability checks or production runs after equilibration
@@ -236,6 +257,7 @@ fix             1 all npt temp ${TEMP} ${TEMP} ${TAU_T} iso ${PRESS} ${PRESS} ${
 ```
 
 Meaning:
+
 - `PRESS` is the target pressure
 - `TAU_P` is the barostat damping constant
 - `iso` applies isotropic pressure control to the simulation box
