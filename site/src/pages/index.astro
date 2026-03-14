@@ -1,0 +1,151 @@
+---
+import Base from "../layouts/Base.astro";
+import skills from "../data/skills.json";
+
+const base = Astro.base || "";
+const href = (p: string) => `${base}${p}`;
+
+const categories = Array.from(
+  new Set(skills.map((s) => s.category).filter(Boolean))
+).sort();
+
+const countsByCat = Object.fromEntries(
+  categories.map((c) => [c, skills.filter((s) => s.category === c).length])
+);
+---
+
+<Base title="Skills Catalog">
+  <section class="hero">
+    <h1>Skills Catalog</h1>
+    <p>
+      Browse skills in
+      <a href="https://github.com/jinzhezenggroup/computational-chemistry-agent-skills" target="_blank" rel="noreferrer">computational-chemistry-agent-skills</a>.
+    </p>
+
+    <div class="hero-row">
+      <form class="search" id="searchForm" method="get" action={href("/") }>
+        <input id="qInput" name="q" value="" placeholder="Search skills (name / description)…" />
+        <input type="submit" hidden />
+      </form>
+
+      <div style="display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap: wrap;">
+        <div class="subtle" id="countText">
+          Showing <b id="shownCount">{skills.length}</b> / <span id="totalCount">{skills.length}</span>
+        </div>
+        {categories.length ? (
+          <select class="select" id="catSelect" name="cat">
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option value={c}>
+                {c} ({countsByCat[c]})
+              </option>
+            ))}
+          </select>
+        ) : null}
+      </div>
+    </div>
+  </section>
+
+  <div class="card-grid" id="grid">
+    {skills.map((s) => (
+      <div
+        class="card"
+        data-skill-card
+        data-name={(s.name || "").toLowerCase()}
+        data-desc={(s.description || "").toLowerCase()}
+        data-cat={(s.category || "").toLowerCase()}
+      >
+        <h3><a href={href(`/skills/${s.slug}/`)}>{s.name}</a></h3>
+        {s.category ? (
+          <div class="subtle" style="font-size: 12px; margin-bottom: 8px;">
+            {s.category}
+          </div>
+        ) : null}
+        <p>{s.description || "-"}</p>
+        <div class="pills">
+          <span class="pill primary">v{s.version || "-"}</span>
+          {s.compatibility ? <span class="pill">{s.compatibility}</span> : null}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <script is:inline>
+    (function () {
+      const qInput = document.getElementById('qInput');
+      const catSelect = document.getElementById('catSelect');
+      const form = document.getElementById('searchForm');
+      const cards = Array.from(document.querySelectorAll('[data-skill-card]'));
+      const shownCount = document.getElementById('shownCount');
+      const totalCount = document.getElementById('totalCount');
+
+      function readParams() {
+        const u = new URL(location.href);
+        return {
+          q: (u.searchParams.get('q') || ''),
+          cat: (u.searchParams.get('cat') || ''),
+        };
+      }
+
+      function writeParams(q, cat) {
+        const u = new URL(location.href);
+        if (q) u.searchParams.set('q', q); else u.searchParams.delete('q');
+        if (cat) u.searchParams.set('cat', cat); else u.searchParams.delete('cat');
+        history.replaceState(null, '', u.toString());
+      }
+
+      function applyFilter() {
+        const q = (qInput?.value || '').trim().toLowerCase();
+        const cat = (catSelect?.value || '').trim().toLowerCase();
+
+        let shown = 0;
+        for (const el of cards) {
+          const name = el.getAttribute('data-name') || '';
+          const desc = el.getAttribute('data-desc') || '';
+          const c = el.getAttribute('data-cat') || '';
+
+          const matchCat = !cat || c === cat;
+          const matchQ = !q || name.includes(q) || desc.includes(q);
+          const ok = matchCat && matchQ;
+
+          if (ok) {
+            el.removeAttribute('hidden');
+            shown += 1;
+          } else {
+            el.setAttribute('hidden', '');
+          }
+        }
+
+        if (shownCount) shownCount.textContent = String(shown);
+        writeParams(q, cat);
+      }
+
+      // init values from URL
+      const p = readParams();
+      if (qInput) qInput.value = p.q;
+      if (catSelect) catSelect.value = p.cat;
+      if (totalCount) totalCount.textContent = String(cards.length);
+
+      // bind
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          applyFilter();
+        });
+      }
+
+      let t = null;
+      if (qInput) {
+        qInput.addEventListener('input', () => {
+          if (t) clearTimeout(t);
+          t = setTimeout(applyFilter, 80);
+        });
+      }
+      if (catSelect) {
+        catSelect.addEventListener('change', applyFilter);
+      }
+
+      applyFilter();
+    })();
+  </script>
+</Base>
