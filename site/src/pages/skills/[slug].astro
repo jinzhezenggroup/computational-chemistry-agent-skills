@@ -28,6 +28,31 @@ const fm = skill.data;
 const sourcePath = fm.sourcePath || "";
 const skillDir = sourcePath.replace(/\/SKILL\.md$/, ""); // e.g. tools/openbabel
 const installFolderName = skillDir.split("/").slice(-1)[0] || fm.slug;
+
+const humanInstall = `git clone ${REPO}.git
+cd computational-chemistry-agent-skills
+
+# Choose ONE skills directory:
+# 1) Per-workspace (recommended)
+mkdir -p <your-openclaw-workspace>/skills
+cp -r ${skillDir} <your-openclaw-workspace>/skills/
+
+# 2) Shared on this machine
+mkdir -p ~/.openclaw/skills
+cp -r ${skillDir} ~/.openclaw/skills/
+
+# Start a NEW OpenClaw session (skills are snapshotted at session start)
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`;
+
+const agentInstall = `If you can run commands on the OpenClaw host, you can install it directly:
+
+mkdir -p <workspace>/skills
+cp -r ${skillDir} <workspace>/skills/
+
+# Then restart / start a new session to refresh the skill snapshot.
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`;
 ---
 
 <Base title={`${fm.name} · Skill`}>
@@ -57,50 +82,44 @@ const installFolderName = skillDir.split("/").slice(-1)[0] || fm.slug;
 
   <div class="card" style="margin-bottom: 14px;">
     <h2 style="margin: 0 0 10px; font-size: 16px;">Installation</h2>
-    <div class="subtle" style="margin-bottom: 10px;">
-      This section shows how to install <code>{installFolderName}</code> as an OpenClaw skill.
-      Source folder in this repo: <code>{skillDir || "(unknown)"}</code>
+
+    <div class="tabs" role="tablist" aria-label="installation tabs">
+      <button class="tab" id="tab-human" role="tab" aria-selected="true" aria-controls="panel-human" type="button">Human</button>
+      <button class="tab" id="tab-agent" role="tab" aria-selected="false" aria-controls="panel-agent" type="button">Agent</button>
     </div>
 
-    <div class="install-grid">
-      <div class="install-col">
-        <h3 style="margin: 0 0 8px; font-size: 14px;">If you are human beings</h3>
-        <div class="subtle" style="margin-bottom: 8px;">Copy the skill folder into your OpenClaw skills directory.</div>
-        <pre><code>{`git clone ${REPO}.git
-cd computational-chemistry-agent-skills
-
-# Choose ONE skills directory:
-# 1) Per-workspace (recommended)
-mkdir -p <your-openclaw-workspace>/skills
-cp -r ${skillDir} <your-openclaw-workspace>/skills/
-
-# 2) Shared on this machine
-mkdir -p ~/.openclaw/skills
-cp -r ${skillDir} ~/.openclaw/skills/
-
-# Then start a NEW OpenClaw session (skills are snapshotted at session start).
-# Optional check:
-openclaw skills list --eligible
-openclaw skills info ${fm.name}`}</code></pre>
-        <div class="subtle">Prerequisites: {fm.compatibility || "-"}</div>
-      </div>
-
-      <div class="install-col">
-        <h3 style="margin: 0 0 8px; font-size: 14px;">If you are an agent</h3>
-        <div class="subtle" style="margin-bottom: 8px;">
-          Ask your operator to run the “human beings” steps on the machine that hosts OpenClaw.
-          After installation, start a new session so your skill snapshot refreshes.
-        </div>
-        <pre><code>{`Checklist:
-1) Confirm the skill folder exists under the OpenClaw skills dir (e.g. <workspace>/skills/${installFolderName}/SKILL.md)
-2) Start a NEW session (or restart the agent) so skills reload
-3) Verify eligibility:
-   openclaw skills list --eligible
-   openclaw skills info ${fm.name}
-
-If you can run shell commands on the host, you may execute the same copy commands as a human operator.`}</code></pre>
-      </div>
+    <div id="panel-human" class="tab-panel active" role="tabpanel" aria-labelledby="tab-human">
+      <div class="subtle" style="margin-bottom: 8px;">Install <code>{installFolderName}</code> as an OpenClaw skill.</div>
+      <article class="prose" style="padding: 12px;">
+        <pre><code>{humanInstall}</code></pre>
+      </article>
+      <div class="subtle" style="margin-top: 8px;">Prerequisites: {fm.compatibility || "-"}</div>
     </div>
+
+    <div id="panel-agent" class="tab-panel" role="tabpanel" aria-labelledby="tab-agent">
+      <div class="subtle" style="margin-bottom: 8px;">If you can run commands on the OpenClaw host, you can install it yourself.</div>
+      <article class="prose" style="padding: 12px;">
+        <pre><code>{agentInstall}</code></pre>
+      </article>
+    </div>
+
+    <script type="module">
+      const tabHuman = document.getElementById('tab-human');
+      const tabAgent = document.getElementById('tab-agent');
+      const panelHuman = document.getElementById('panel-human');
+      const panelAgent = document.getElementById('panel-agent');
+
+      function setTab(which) {
+        const isHuman = which === 'human';
+        tabHuman?.setAttribute('aria-selected', String(isHuman));
+        tabAgent?.setAttribute('aria-selected', String(!isHuman));
+        panelHuman?.classList.toggle('active', isHuman);
+        panelAgent?.classList.toggle('active', !isHuman);
+      }
+
+      tabHuman?.addEventListener('click', () => setTab('human'));
+      tabAgent?.addEventListener('click', () => setTab('agent'));
+    </script>
   </div>
 
   <article class="prose">

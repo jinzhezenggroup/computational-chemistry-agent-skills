@@ -2,72 +2,55 @@
 import Base from "../layouts/Base.astro";
 import skills from "../data/skills.json";
 
-const base = Astro.base || "";
-const href = (p: string) => `${base}${p}`;
-
-const qRaw = Astro.url.searchParams.get("q") || "";
-const q = qRaw.toLowerCase();
-const cat = Astro.url.searchParams.get("cat") || "";
-
 const categories = Array.from(
   new Set(skills.map((s) => s.category).filter(Boolean))
 ).sort();
-
-let filtered = skills;
-if (cat) filtered = filtered.filter((s) => s.category === cat);
-if (q) {
-  filtered = filtered.filter((s) =>
-    (s.name || "").toLowerCase().includes(q) ||
-    (s.description || "").toLowerCase().includes(q) ||
-    (s.compatibility || "").toLowerCase().includes(q) ||
-    (s.category || "").toLowerCase().includes(q)
-  );
-}
-
-const countsByCat = Object.fromEntries(
-  categories.map((c) => [c, skills.filter((s) => s.category === c).length])
-);
 ---
 
 <Base title="Skills Catalog">
   <section class="hero">
     <h1>Skills Catalog</h1>
     <p>
-      A small, auto-generated catalog for
-      <a href="https://github.com/jinzhezenggroup/computational-chemistry-agent-skills" target="_blank" rel="noreferrer">computational-chemistry-agent-skills</a>.
-      Search, browse by category, and open a skill page to view the full <code>SKILL.md</code> content.
+      Browse and search skills from
+      <a
+        href="https://github.com/jinzhezenggroup/computational-chemistry-agent-skills"
+        target="_blank"
+        rel="noreferrer"
+        >computational-chemistry-agent-skills</a
+      >.
     </p>
 
-    <div class="hero-row">
-      <form class="search" method="get" action={href("/") }>
-        <input name="q" value={qRaw} placeholder="Search skills (name / description / compatibility / category)…" />
-        {cat ? <input type="hidden" name="cat" value={cat} /> : null}
+    <div class="hero-row" id="filters">
+      <form class="search" onsubmit="return false;">
+        <input id="q" placeholder="Search skills…" autocomplete="off" />
       </form>
 
       <div style="display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap: wrap;">
-        <div class="subtle">Showing <b>{filtered.length}</b> / {skills.length}</div>
+        <div class="subtle">Showing <b id="countShown">{skills.length}</b> / <span id="countAll">{skills.length}</span></div>
         {categories.length ? (
-          <select
-            class="select"
-            name="cat"
-            onchange="const u=new URL(location.href); if(this.value) u.searchParams.set('cat', this.value); else u.searchParams.delete('cat'); location.href=u.toString();"
-          >
-            <option value="" selected={!cat}>All categories</option>
+          <select class="select" id="cat">
+            <option value="">All categories</option>
             {categories.map((c) => (
-              <option value={c} selected={c === cat}>
-                {c} ({countsByCat[c]})
-              </option>
+              <option value={c}>{c}</option>
             ))}
           </select>
         ) : null}
+        <button class="btn" type="button" id="clear">Clear</button>
       </div>
     </div>
   </section>
 
-  <div class="card-grid">
-    {filtered.map((s) => (
-      <div class="card">
-        <h3><a href={href(`/skills/${s.slug}/`)}>{s.name}</a></h3>
+  <div class="card-grid" id="grid">
+    {skills.map((s) => (
+      <div
+        class="card"
+        data-skill-card
+        data-name={s.name}
+        data-description={s.description || ""}
+        data-compatibility={s.compatibility || ""}
+        data-category={s.category || ""}
+      >
+        <h3><a href={`/skills/${s.slug}/`}>{s.name}</a></h3>
         {s.category ? (
           <div class="subtle" style="font-size: 12px; margin-bottom: 8px;">
             {s.category}
@@ -81,4 +64,65 @@ const countsByCat = Object.fromEntries(
       </div>
     ))}
   </div>
+
+  <script type="module">
+    const $q = document.getElementById('q');
+    const $cat = document.getElementById('cat');
+    const $clear = document.getElementById('clear');
+    const $countShown = document.getElementById('countShown');
+    const cards = Array.from(document.querySelectorAll('[data-skill-card]'));
+
+    function getParams() {
+      const u = new URL(location.href);
+      return {
+        q: (u.searchParams.get('q') || '').trim(),
+        cat: (u.searchParams.get('cat') || '').trim(),
+      };
+    }
+
+    function setParams({ q, cat }) {
+      const u = new URL(location.href);
+      if (q) u.searchParams.set('q', q); else u.searchParams.delete('q');
+      if (cat) u.searchParams.set('cat', cat); else u.searchParams.delete('cat');
+      history.replaceState({}, '', u);
+    }
+
+    function applyFilter() {
+      const q = ($q?.value || '').toLowerCase().trim();
+      const cat = ($cat?.value || '').trim();
+      let shown = 0;
+
+      for (const el of cards) {
+        const name = (el.dataset.name || '').toLowerCase();
+        const desc = (el.dataset.description || '').toLowerCase();
+        const comp = (el.dataset.compatibility || '').toLowerCase();
+        const category = (el.dataset.category || '').trim();
+
+        const okCat = !cat || category === cat;
+        const okQ = !q || name.includes(q) || desc.includes(q) || comp.includes(q) || category.toLowerCase().includes(q);
+
+        const ok = okCat && okQ;
+        el.style.display = ok ? '' : 'none';
+        if (ok) shown += 1;
+      }
+
+      if ($countShown) $countShown.textContent = String(shown);
+      setParams({ q: q || '', cat: cat || '' });
+    }
+
+    // init from URL
+    const p = getParams();
+    if ($q) $q.value = p.q;
+    if ($cat) $cat.value = p.cat;
+
+    $q?.addEventListener('input', applyFilter);
+    $cat?.addEventListener('change', applyFilter);
+    $clear?.addEventListener('click', () => {
+      if ($q) $q.value = '';
+      if ($cat) $cat.value = '';
+      applyFilter();
+    });
+
+    applyFilter();
+  </script>
 </Base>

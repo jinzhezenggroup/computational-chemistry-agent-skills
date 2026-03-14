@@ -19,15 +19,9 @@ const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-s
   <body>
     <div class="container">
       <header class="topbar">
-        <div class="brand-block">
-          <a class="brand" href={href('/')}>Computational Chemistry Agent Skills</a>
-          <div class="meta">
-            <a href={`${REPO}/blob/master/LICENSE`} target="_blank" rel="noreferrer">License: <code>{LICENSE_ID}</code></a>
-            <span class="dot">·</span>
-            <span>Auto-generated from <code>**/SKILL.md</code></span>
-          </div>
-        </div>
+        <a class="brand" href={href("/")}>Computational Chemistry Agent Skills</a>
         <nav class="nav">
+          <a href={`${REPO}/blob/master/LICENSE`} target="_blank" rel="noreferrer"><code>{LICENSE_ID}</code></a>
           <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
         </nav>
       </header>
@@ -37,9 +31,9 @@ const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-s
       </main>
 
       <footer class="footer">
-        <span>Built from <code>**/SKILL.md</code></span>
-        <span class="dot">·</span>
         <span>License: <code>{LICENSE_ID}</code></span>
+        <span class="dot">·</span>
+        <span><a href={REPO} target="_blank" rel="noreferrer">Repository</a></span>
       </footer>
     </div>
   </body>
