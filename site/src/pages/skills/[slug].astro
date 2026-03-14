@@ -26,33 +26,8 @@ const { Content } = await skill.render();
 const fm = skill.data;
 
 const sourcePath = fm.sourcePath || "";
-const skillDir = sourcePath.replace(/\/SKILL\.md$/, ""); // e.g. tools/openbabel
+const skillDir = sourcePath.replace(/\/SKILL\.md$/, "");
 const installFolderName = skillDir.split("/").slice(-1)[0] || fm.slug;
-
-const humanInstall = `git clone ${REPO}.git
-cd computational-chemistry-agent-skills
-
-# Choose ONE skills directory:
-# 1) Per-workspace (recommended)
-mkdir -p <your-openclaw-workspace>/skills
-cp -r ${skillDir} <your-openclaw-workspace>/skills/
-
-# 2) Shared on this machine
-mkdir -p ~/.openclaw/skills
-cp -r ${skillDir} ~/.openclaw/skills/
-
-# Start a NEW OpenClaw session (skills are snapshotted at session start)
-openclaw skills list --eligible
-openclaw skills info ${fm.name}`;
-
-const agentInstall = `If you can run commands on the OpenClaw host, you can install it directly:
-
-mkdir -p <workspace>/skills
-cp -r ${skillDir} <workspace>/skills/
-
-# Then restart / start a new session to refresh the skill snapshot.
-openclaw skills list --eligible
-openclaw skills info ${fm.name}`;
 ---
 
 <Base title={`${fm.name} · Skill`}>
@@ -70,7 +45,7 @@ openclaw skills info ${fm.name}`;
     <div class="subtle" style="margin-bottom: 10px;">{fm.description}</div>
     <div class="pills">
       <span class="pill primary">v{fm.version}</span>
-      <span class="pill">{fm.compatibility}</span>
+      {fm.compatibility ? <span class="pill">{fm.compatibility}</span> : null}
       {fm.repository ? (
         <a class="pill" href={fm.repository} target="_blank" rel="noreferrer">repository</a>
       ) : null}
@@ -80,45 +55,74 @@ openclaw skills info ${fm.name}`;
     </div>
   </div>
 
-  <div class="card" style="margin-bottom: 14px;">
+  <div class="card install-wrap" style="margin-bottom: 14px;" data-tabs>
     <h2 style="margin: 0 0 10px; font-size: 16px;">Installation</h2>
-
-    <div class="tabs" role="tablist" aria-label="installation tabs">
-      <button class="tab" id="tab-human" role="tab" aria-selected="true" aria-controls="panel-human" type="button">Human</button>
-      <button class="tab" id="tab-agent" role="tab" aria-selected="false" aria-controls="panel-agent" type="button">Agent</button>
+    <div class="subtle" style="margin-bottom: 10px;">
+      Install folder: <code>{installFolderName}</code>
+      {skillDir ? <span class="dot">·</span> : null}
+      {skillDir ? <span>Repo path: <code>{skillDir}</code></span> : null}
     </div>
 
-    <div id="panel-human" class="tab-panel active" role="tabpanel" aria-labelledby="tab-human">
-      <div class="subtle" style="margin-bottom: 8px;">Install <code>{installFolderName}</code> as an OpenClaw skill.</div>
-      <article class="prose" style="padding: 12px;">
-        <pre><code>{humanInstall}</code></pre>
-      </article>
+    <div class="tabs" role="tablist" aria-label="Installation tabs">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-human" id="tab-human-btn" type="button">If you are human beings</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-agent" id="tab-agent-btn" type="button">If you are an agent</button>
+    </div>
+
+    <section class="tab-panel" role="tabpanel" id="tab-human" aria-labelledby="tab-human-btn">
+      <div class="subtle" style="margin-bottom: 8px;">Copy the skill folder into your OpenClaw skills directory.</div>
+      <pre><code>{`git clone ${REPO}.git
+cd computational-chemistry-agent-skills
+
+# Choose ONE skills directory:
+# 1) Per-workspace (recommended)
+mkdir -p <your-openclaw-workspace>/skills
+cp -r ${skillDir} <your-openclaw-workspace>/skills/
+
+# 2) Shared on this machine
+mkdir -p ~/.openclaw/skills
+cp -r ${skillDir} ~/.openclaw/skills/
+
+# Start a NEW OpenClaw session (skills are snapshotted at session start).
+# Optional check:
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`}</code></pre>
       <div class="subtle" style="margin-top: 8px;">Prerequisites: {fm.compatibility || "-"}</div>
-    </div>
+    </section>
 
-    <div id="panel-agent" class="tab-panel" role="tabpanel" aria-labelledby="tab-agent">
-      <div class="subtle" style="margin-bottom: 8px;">If you can run commands on the OpenClaw host, you can install it yourself.</div>
-      <article class="prose" style="padding: 12px;">
-        <pre><code>{agentInstall}</code></pre>
-      </article>
-    </div>
+    <section class="tab-panel" role="tabpanel" id="tab-agent" aria-labelledby="tab-agent-btn" hidden>
+      <div class="subtle" style="margin-bottom: 8px;">
+        If you have shell access on the OpenClaw host, you can install it yourself (same commands as the human operator).
+      </div>
+      <pre><code>{`# Verify the skill exists under a loaded skills root, e.g.
+# <workspace>/skills/${installFolderName}/SKILL.md
 
-    <script type="module">
-      const tabHuman = document.getElementById('tab-human');
-      const tabAgent = document.getElementById('tab-agent');
-      const panelHuman = document.getElementById('panel-human');
-      const panelAgent = document.getElementById('panel-agent');
+# Start a NEW session (or restart the agent) so skills reload
 
-      function setTab(which) {
-        const isHuman = which === 'human';
-        tabHuman?.setAttribute('aria-selected', String(isHuman));
-        tabAgent?.setAttribute('aria-selected', String(!isHuman));
-        panelHuman?.classList.toggle('active', isHuman);
-        panelAgent?.classList.toggle('active', !isHuman);
-      }
+# Verify eligibility
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`}</code></pre>
+    </section>
 
-      tabHuman?.addEventListener('click', () => setTab('human'));
-      tabAgent?.addEventListener('click', () => setTab('agent'));
+    <script is:inline>
+      // Minimal tabs: click -> toggle aria-selected + hidden panels.
+      (function () {
+        const root = document.currentScript?.closest('[data-tabs]');
+        if (!root) return;
+        const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+        const panels = new Map(tabs.map(t => [t.getAttribute('aria-controls'), root.querySelector('#' + t.getAttribute('aria-controls'))]));
+        function activate(id) {
+          tabs.forEach(t => {
+            const selected = t.getAttribute('aria-controls') === id;
+            t.setAttribute('aria-selected', selected ? 'true' : 'false');
+          });
+          panels.forEach((p, pid) => {
+            if (!p) return;
+            if (pid === id) p.removeAttribute('hidden');
+            else p.setAttribute('hidden', '');
+          });
+        }
+        tabs.forEach(t => t.addEventListener('click', () => activate(t.getAttribute('aria-controls'))));
+      })();
     </script>
   </div>
 
