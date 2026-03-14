@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -98,7 +97,9 @@ def main(argv: list[str]) -> int:
             actual = data.get("name")
             if isinstance(actual, str) and actual != expected:
                 ok = False
-                print(f"{f}: name must match parent directory: expected {expected!r}, got {actual!r}")
+                print(
+                    f"{f}: name must match parent directory: expected {expected!r}, got {actual!r}"
+                )
 
         errors = sorted(validator.iter_errors(data), key=lambda e: list(e.path))
         if errors:
