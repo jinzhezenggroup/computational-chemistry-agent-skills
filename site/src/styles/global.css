@@ -65,15 +65,6 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libe
 }
 .nav a:hover { text-decoration: none; background: var(--panel2); }
 
-.nav a.nav-primary {
-  color: #fff;
-  background: var(--brand);
-  border-color: rgba(37,99,235,0.55);
-}
-.nav a.nav-primary:hover {
-  background: #1d4ed8; /* blue-700 */
-}
-
 .dot { opacity: 0.7; }
 .subtle { color: var(--muted); }
 
