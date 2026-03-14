@@ -6,6 +6,7 @@ const base = Astro.base || "";
 const href = (p: string) => `${base}${p}`;
 
 const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
+const ZIP_URL = `${REPO}/archive/refs/heads/master.zip`;
 
 export async function getStaticPaths() {
   const skills = await getCollection("skills");
@@ -64,12 +65,39 @@ const installFolderName = skillDir.split("/").slice(-1)[0] || fm.slug;
     </div>
 
     <div class="tabs" role="tablist" aria-label="Installation tabs">
-      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-human" id="tab-human-btn" type="button">If you are human beings</button>
+      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-zip" id="tab-zip-btn" type="button">Download .zip</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-git" id="tab-git-btn" type="button">git clone</button>
       <button class="tab" role="tab" aria-selected="false" aria-controls="tab-agent" id="tab-agent-btn" type="button">If you are an agent</button>
     </div>
 
-    <section class="tab-panel" role="tabpanel" id="tab-human" aria-labelledby="tab-human-btn">
-      <div class="subtle" style="margin-bottom: 8px;">Copy the skill folder into your OpenClaw skills directory.</div>
+    <section class="tab-panel" role="tabpanel" id="tab-zip" aria-labelledby="tab-zip-btn">
+      <div class="subtle" style="margin-bottom: 8px;">
+        Download and unzip the repository, then copy the skill folder into your OpenClaw skills directory.
+      </div>
+      <pre><code>{`# 1) Download the repository zip
+# ${ZIP_URL}
+
+# 2) Unzip it. You will get a folder like:
+# computational-chemistry-agent-skills-master/
+
+# Choose ONE skills directory:
+# 1) Per-workspace (recommended)
+mkdir -p <your-openclaw-workspace>/skills
+cp -r computational-chemistry-agent-skills-master/${skillDir} <your-openclaw-workspace>/skills/
+
+# 2) Shared on this machine
+mkdir -p ~/.openclaw/skills
+cp -r computational-chemistry-agent-skills-master/${skillDir} ~/.openclaw/skills/
+
+# Start a NEW OpenClaw session (skills are snapshotted at session start).
+# Optional check:
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`}</code></pre>
+      <div class="subtle" style="margin-top: 8px;">Prerequisites: {fm.compatibility || "-"}</div>
+    </section>
+
+    <section class="tab-panel" role="tabpanel" id="tab-git" aria-labelledby="tab-git-btn" hidden>
+      <div class="subtle" style="margin-bottom: 8px;">Clone the repo, then copy the skill folder into your OpenClaw skills directory.</div>
       <pre><code>{`git clone ${REPO}.git
 cd computational-chemistry-agent-skills
 
