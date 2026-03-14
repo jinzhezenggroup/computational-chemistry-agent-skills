@@ -2,26 +2,37 @@
 import Base from "../../layouts/Base.astro";
 import { getCollection } from "astro:content";
 
+const base = Astro.base || "";
+const href = (p: string) => `${base}${p}`;
+
+const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
+
 export async function getStaticPaths() {
-  const skills = await getCollection('skills');
+  const skills = await getCollection("skills");
   return skills.map((s) => ({ params: { slug: s.slug } }));
 }
 
-const base = Astro.base || '';
-const href = (p) => `${base}${p}`;
-
 const { slug } = Astro.params;
-const skills = await getCollection('skills');
-const skill = skills.find((s) => s.slug === slug);
-if (!skill) throw new Error(`Skill not found: ${slug}`);
+const skills = await getCollection("skills");
+
+const idx = skills.findIndex((s) => s.slug === slug);
+if (idx < 0) throw new Error(`Skill not found: ${slug}`);
+
+const skill = skills[idx];
+const prev = idx > 0 ? skills[idx - 1] : null;
+const next = idx < skills.length - 1 ? skills[idx + 1] : null;
 
 const { Content } = await skill.render();
 const fm = skill.data;
 ---
 
 <Base title={`${fm.name} · Skill`}>
-  <div class="subtle" style="margin-bottom: 12px;">
-    <a href={href('/')}>← All skills</a>
+  <div class="subtle" style="margin-bottom: 12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <a href={href("/")}>← All skills</a>
+    <span class="dot">·</span>
+    {prev ? <a href={href(`/skills/${prev.slug}/`)}>← {prev.data.name}</a> : <span class="subtle">← (first)</span>}
+    <span class="dot">·</span>
+    {next ? <a href={href(`/skills/${next.slug}/`)}>{next.data.name} →</a> : <span class="subtle">(last) →</span>}
   </div>
 
   <div class="card" style="margin-bottom: 14px;">
@@ -29,10 +40,14 @@ const fm = skill.data;
     {fm.category ? <div class="subtle" style="margin-bottom: 8px;">{fm.category}</div> : null}
     <div class="subtle" style="margin-bottom: 10px;">{fm.description}</div>
     <div class="pills">
-      <span class="pill">v{fm.version}</span>
+      <span class="pill primary">v{fm.version}</span>
       <span class="pill">{fm.compatibility}</span>
-      {fm.repository ? <a class="pill" href={fm.repository} target="_blank">repository</a> : null}
-      {fm.sourcePath ? <a class="pill" href={`https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/blob/master/${fm.sourcePath}`} target="_blank">source</a> : null}
+      {fm.repository ? (
+        <a class="pill" href={fm.repository} target="_blank" rel="noreferrer">repository</a>
+      ) : null}
+      {fm.sourcePath ? (
+        <a class="pill" href={`${REPO}/blob/master/${fm.sourcePath}`} target="_blank" rel="noreferrer">source</a>
+      ) : null}
     </div>
   </div>
 

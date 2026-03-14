@@ -1,8 +1,13 @@
 ---
 import "../styles/global.css";
+
 const { title = "Computational Chemistry Agent Skills" } = Astro.props;
-const base = Astro.base || '';
-const href = (p) => `${base}${p}`;
+
+const base = Astro.base ?? "";
+const href = (p: string) => `${base}${p}`;
+
+const LICENSE_ID = "LGPL-3.0";
+const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
 ---
 <!doctype html>
 <html lang="en">
@@ -13,16 +18,29 @@ const href = (p) => `${base}${p}`;
   </head>
   <body>
     <div class="container">
-      <div class="header">
-        <div>
-          <div class="brand"><a href={href('/')}>Computational Chemistry Agent Skills</a></div>
+      <header class="topbar">
+        <div class="brand-block">
+          <a class="brand" href={href('/')}>Computational Chemistry Agent Skills</a>
+          <div class="meta">
+            <a href={`${REPO}/blob/master/LICENSE`} target="_blank" rel="noreferrer">License: <code>{LICENSE_ID}</code></a>
+            <span class="dot">·</span>
+            <span>Auto-generated from <code>**/SKILL.md</code></span>
+          </div>
         </div>
-        <div class="subtle"><a href="https://github.com/jinzhezenggroup/computational-chemistry-agent-skills">GitHub</a></div>
-      </div>
-      <slot />
-      <div class="footer">
-        Built from <code>**/SKILL.md</code>
-      </div>
+        <nav class="nav">
+          <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
+        </nav>
+      </header>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer class="footer">
+        <span>Built from <code>**/SKILL.md</code></span>
+        <span class="dot">·</span>
+        <span>License: <code>{LICENSE_ID}</code></span>
+      </footer>
     </div>
   </body>
 </html>
