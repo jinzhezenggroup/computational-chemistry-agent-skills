@@ -29,6 +29,7 @@ repos:
     rev: 1.0.0
     hooks:
       - id: mdformat
+        exclude: ^README\.md$
         additional_dependencies:
           - mdformat-gfm==1.0.0
           - mdformat-frontmatter==2.0.10
