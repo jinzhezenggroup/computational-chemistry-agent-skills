@@ -5,12 +5,14 @@ description: Run ReacNetGenerator on LAMMPS trajectories to generate reaction ne
 
 ## Quick start (agent)
 
-1) Ask for or infer:
+1. Ask for or infer:
+
 - input trajectory path(s)
 - input type: dump | xyz | bond (default dump if LAMMPS "ITEM:" is detected)
 - atom names order for `-a` (infer from LAMMPS data file if present)
 
-2) Prefer running the pipeline tool from PyPI (do not hand-compose long commands):
+2. Prefer running the pipeline tool from PyPI (do not hand-compose long commands):
+
 - Use `reacnet-md-tools` → `rng-pipeline`.
 
 If multiple `.data` files exist, either pass `--data path/to/file.data` or use `--pick-data` for interactive selection.
@@ -19,13 +21,13 @@ If multiple `.data` files exist, either pass `--data path/to/file.data` or use `
 
 ```bash
 uvx --refresh --from 'reacnet-md-tools>=0.1.1' rng-pipeline \
-  --input /path/to/trajectory.lammpstrj \
-  --type dump \
-  --outroot out \
-  --pick-data \
-  --nohmm \
-  --stepinterval 10 \
-  --maxspecies 50
+    --input /path/to/trajectory.lammpstrj \
+    --type dump \
+    --outroot out \
+    --pick-data \
+    --nohmm \
+    --stepinterval 10 \
+    --maxspecies 50
 ```
 
 ## What this skill does
@@ -53,6 +55,7 @@ uvx --refresh --from 'reacnet-md-tools>=0.1.1' python -c "import reacnet_md_tool
 ```
 
 If you still see errors on triclinic dumps:
+
 - ensure your run is resolving `reacnet-md-tools >= 0.1.1` (use `--refresh`), or
 - re-dump trajectories with `x y z` instead of `xs ys zs`.
 

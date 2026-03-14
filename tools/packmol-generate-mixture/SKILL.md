@@ -3,10 +3,10 @@ name: packmol-generate-mixture
 description: Generate an initial packed molecular configuration (packed XYZ) from one or more single-molecule XYZ structures using Packmol. Use when you need to pack molecules into a cubic box for MD/prep; ask for packing parameters (counts, density/box, tolerance) and desired output location; then generate Packmol input, run Packmol via uvx, and report output paths + box metadata.
 metadata:
   openclaw:
-    emoji: "📦"
+    emoji: 📦
     requires:
-      bins: ["uv", "python3"]
-    os: ["linux", "darwin"]
+      bins: [uv, python3]
+    os: [linux, darwin]
 ---
 
 # packmol-generate-mixture
@@ -16,38 +16,45 @@ Use Packmol to generate an initial **packed** configuration for a molecular mixt
 ## Agent responsibilities (do these in order)
 
 1. **Collect inputs** (ask if missing; do not guess):
+
    - component structure files (XYZ), one per species (e.g. `species1.xyz`, `species2.xyz`)
    - molecule counts for each species (e.g. `species1: 100`, `species2: 650`)
    - **either** target density (g/cm^3) **or** a fixed cubic box length (Å)
    - Packmol `tolerance` (Å)
    - **output location**: output directory + output filename prefix (system name)
 
-2. **Validate inputs**:
+1. **Validate inputs**:
+
    - confirm XYZ files exist and are readable
    - confirm the first line (atom count) matches the number of coordinate lines
    - if density-based box estimation is requested: confirm each molecule’s elemental composition can be inferred from the XYZ symbols
 
-3. **Decide box size**:
+1. **Decide box size**:
+
    - If user provides `box_length_A`: use it.
    - Else compute `box_length_A` from density (see formula below).
 
-4. **Create a working folder** at the requested output location:
+1. **Create a working folder** at the requested output location:
+
    - copy the component XYZ files into it (or reference them with absolute paths)
 
-5. **Write Packmol input** `${system_name}.inp`:
+1. **Write Packmol input** `${system_name}.inp`:
+
    - one `structure ... end structure` block per component
    - all components share the same `inside box 0 0 0 L L L`
 
-6. **Run Packmol locally**:
+1. **Run Packmol locally**:
+
    - Prefer: `uvx packmol -i ${system_name}.inp`
    - If you need to force the source package: `uvx --from packmol packmol -i ${system_name}.inp`
 
-7. **Report results**:
+1. **Report results**:
+
    - exact output paths (inp, xyz, log)
    - final box length (Å) and the parameters used (counts, density or fixed L, tolerance)
    - basic sanity checks (total molecules, total atoms)
 
-8. **(Optional) Post-process for LAMMPS**
+1. **(Optional) Post-process for LAMMPS**
 
 If the user plans to run LAMMPS (especially ReaxFF), they often need a LAMMPS data file with correct box bounds.
 
@@ -56,10 +63,10 @@ If the user plans to run LAMMPS (especially ReaxFF), they often need a LAMMPS da
 
 ```bash
 uvx --from lammps-md-tools lammps-fix-box \
-  --in  input.data \
-  --out output.boxfix.data \
-  --L 60.690 \
-  --wrap
+    --in  input.data \
+    --out output.boxfix.data \
+    --L 60.690 \
+    --wrap
 ```
 
 This rewrites `xlo/xhi`, `ylo/yhi`, `zlo/zhi` to `0..L`, zeroes tilt factors, and optionally wraps atoms into the box.
@@ -74,6 +81,7 @@ If the user didn’t specify them, ask **at minimum**:
 - **Output location**: which directory should receive the results, and what system name / filename prefix should be used?
 
 If the user says “use defaults”, propose defaults:
+
 - `tolerance = 2.0 Å`
 - output dir: a `packed/` subfolder under the folder containing the input XYZ
 - (density) **do not assume**; ask for it, but you may suggest a starting value the user can confirm.
@@ -116,6 +124,7 @@ This is an **initial packing estimate** (geometry construction), not an equilibr
 ## Output contract
 
 The run should produce (within `output_dir`):
+
 - `${system_name}.inp` (Packmol input)
 - `${system_name}.xyz` (packed XYZ output; name may include `_packed` suffix)
 - `packmol.out` (stdout log; capture with `tee`)
