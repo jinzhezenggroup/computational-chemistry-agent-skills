@@ -5,6 +5,13 @@ import skills from "../data/skills.json";
 const base = Astro.base || "";
 const href = (p: string) => `${base}${p}`;
 
+const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
+const REPO_ZIP_URL = `${REPO}/archive/refs/heads/master.zip`;
+
+const INSTALL_DEST = "~/.openclaw/skills/computational-chemistry-agent-skills";
+
+const AGENT_INSTALL_ALL = `Please install ALL skills from computational-chemistry-agent-skills on the OpenClaw host.\n\nSteps:\n1) Download repository ZIP: ${REPO_ZIP_URL}\n2) Unzip it to get: computational-chemistry-agent-skills-master/\n3) Copy the repo contents into: ${INSTALL_DEST}/\n4) Start a NEW OpenClaw session so skills reload\n\nVerify:\nopenclaw skills list --eligible\n\n(These skills will be discovered under ${INSTALL_DEST}/**/SKILL.md.)`;
+
 const categories = Array.from(
   new Set(skills.map((s) => s.category).filter(Boolean))
 ).sort();
@@ -19,7 +26,7 @@ const countsByCat = Object.fromEntries(
     <h1>Skills Catalog</h1>
     <p>
       Browse skills in
-      <a href="https://github.com/jinzhezenggroup/computational-chemistry-agent-skills" target="_blank" rel="noreferrer">computational-chemistry-agent-skills</a>.
+      <a href={REPO} target="_blank" rel="noreferrer">computational-chemistry-agent-skills</a>.
     </p>
 
     <div class="hero-row">
@@ -45,6 +52,67 @@ const countsByCat = Object.fromEntries(
       </div>
     </div>
   </section>
+
+  <div class="card install-wrap" style="margin-bottom: 14px;" data-tabs>
+    <h2 style="margin: 0 0 10px; font-size: 16px;">Install all skills</h2>
+    <div class="subtle" style="margin-bottom: 10px;">
+      Want everything at once? Install the whole repository as a skills pack.
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Install all skills tabs">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-ask-agent" id="tab-ask-agent-btn" type="button">Ask an agent (recommended)</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-run" id="tab-run-btn" type="button">Run commands yourself</button>
+    </div>
+
+    <section class="tab-panel" role="tabpanel" id="tab-ask-agent" aria-labelledby="tab-ask-agent-btn">
+      <div class="subtle" style="margin-bottom: 8px;">
+        Copy/paste this message to your OpenClaw agent.
+      </div>
+      <pre><code>{AGENT_INSTALL_ALL}</code></pre>
+    </section>
+
+    <section class="tab-panel" role="tabpanel" id="tab-run" aria-labelledby="tab-run-btn" hidden>
+      <div class="subtle" style="margin-bottom: 8px;">
+        If you have shell access on the OpenClaw host, run the commands below.
+      </div>
+      <pre><code>{`# Download repository ZIP
+wget -O computational-chemistry-agent-skills.zip ${REPO_ZIP_URL}
+
+# Unzip
+unzip computational-chemistry-agent-skills.zip
+
+# Install as a skills pack (shared on this machine)
+mkdir -p ${INSTALL_DEST}
+cp -r computational-chemistry-agent-skills-master/* ${INSTALL_DEST}/
+
+# Start a NEW OpenClaw session so skills reload
+
+# Verify
+openclaw skills list --eligible`}</code></pre>
+    </section>
+
+    <script is:inline>
+      // Minimal tabs: click -> toggle aria-selected + hidden panels.
+      (function () {
+        const root = document.currentScript?.closest('[data-tabs]');
+        if (!root) return;
+        const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+        const panels = new Map(tabs.map(t => [t.getAttribute('aria-controls'), root.querySelector('#' + t.getAttribute('aria-controls'))]));
+        function activate(id) {
+          tabs.forEach(t => {
+            const selected = t.getAttribute('aria-controls') === id;
+            t.setAttribute('aria-selected', selected ? 'true' : 'false');
+          });
+          panels.forEach((p, pid) => {
+            if (!p) return;
+            if (pid === id) p.removeAttribute('hidden');
+            else p.setAttribute('hidden', '');
+          });
+        }
+        tabs.forEach(t => t.addEventListener('click', () => activate(t.getAttribute('aria-controls'))));
+      })();
+    </script>
+  </div>
 
   <div class="card-grid" id="grid">
     {skills.map((s) => (
