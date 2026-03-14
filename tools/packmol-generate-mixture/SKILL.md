@@ -16,8 +16,8 @@ Use Packmol to generate an initial **packed** configuration for a molecular mixt
 ## Agent responsibilities (do these in order)
 
 1. **Collect inputs** (ask if missing; do not guess):
-   - component structure files (XYZ), one per species (e.g. `2CP_opt.xyz`, `O2_opt.xyz`)
-   - molecule counts for each species (e.g. `2CP: 100`, `O2: 650`)
+   - component structure files (XYZ), one per species (e.g. `species1.xyz`, `species2.xyz`)
+   - molecule counts for each species (e.g. `species1: 100`, `species2: 650`)
    - **either** target density (g/cm^3) **or** a fixed cubic box length (Å)
    - Packmol `tolerance` (Å)
    - **output location**: output directory + output filename prefix (system name)
@@ -47,36 +47,55 @@ Use Packmol to generate an initial **packed** configuration for a molecular mixt
    - final box length (Å) and the parameters used (counts, density or fixed L, tolerance)
    - basic sanity checks (total molecules, total atoms)
 
+8. **(Optional) Post-process for LAMMPS**
+
+If the user plans to run LAMMPS (especially ReaxFF), they often need a LAMMPS data file with correct box bounds.
+
+- If you convert XYZ -> LAMMPS data with dpdata, dpdata may write default box bounds (e.g., 0..100 Å).
+- Fix the bounds to match the Packmol cubic box length using `lammps-md-tools` from PyPI:
+
+```bash
+uvx --from lammps-md-tools lammps-fix-box \
+  --in  input.data \
+  --out output.boxfix.data \
+  --L 60.690 \
+  --wrap
+```
+
+This rewrites `xlo/xhi`, `ylo/yhi`, `zlo/zhi` to `0..L`, zeroes tilt factors, and optionally wraps atoms into the box.
+
 ## What to ask the user (plain language)
 
 If the user didn’t specify them, ask **at minimum**:
 
-- **打包参数**：每种分子各放多少个？（例如 2CP=100, O2=650）
-- **盒子/密度**：你希望用目标密度 (g/cm³) 来估算盒子，还是直接给定立方盒边长 L (Å)？
-- **tolerance**：最小分子间距 tolerance (Å) 用多少？（常见 2.0 Å）
-- **输出位置**：结果写到哪个目录？系统名/文件前缀叫啥？（例如输出到 `.../packed/`，文件前缀 `2CP_O2_1ER`）
+- **Packing counts**: how many molecules of each species? (e.g., `species1=100, species2=650`)
+- **Box definition**: do you want to estimate a cubic box from a target density (g/cm^3), or do you want to provide a fixed cubic box length L (Å)?
+- **Tolerance**: what Packmol `tolerance` (Å) should be used? (common starting point: 2.0 Å)
+- **Output location**: which directory should receive the results, and what system name / filename prefix should be used?
 
-If the user says “用默认值”, propose defaults:
+If the user says “use defaults”, propose defaults:
 - `tolerance = 2.0 Å`
 - output dir: a `packed/` subfolder under the folder containing the input XYZ
 - (density) **do not assume**; ask for it, but you may suggest a starting value the user can confirm.
 
 ## Input schema (recommended)
 
+Example (replace with your own species/files):
+
 ```yaml
-system_name: 2CP_O2_1ER
-output_dir: /home/vlab/2CP_O2_1ER/packed
+system_name: mixture_pack
+output_dir: /path/to/output/packed
 # Choose ONE of the following:
 density_g_cm3: 0.25
 # box_length_A: 60.69
 
 tolerance_A: 2.0
 components:
-  - name: 2CP
-    structure_file: /home/vlab/2CP_O2_1ER/2CP_opt.xyz
+  - name: species1
+    structure_file: /path/to/species1.xyz
     number: 100
-  - name: O2
-    structure_file: /home/vlab/2CP_O2_1ER/O2_opt.xyz
+  - name: species2
+    structure_file: /path/to/species2.xyz
     number: 650
 ```
 
