@@ -71,52 +71,32 @@ const AGENT_PROMPT = `Please install the OpenClaw skill "${fm.name}" on the Open
     </div>
 
     <div class="tabs" role="tablist" aria-label="Installation tabs">
-      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-human" id="tab-human-btn" type="button">For humans</button>
-      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-agent" id="tab-agent-btn" type="button">For agents</button>
+      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-human" id="tab-human-btn" type="button">Ask an agent (recommended)</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-agent" id="tab-agent-btn" type="button">Run commands yourself</button>
     </div>
 
     <section class="tab-panel" role="tabpanel" id="tab-human" aria-labelledby="tab-human-btn">
       <div class="subtle" style="margin-bottom: 8px;">
-        Download and unzip this skill only, then copy it into your OpenClaw skills directory.
-        <span class="dot">·</span>
-        <a href={SKILL_ZIP_PATH} download>Direct download</a>
+        Copy/paste this message to your OpenClaw agent.
       </div>
 
-      <pre><code>{`# Download (recommended)
-wget -O ${slug}.zip ${SKILL_ZIP_URL}
-
-# Unzip. You will get a folder like:
-# ${installFolderName}/
-unzip ${slug}.zip
-
-# Choose ONE skills directory:
-# 1) Per-workspace (recommended)
-mkdir -p <your-openclaw-workspace>/skills
-cp -r ${installFolderName} <your-openclaw-workspace>/skills/
-
-# 2) Shared on this machine
-mkdir -p ~/.openclaw/skills
-cp -r ${installFolderName} ~/.openclaw/skills/
-
-# Start a NEW OpenClaw session (skills are snapshotted at session start).
-# Optional check:
-openclaw skills list --eligible
-openclaw skills info ${fm.name}`}</code></pre>
+      <pre><code>{`${AGENT_PROMPT}`}</code></pre>
 
       <div class="subtle" style="margin-top: 8px;">Prerequisites: {fm.compatibility || "-"}</div>
     </section>
 
     <section class="tab-panel" role="tabpanel" id="tab-agent" aria-labelledby="tab-agent-btn" hidden>
       <div class="subtle" style="margin-bottom: 8px;">
-        If you have shell access on the OpenClaw host, you can install it yourself.
-        Otherwise, you can ask the human operator to run the commands from the other tab.
+        If you have shell access on the OpenClaw host, run the commands below.
+        <span class="dot">·</span>
+        <a href={SKILL_ZIP_PATH} download>Direct download</a>
       </div>
 
-      <pre><code>{`# Suggested operator message / task description
-${AGENT_PROMPT}
-
-# If you can run commands on the OpenClaw host:
+      <pre><code>{`# Download
 wget -O ${slug}.zip ${SKILL_ZIP_URL}
+
+# Unzip. You will get a folder like:
+# ${installFolderName}/
 unzip ${slug}.zip
 
 # Copy into a loaded skills root:
@@ -129,6 +109,8 @@ cp -r ${installFolderName} <workspace>/skills/
 # Verify:
 openclaw skills list --eligible
 openclaw skills info ${fm.name}`}</code></pre>
+
+      <div class="subtle" style="margin-top: 8px;">Prerequisites: {fm.compatibility || "-"}</div>
     </section>
 
     <script is:inline>
