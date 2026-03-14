@@ -4,7 +4,7 @@ description: Use Open Babel CLI to convert molecular file formats, generate 3D s
 compatibility: Requires uv and internet access (uses `uvx --from openbabel-wheel obabel ...`).
 metadata:
   author: njzjz-bot
-  version: "1.1"
+  version: '1.1'
   repository: https://github.com/openbabel/openbabel
 ---
 
@@ -111,11 +111,11 @@ uvx --from openbabel-wheel obabel CC.log -ilog -ogjf | sed "1c %nproc=28\n#freq 
 When using this skill for users:
 
 1. Confirm source file(s) and desired target format.
-2. Prefer explicit `-i` and `-o` format flags for reproducibility.
-3. Add `--gen3d` when converting SMILES to coordinate-bearing structures.
-4. Quote SMILES strings that contain brackets/parentheses.
-5. For Gaussian workflows, verify route section and resource lines (`%nproc`, method/basis) after generation.
-6. Use `uvx --from openbabel-wheel obabel ...` consistently to minimize local dependency setup.
+1. Prefer explicit `-i` and `-o` format flags for reproducibility.
+1. Add `--gen3d` when converting SMILES to coordinate-bearing structures.
+1. Quote SMILES strings that contain brackets/parentheses.
+1. For Gaussian workflows, verify route section and resource lines (`%nproc`, method/basis) after generation.
+1. Use `uvx --from openbabel-wheel obabel ...` consistently to minimize local dependency setup.
 
 ## References
 

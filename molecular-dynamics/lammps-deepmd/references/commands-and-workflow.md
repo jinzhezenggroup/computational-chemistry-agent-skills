@@ -16,10 +16,10 @@ Use this skill when a user needs to:
 ## Practical rules for agents
 
 1. Prefer small, explicit input scripts over clever but opaque templates.
-2. Explain every command in the example script, because many users treat the example as a starting point for their own production run.
-3. If the user asks to run a simulation, always confirm the structure file and DeePMD model file before execution.
-4. If the user asks for offline execution, ask which exact LAMMPS command should be used instead of guessing.
-5. If the user only asks for a template, do not overcomplicate it with advanced computes or fixes unless they are needed.
+1. Explain every command in the example script, because many users treat the example as a starting point for their own production run.
+1. If the user asks to run a simulation, always confirm the structure file and DeePMD model file before execution.
+1. If the user asks for offline execution, ask which exact LAMMPS command should be used instead of guessing.
+1. If the user only asks for a template, do not overcomplicate it with advanced computes or fixes unless they are needed.
 
 ## Suggested smoke test strategy
 
