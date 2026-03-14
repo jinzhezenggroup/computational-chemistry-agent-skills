@@ -8,9 +8,9 @@ const href = (p: string) => `${base}${p}`;
 const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
 const REPO_ZIP_URL = `${REPO}/archive/refs/heads/master.zip`;
 
-const INSTALL_DEST = "~/.openclaw/skills/computational-chemistry-agent-skills";
+const SKILLS_ROOT = "~/.openclaw/skills";
 
-const AGENT_INSTALL_ALL = `Please install ALL skills from computational-chemistry-agent-skills on the OpenClaw host.\n\nSteps:\n1) Download repository ZIP: ${REPO_ZIP_URL}\n2) Unzip it to get: computational-chemistry-agent-skills-master/\n3) Copy the repo contents into: ${INSTALL_DEST}/\n4) Start a NEW OpenClaw session so skills reload\n\nVerify:\nopenclaw skills list --eligible\n\n(These skills will be discovered under ${INSTALL_DEST}/**/SKILL.md.)`;
+const AGENT_INSTALL_ALL = `Please install ALL skills from computational-chemistry-agent-skills on the OpenClaw host.\n\nGoal\n- Install each skill as its own folder directly under: ${SKILLS_ROOT}/\n  (OpenClaw discovers skills at <skillsRoot>/*/SKILL.md; it will NOT recursively scan deeper trees.)\n\nSteps\n1) Download repository ZIP: ${REPO_ZIP_URL}\n2) Unzip it to get: computational-chemistry-agent-skills-master/\n3) Find every SKILL.md in the repo and copy its parent folder into ${SKILLS_ROOT}/<folder-name>/\n4) Start a NEW OpenClaw session so skills reload\n\nVerify\nopenclaw skills list --eligible`;
 
 const categories = Array.from(
   new Set(skills.map((s) => s.category).filter(Boolean))
@@ -81,9 +81,18 @@ wget -O computational-chemistry-agent-skills.zip ${REPO_ZIP_URL}
 # Unzip
 unzip computational-chemistry-agent-skills.zip
 
-# Install as a skills pack (shared on this machine)
-mkdir -p ${INSTALL_DEST}
-cp -r computational-chemistry-agent-skills-master/* ${INSTALL_DEST}/
+ROOT=computational-chemistry-agent-skills-master
+DEST=${SKILLS_ROOT}
+mkdir -p "$DEST"
+
+# Copy each skill folder (the parent directory of each SKILL.md)
+# into DEST/<folder-name>/ so OpenClaw can discover it.
+while IFS= read -r -d '' f; do
+  d=$(dirname "$f")
+  name=$(basename "$d")
+  rm -rf "$DEST/$name"
+  cp -r "$d" "$DEST/$name"
+done < <(find "$ROOT" -name SKILL.md -print0)
 
 # Start a NEW OpenClaw session so skills reload
 
