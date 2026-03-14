@@ -22,8 +22,11 @@ repos:
     hooks:
       - id: validate-skill-frontmatter
         name: Validate SKILL.md frontmatter
-        language: system
-        entry: python3 scripts/validate_skills_schema.py
+        language: python
+        additional_dependencies:
+          - pyyaml
+          - jsonschema
+        entry: python scripts/validate_skills_schema.py
         files: (^|/)SKILL\.md$
       - id: generate-readme
         name: Generate README.md

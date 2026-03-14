@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/blob/main/schemas/skill-frontmatter.schema.json",
+  "$id": "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/blob/master/schemas/skill-frontmatter.schema.json",
   "title": "AgentSkills SKILL.md frontmatter schema",
   "type": "object",
   "additionalProperties": true,
@@ -29,7 +29,7 @@
       "maxLength": 500
     },
     "metadata": {
-      "description": "Free-form metadata. AgentSkills spec allows a YAML mapping. OpenClaw-specific semantics live under metadata.openclaw.",
+      "description": "Free-form metadata. AgentSkills spec allows a YAML mapping. OpenClaw semantics (optional) live under metadata.openclaw.",
       "oneOf": [{ "type": "object" }, { "type": "string" }]
     },
     "allowed-tools": {
