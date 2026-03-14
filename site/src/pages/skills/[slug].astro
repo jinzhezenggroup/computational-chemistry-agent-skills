@@ -1,0 +1,132 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+const base = Astro.base || "";
+const href = (p: string) => `${base}${p}`;
+
+const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
+
+export async function getStaticPaths() {
+  const skills = await getCollection("skills");
+  return skills.map((s) => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const skills = await getCollection("skills");
+
+const idx = skills.findIndex((s) => s.slug === slug);
+if (idx < 0) throw new Error(`Skill not found: ${slug}`);
+
+const skill = skills[idx];
+const prev = idx > 0 ? skills[idx - 1] : null;
+const next = idx < skills.length - 1 ? skills[idx + 1] : null;
+
+const { Content } = await skill.render();
+const fm = skill.data;
+
+const sourcePath = fm.sourcePath || "";
+const skillDir = sourcePath.replace(/\/SKILL\.md$/, "");
+const installFolderName = skillDir.split("/").slice(-1)[0] || fm.slug;
+---
+
+<Base title={`${fm.name} · Skill`}>
+  <div class="subtle" style="margin-bottom: 12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <a href={href("/")}>← All skills</a>
+    <span class="dot">·</span>
+    {prev ? <a href={href(`/skills/${prev.slug}/`)}>← {prev.data.name}</a> : <span class="subtle">← (first)</span>}
+    <span class="dot">·</span>
+    {next ? <a href={href(`/skills/${next.slug}/`)}>{next.data.name} →</a> : <span class="subtle">(last) →</span>}
+  </div>
+
+  <div class="card" style="margin-bottom: 14px;">
+    <h1 style="margin: 0 0 6px; font-size: 22px;">{fm.name}</h1>
+    {fm.category ? <div class="subtle" style="margin-bottom: 8px;">{fm.category}</div> : null}
+    <div class="subtle" style="margin-bottom: 10px;">{fm.description}</div>
+    <div class="pills">
+      <span class="pill primary">v{fm.version}</span>
+      {fm.compatibility ? <span class="pill">{fm.compatibility}</span> : null}
+      {fm.repository ? (
+        <a class="pill" href={fm.repository} target="_blank" rel="noreferrer">repository</a>
+      ) : null}
+      {fm.sourcePath ? (
+        <a class="pill" href={`${REPO}/blob/master/${fm.sourcePath}`} target="_blank" rel="noreferrer">source</a>
+      ) : null}
+    </div>
+  </div>
+
+  <div class="card install-wrap" style="margin-bottom: 14px;" data-tabs>
+    <h2 style="margin: 0 0 10px; font-size: 16px;">Installation</h2>
+    <div class="subtle" style="margin-bottom: 10px;">
+      Install folder: <code>{installFolderName}</code>
+      {skillDir ? <span class="dot">·</span> : null}
+      {skillDir ? <span>Repo path: <code>{skillDir}</code></span> : null}
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Installation tabs">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="tab-human" id="tab-human-btn" type="button">If you are human beings</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-agent" id="tab-agent-btn" type="button">If you are an agent</button>
+    </div>
+
+    <section class="tab-panel" role="tabpanel" id="tab-human" aria-labelledby="tab-human-btn">
+      <div class="subtle" style="margin-bottom: 8px;">Copy the skill folder into your OpenClaw skills directory.</div>
+      <pre><code>{`git clone ${REPO}.git
+cd computational-chemistry-agent-skills
+
+# Choose ONE skills directory:
+# 1) Per-workspace (recommended)
+mkdir -p <your-openclaw-workspace>/skills
+cp -r ${skillDir} <your-openclaw-workspace>/skills/
+
+# 2) Shared on this machine
+mkdir -p ~/.openclaw/skills
+cp -r ${skillDir} ~/.openclaw/skills/
+
+# Start a NEW OpenClaw session (skills are snapshotted at session start).
+# Optional check:
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`}</code></pre>
+      <div class="subtle" style="margin-top: 8px;">Prerequisites: {fm.compatibility || "-"}</div>
+    </section>
+
+    <section class="tab-panel" role="tabpanel" id="tab-agent" aria-labelledby="tab-agent-btn" hidden>
+      <div class="subtle" style="margin-bottom: 8px;">
+        If you have shell access on the OpenClaw host, you can install it yourself (same commands as the human operator).
+      </div>
+      <pre><code>{`# Verify the skill exists under a loaded skills root, e.g.
+# <workspace>/skills/${installFolderName}/SKILL.md
+
+# Start a NEW session (or restart the agent) so skills reload
+
+# Verify eligibility
+openclaw skills list --eligible
+openclaw skills info ${fm.name}`}</code></pre>
+    </section>
+
+    <script is:inline>
+      // Minimal tabs: click -> toggle aria-selected + hidden panels.
+      (function () {
+        const root = document.currentScript?.closest('[data-tabs]');
+        if (!root) return;
+        const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+        const panels = new Map(tabs.map(t => [t.getAttribute('aria-controls'), root.querySelector('#' + t.getAttribute('aria-controls'))]));
+        function activate(id) {
+          tabs.forEach(t => {
+            const selected = t.getAttribute('aria-controls') === id;
+            t.setAttribute('aria-selected', selected ? 'true' : 'false');
+          });
+          panels.forEach((p, pid) => {
+            if (!p) return;
+            if (pid === id) p.removeAttribute('hidden');
+            else p.setAttribute('hidden', '');
+          });
+        }
+        tabs.forEach(t => t.addEventListener('click', () => activate(t.getAttribute('aria-controls'))));
+      })();
+    </script>
+  </div>
+
+  <article class="prose">
+    <Content />
+  </article>
+</Base>
