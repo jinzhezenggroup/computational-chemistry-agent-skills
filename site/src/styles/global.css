@@ -144,6 +144,20 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Libe
   gap: 14px;
 }
 
+.install-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 860px) {
+  .install-grid { grid-template-columns: 1fr; }
+}
+
+.install-col pre {
+  margin: 0;
+}
+
 .card {
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035));
   border: 1px solid var(--border);
