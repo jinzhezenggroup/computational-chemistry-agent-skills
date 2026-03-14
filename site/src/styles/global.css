@@ -10,6 +10,8 @@
   --code-bg: #f6f8fa;
 }
 
+[hidden] { display: none !important; }
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 
