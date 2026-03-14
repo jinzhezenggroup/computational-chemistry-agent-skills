@@ -1,8 +1,5 @@
 # computational-chemistry-agent-skills
-Agent skills to run computational-chemistry tasks, used in OpenClaw.
-
-- Website (GitHub Pages): see Actions → **Deploy Skills Site (GitHub Pages)** after enabling Pages.
-- License: **LGPL-3.0-or-later** (see [LICENSE](LICENSE)).
+Agent skills to run computational-chemistry tasks, used in OpenClaw
 
 <!-- SKILLS_TABLE_START -->
 ## Skills Summary
