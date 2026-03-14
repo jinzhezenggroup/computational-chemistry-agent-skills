@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""Validate SKILL.md YAML frontmatter using a JSON Schema.
+"""Validate SKILL.md YAML frontmatter.
 
-This repo uses AgentSkills-style SKILL.md files. The frontmatter is YAML; we
-parse it, then validate the resulting mapping against a JSON schema.
+This repo uses AgentSkills-style SKILL.md files. The frontmatter is YAML.
+
+Validation strategy:
+- Parse YAML frontmatter into a Python dict
+- Validate required fields and naming constraints from AgentSkills spec
+
+Notes:
+- Do NOT require any OpenClaw-specific `metadata` encoding here; OpenClaw parses
+  YAML frontmatter in practice and repo skills already use nested YAML maps.
 
 Designed for use in pre-commit.
 
@@ -14,11 +21,13 @@ Exit code:
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
-import jsonschema
 import yaml
+
+NAME_RE = re.compile(r"^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$")
 
 
 def extract_frontmatter(text: str) -> str:
@@ -40,38 +49,68 @@ def extract_frontmatter(text: str) -> str:
     return "".join(lines[1:end_idx])
 
 
-def load_schema(schema_path: Path) -> dict:
-    try:
-        return schema_path.read_text(encoding="utf-8")
-    except Exception as e:
-        raise RuntimeError(f"cannot read schema: {schema_path}: {e}")
+def validate_frontmatter(data: dict, *, file_path: Path) -> list[str]:
+    errs: list[str] = []
+
+    # required: name, description
+    name = data.get("name")
+    desc = data.get("description")
+
+    if not isinstance(name, str) or not name.strip():
+        errs.append("missing/invalid required key: name")
+    else:
+        if len(name) > 64:
+            errs.append("name too long: maxLength=64")
+        if not NAME_RE.match(name):
+            errs.append(
+                "invalid name: must match ^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$"
+            )
+
+    if not isinstance(desc, str) or not desc.strip():
+        errs.append("missing/invalid required key: description")
+    else:
+        if len(desc) > 1024:
+            errs.append("description too long: maxLength=1024")
+
+    # optional: compatibility
+    comp = data.get("compatibility")
+    if comp is not None:
+        if not isinstance(comp, str) or not comp.strip():
+            errs.append("compatibility must be a non-empty string")
+        elif len(comp) > 500:
+            errs.append("compatibility too long: maxLength=500")
+
+    # optional: metadata
+    meta = data.get("metadata")
+    if meta is not None:
+        if not isinstance(meta, (dict, str)):
+            errs.append("metadata must be a mapping (YAML object) or a string")
+
+    # optional: allowed-tools
+    allowed = data.get("allowed-tools")
+    if allowed is not None:
+        if not isinstance(allowed, str) or not allowed.strip():
+            errs.append("allowed-tools must be a non-empty string")
+
+    # optional: license
+    lic = data.get("license")
+    if lic is not None:
+        if not isinstance(lic, str) or not lic.strip():
+            errs.append("license must be a non-empty string")
+
+    return errs
 
 
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser()
-    p.add_argument(
-        "--schema",
-        default=str(Path("schemas") / "skill-frontmatter.schema.json"),
-        help="Path to JSON schema file",
-    )
     p.add_argument("paths", nargs="*", help="SKILL.md files to validate")
     args = p.parse_args(argv)
-
-    schema_path = Path(args.schema)
-    try:
-        import json
-
-        schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    except Exception as e:
-        print(f"[schema] failed to load {schema_path}: {e}")
-        return 1
 
     files = [Path(x) for x in args.paths] if args.paths else []
     if not files:
         files = list(Path.cwd().rglob("SKILL.md"))
 
     ok = True
-    validator = jsonschema.Draft202012Validator(schema)
 
     for f in files:
         try:
@@ -88,12 +127,11 @@ def main(argv: list[str]) -> int:
             print(f"{f}: frontmatter must parse to a YAML mapping (object)")
             continue
 
-        errors = sorted(validator.iter_errors(data), key=lambda e: list(e.path))
-        if errors:
+        errs = validate_frontmatter(data, file_path=f)
+        if errs:
             ok = False
-            for e in errors:
-                loc = ".".join(str(x) for x in e.path) if e.path else "<root>"
-                print(f"{f}: {loc}: {e.message}")
+            for e in errs:
+                print(f"{f}: {e}")
 
     return 0 if ok else 1
 

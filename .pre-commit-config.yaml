@@ -21,7 +21,7 @@ repos:
   - repo: local
     hooks:
       - id: validate-skill-frontmatter
-        name: Validate SKILL.md frontmatter (JSON Schema)
+        name: Validate SKILL.md frontmatter
         language: system
         entry: python3 scripts/validate_skills_schema.py
         files: (^|/)SKILL\.md$
