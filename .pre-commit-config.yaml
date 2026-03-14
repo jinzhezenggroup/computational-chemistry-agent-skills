@@ -20,6 +20,11 @@ repos:
       - id: ruff-format
   - repo: local
     hooks:
+      - id: validate-skill-frontmatter
+        name: Validate SKILL.md frontmatter (JSON Schema)
+        language: system
+        entry: python3 scripts/validate_skills_schema.py
+        files: (^|/)SKILL\.md$
       - id: generate-readme
         name: Generate README.md
         language: python
