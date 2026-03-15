@@ -1,6 +1,19 @@
 ---
 name: reacnetgenerator
 description: Run ReacNetGenerator on LAMMPS trajectories to generate reaction networks and reports. Use when the user wants to analyze reactive MD trajectories with ReacNetGenerator (dump/xyz/bond). Handles common LAMMPS dump quirks like x/y/z vs xs/ys/zs scaled coordinates by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools >= 0.1.1), infers atomname order from a LAMMPS data file when available, runs via local reacnetgenerator or via `uvx --from reacnetgenerator`, and writes outputs into out/<input_basename>/ with logs and a summary.
+compatibility: Requires uv and internet access (uses `uvx --from reacnet-md-tools ...` and `uvx --from reacnetgenerator ...`).
+metadata:
+  author: hcustc-bot
+  version: '1.0'
+  repository: https://github.com/tongzhugroup/ReacNetGenerator
+  repositories:
+    - https://github.com/tongzhugroup/ReacNetGenerator
+    - https://github.com/hcustc/reacnet-md-tools
+  openclaw:
+    emoji: 🧪
+    requires:
+      bins: [uv, python3]
+    os: [linux, darwin]
 ---
 
 ## Quick start (agent)
@@ -15,19 +28,36 @@ description: Run ReacNetGenerator on LAMMPS trajectories to generate reaction ne
 
 - Use `reacnet-md-tools` → `rng-pipeline`.
 
-If multiple `.data` files exist, either pass `--data path/to/file.data` or use `--pick-data` for interactive selection.
+3. Avoid interactive prompts in non-interactive runs:
+
+- Prefer passing `--data path/to/file.data` explicitly.
+- Use `--pick-data` only as an interactive fallback when you have a TTY.
 
 ## Commands (preferred)
+
+### Non-interactive (recommended default)
 
 ```bash
 uvx --refresh --from 'reacnet-md-tools>=0.1.1' rng-pipeline \
     --input /path/to/trajectory.lammpstrj \
     --type dump \
     --outroot out \
-    --pick-data \
+    --data /path/to/system.data \
     --nohmm \
     --stepinterval 10 \
     --maxspecies 50
+```
+
+### Interactive fallback (TTY only)
+
+If multiple `.data` files exist and you are running interactively, you may use `--pick-data`:
+
+```bash
+uvx --refresh --from 'reacnet-md-tools>=0.1.1' rng-pipeline \
+    --input /path/to/trajectory.lammpstrj \
+    --type dump \
+    --outroot out \
+    --pick-data
 ```
 
 ## What this skill does
@@ -54,7 +84,7 @@ uvx --refresh --from 'reacnet-md-tools>=0.1.1' rng-pipeline \
 uvx --refresh --from 'reacnet-md-tools>=0.1.1' python -c "import reacnet_md_tools; print(reacnet_md_tools.__version__)"
 ```
 
-If you still see errors on triclinic dumps:
+If you still see triclinic conversion errors:
 
 - ensure your run is resolving `reacnet-md-tools >= 0.1.1` (use `--refresh`), or
 - re-dump trajectories with `x y z` instead of `xs ys zs`.
@@ -72,7 +102,7 @@ Ask only what you need:
 
 - "What is the trajectory file path? (e.g., .lammpstrj/.xyz/.reaxc)"
 - "Which input type should be used: dump/xyz/bond? If unsure, I can auto-detect."
-- "Do you have a LAMMPS data file (.data) in the same directory to infer the element order? Otherwise, provide the atomname list (e.g., C Cl H O)."
+- "Do you have a LAMMPS data file (.data) for inferring the element order? If yes, give me its path; otherwise provide the atomname list (e.g., C Cl H O)."
 - "What stride/stepinterval should be used? For a quick sanity run, 10 is fine."
 
 ## Notes / limitations

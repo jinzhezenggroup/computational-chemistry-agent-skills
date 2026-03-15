@@ -1,7 +1,14 @@
 ---
 name: packmol-generate-mixture
 description: Generate an initial packed molecular configuration (packed XYZ) from one or more single-molecule XYZ structures using Packmol. Use when you need to pack molecules into a cubic box for MD/prep; ask for packing parameters (counts, density/box, tolerance) and desired output location; then generate Packmol input, run Packmol via uvx, and report output paths + box metadata.
+compatibility: Requires uv and internet access (uses `uvx packmol ...`).
 metadata:
+  author: hcustc-bot
+  version: '1.0'
+  repository: https://github.com/m3g/packmol
+  repositories:
+    - https://github.com/m3g/packmol
+    - https://pypi.org/project/lammps-md-tools/
   openclaw:
     emoji: 📦
     requires:
