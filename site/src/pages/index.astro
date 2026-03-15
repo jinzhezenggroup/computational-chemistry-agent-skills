@@ -1,0 +1,228 @@
+---
+import Base from "../layouts/Base.astro";
+import skills from "../data/skills.json";
+
+const base = Astro.base || "";
+const href = (p: string) => `${base}${p}`;
+
+const REPO = "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills";
+const REPO_ZIP_URL = `${REPO}/archive/refs/heads/master.zip`;
+
+const SKILLS_ROOT = "~/.openclaw/skills";
+
+const AGENT_INSTALL_ALL = `Please install ALL skills from computational-chemistry-agent-skills on the OpenClaw host.\n\nGoal\n- Install each skill as its own folder directly under: ${SKILLS_ROOT}/\n  (OpenClaw discovers skills at <skillsRoot>/*/SKILL.md; it will NOT recursively scan deeper trees.)\n\nSteps\n1) Download repository ZIP: ${REPO_ZIP_URL}\n2) Unzip it to get: computational-chemistry-agent-skills-master/\n3) Find every SKILL.md in the repo and copy its parent folder into ${SKILLS_ROOT}/<folder-name>/\n4) Start a NEW OpenClaw session so skills reload\n\nVerify\nopenclaw skills list --eligible`;
+
+const categories = Array.from(
+  new Set(skills.map((s) => s.category).filter(Boolean))
+).sort();
+
+const countsByCat = Object.fromEntries(
+  categories.map((c) => [c, skills.filter((s) => s.category === c).length])
+);
+---
+
+<Base title="Skills Catalog">
+  <section class="hero">
+    <h1>Skills Catalog</h1>
+    <p>
+      Browse skills in
+      <a href={REPO} target="_blank" rel="noreferrer">computational-chemistry-agent-skills</a>.
+    </p>
+
+    <div class="card install-wrap" style="margin-bottom: 14px;" data-tabs>
+      <h2 style="margin: 0 0 10px; font-size: 16px;">Install all skills</h2>
+      <div class="subtle" style="margin-bottom: 10px;">
+        Want everything at once? Install the whole repository as a skills pack.
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Install all skills tabs">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="tab-ask-agent" id="tab-ask-agent-btn" type="button">Ask an agent (recommended)</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="tab-run" id="tab-run-btn" type="button">Run commands yourself</button>
+      </div>
+
+      <section class="tab-panel" role="tabpanel" id="tab-ask-agent" aria-labelledby="tab-ask-agent-btn">
+        <div class="subtle" style="margin-bottom: 8px;">
+          Copy/paste this message to your OpenClaw agent.
+        </div>
+        <pre><code>{AGENT_INSTALL_ALL}</code></pre>
+      </section>
+
+      <section class="tab-panel" role="tabpanel" id="tab-run" aria-labelledby="tab-run-btn" hidden>
+        <div class="subtle" style="margin-bottom: 8px;">
+          If you have shell access on the OpenClaw host, run the commands below.
+        </div>
+        <pre><code>{`# Download repository ZIP
+wget -O computational-chemistry-agent-skills.zip ${REPO_ZIP_URL}
+
+# Unzip
+unzip computational-chemistry-agent-skills.zip
+
+ROOT=computational-chemistry-agent-skills-master
+DEST=${SKILLS_ROOT}
+mkdir -p "$DEST"
+
+# Copy each skill folder (the parent directory of each SKILL.md)
+# into DEST/<folder-name>/ so OpenClaw can discover it.
+while IFS= read -r -d '' f; do
+  d=$(dirname "$f")
+  name=$(basename "$d")
+  rm -rf "$DEST/$name"
+  cp -r "$d" "$DEST/$name"
+done < <(find "$ROOT" -name SKILL.md -print0)
+
+# Start a NEW OpenClaw session so skills reload
+
+# Verify
+openclaw skills list --eligible`}</code></pre>
+      </section>
+
+      <script is:inline>
+        // Minimal tabs: click -> toggle aria-selected + hidden panels.
+        (function () {
+          const root = document.currentScript?.closest('[data-tabs]');
+          if (!root) return;
+          const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+          const panels = new Map(tabs.map(t => [t.getAttribute('aria-controls'), root.querySelector('#' + t.getAttribute('aria-controls'))]));
+          function activate(id) {
+            tabs.forEach(t => {
+              const selected = t.getAttribute('aria-controls') === id;
+              t.setAttribute('aria-selected', selected ? 'true' : 'false');
+            });
+            panels.forEach((p, pid) => {
+              if (!p) return;
+              if (pid === id) p.removeAttribute('hidden');
+              else p.setAttribute('hidden', '');
+            });
+          }
+          tabs.forEach(t => t.addEventListener('click', () => activate(t.getAttribute('aria-controls'))));
+        })();
+      </script>
+    </div>
+
+    <div class="hero-row">
+      <form class="search" id="searchForm" method="get" action={href("/") }>
+        <input id="qInput" name="q" value="" placeholder="Search skills (name / description)…" />
+        <input type="submit" hidden />
+      </form>
+
+      <div style="display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap: wrap;">
+        <div class="subtle" id="countText">
+          Showing <b id="shownCount">{skills.length}</b> / <span id="totalCount">{skills.length}</span>
+        </div>
+        {categories.length ? (
+          <select class="select" id="catSelect" name="cat">
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option value={c}>
+                {c} ({countsByCat[c]})
+              </option>
+            ))}
+          </select>
+        ) : null}
+      </div>
+    </div>
+  </section>
+
+  <div class="card-grid" id="grid">
+    {skills.map((s) => (
+      <div
+        class="card"
+        data-skill-card
+        data-name={(s.name || "").toLowerCase()}
+        data-desc={(s.description || "").toLowerCase()}
+        data-cat={(s.category || "").toLowerCase()}
+      >
+        <h3><a href={href(`/skills/${s.slug}/`)}>{s.name}</a></h3>
+        {s.category ? (
+          <div class="subtle" style="font-size: 12px; margin-bottom: 8px;">
+            {s.category}
+          </div>
+        ) : null}
+        <p>{s.description || "-"}</p>
+        <div class="pills">
+          <span class="pill primary">v{s.version || "-"}</span>
+          {s.compatibility ? <span class="pill">{s.compatibility}</span> : null}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <script is:inline>
+    (function () {
+      const qInput = document.getElementById('qInput');
+      const catSelect = document.getElementById('catSelect');
+      const form = document.getElementById('searchForm');
+      const cards = Array.from(document.querySelectorAll('[data-skill-card]'));
+      const shownCount = document.getElementById('shownCount');
+      const totalCount = document.getElementById('totalCount');
+
+      function readParams() {
+        const u = new URL(location.href);
+        return {
+          q: (u.searchParams.get('q') || ''),
+          cat: (u.searchParams.get('cat') || ''),
+        };
+      }
+
+      function writeParams(q, cat) {
+        const u = new URL(location.href);
+        if (q) u.searchParams.set('q', q); else u.searchParams.delete('q');
+        if (cat) u.searchParams.set('cat', cat); else u.searchParams.delete('cat');
+        history.replaceState(null, '', u.toString());
+      }
+
+      function applyFilter() {
+        const q = (qInput?.value || '').trim().toLowerCase();
+        const cat = (catSelect?.value || '').trim().toLowerCase();
+
+        let shown = 0;
+        for (const el of cards) {
+          const name = el.getAttribute('data-name') || '';
+          const desc = el.getAttribute('data-desc') || '';
+          const c = el.getAttribute('data-cat') || '';
+
+          const matchCat = !cat || c === cat;
+          const matchQ = !q || name.includes(q) || desc.includes(q);
+          const ok = matchCat && matchQ;
+
+          if (ok) {
+            el.removeAttribute('hidden');
+            shown += 1;
+          } else {
+            el.setAttribute('hidden', '');
+          }
+        }
+
+        if (shownCount) shownCount.textContent = String(shown);
+        writeParams(q, cat);
+      }
+
+      // init values from URL
+      const p = readParams();
+      if (qInput) qInput.value = p.q;
+      if (catSelect) catSelect.value = p.cat;
+      if (totalCount) totalCount.textContent = String(cards.length);
+
+      // bind
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          applyFilter();
+        });
+      }
+
+      let t = null;
+      if (qInput) {
+        qInput.addEventListener('input', () => {
+          if (t) clearTimeout(t);
+          t = setTimeout(applyFilter, 80);
+        });
+      }
+      if (catSelect) {
+        catSelect.addEventListener('change', applyFilter);
+      }
+
+      applyFilter();
+    })();
+  </script>
+</Base>
