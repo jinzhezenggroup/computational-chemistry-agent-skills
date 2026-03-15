@@ -17,6 +17,7 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a Re
 ## Agent responsibilities
 
 1. Confirm the **ReaxFF force field file** (e.g. `ffield.reax.*`). Do not guess which file is appropriate.
+   - If the user does not have a force field yet, point them to known sources (e.g. LAMMPS `potentials/ffield.reax.*`, LAMMPS `examples/reaxff`, or the PSU Materials Computation Center / van Duin group repository).
 2. Confirm the **structure/data file** (e.g. `data.system`) and the **atom type → element mapping** needed by `pair_coeff`.
 3. Ensure the input includes charge handling:
    - Use an atom style that supports charges (commonly `atom_style charge`) **or** ensure charges exist via data file / `fix property/atom q`.
@@ -70,6 +71,10 @@ variable        DUMP        equal 1000
 variable        TEMP        equal 300.0
 variable        TAU_T       equal 100.0
 
+# Timestep (fs for units real). For high-T / reactive runs, 0.1 fs is often safer.
+variable        DT          equal 0.25
+
+
 # QEq parameters
 variable        QEQ_EVERY   equal 1
 variable        QEQ_TOL     equal 1.0e-6
@@ -91,6 +96,7 @@ pair_coeff      * * ffield.reax C H O
 
 # Charge equilibration (required for most ReaxFF parameterizations)
 fix             fqeq all qeq/reaxff ${QEQ_EVERY} ${QEQ_CUTLO} ${QEQ_CUTHI} ${QEQ_TOL} reaxff
+# (`reaxff` here means QEq parameters are extracted from the ReaxFF force field file.)
 
 # Thermo and trajectory
 thermo_style    custom step temp pe ke etotal press vol density
@@ -102,13 +108,14 @@ dump            1 all custom ${DUMP} traj.lammpstrj id type q x y z
 velocity        all create ${TEMP} 12345 mom yes rot yes dist gaussian
 fix             fnvt all nvt temp ${TEMP} ${TEMP} ${TAU_T}
 
-timestep        0.25
+timestep        ${DT}
 run             ${NSTEPS}
 ```
 
 ### Notes on the example
 
 - `units real` is a common choice for ReaxFF (time in fs). Many published ReaxFF workflows use `real`, but the correct choice depends on the parameterization and your conventions.
+- **Timestep**: `0.25 fs` may be fine for moderate temperatures, but for high-temperature ReaxFF (especially with H present) it is common to reduce to **`0.1 fs`** (or even `0.05 fs` if needed). A quick sanity check is a short NVE segment to verify total-energy drift before running long NVT/NPT.
 - `atom_style charge` is used because ReaxFF and QEq require per-atom charges.
 - `pair_style reaxff NULL` uses default ReaxFF control settings. If you have a ReaxFF control file, replace `NULL` with its filename.
 - `pair_coeff * * ffield.reax C H O`:
