@@ -22,18 +22,18 @@ metadata:
 
 1. Ask for or infer:
 
-  - input trajectory path(s)
-  - input type: dump | xyz | bond (default dump if LAMMPS "ITEM:" is detected)
-  - atom names order for `-a` (infer from LAMMPS data file if present)
+- input trajectory path(s)
+- input type: dump | xyz | bond (default dump if LAMMPS "ITEM:" is detected)
+- atom names order for `-a` (infer from LAMMPS data file if present)
 
 2. Prefer running the pipeline tool from PyPI (do not hand-compose long commands):
 
-  - Use `reacnet-md-tools` → `rng-pipeline`.
+- Use `reacnet-md-tools` → `rng-pipeline`.
 
 3. Avoid interactive prompts in non-interactive runs:
 
-  - Prefer passing `--data path/to/file.data` explicitly.
-  - Use `--pick-data` only as an interactive fallback when you have a TTY.
+- Prefer passing `--data path/to/file.data` explicitly.
+- Use `--pick-data` only as an interactive fallback when you have a TTY.
 
 ## Commands (preferred)
 
