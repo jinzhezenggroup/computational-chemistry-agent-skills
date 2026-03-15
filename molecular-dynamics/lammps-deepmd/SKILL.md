@@ -1,7 +1,7 @@
 ---
 name: lammps-deepmd
-description: Run molecular dynamics simulations in LAMMPS with the DeePMD-kit plugin, including preparing input scripts, choosing ensembles such as NVE/NVT/NPT, validating commands against LAMMPS documentation, and executing jobs either with `uvx --from lammps --with deepmd-kit[gpu,torch] lmp` when internet access is available or with a user-specified offline LAMMPS executable.
-compatibility: Requires LAMMPS with DeePMD-kit support. Online mode prefers `uvx --from lammps --with deepmd-kit[gpu,torch] lmp`; offline mode requires a user-provided LAMMPS executable or module.
+description: Run molecular dynamics simulations in LAMMPS with the DeePMD-kit plugin, including preparing input scripts, choosing ensembles such as NVE/NVT/NPT, validating commands against LAMMPS documentation, and executing jobs either with `uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp` when internet access is available or with a user-specified offline LAMMPS executable.
+compatibility: Requires LAMMPS with DeePMD-kit support. Online mode prefers `uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp`; offline mode requires a user-provided LAMMPS executable or module.
 license: MIT
 metadata:
   author: OpenClaw
@@ -18,7 +18,7 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a De
 
 1. Confirm the available execution mode:
    - **Online mode**: if internet access is available and `uv` is installed, prefer
-     `uvx --from lammps --with deepmd-kit[gpu,torch] lmp ...`
+     `uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp ...`
    - **Offline mode**: do **not** guess the executable. Ask the user which LAMMPS command, module, or container should be used.
 1. Confirm the minimum simulation inputs:
    - structure/data file (for example `data.system`)
@@ -37,19 +37,19 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a De
 Use:
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch] lmp -in input.lammps
+uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -in input.lammps
 ```
 
 If you need to inspect the local command-line help:
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch] lmp -h | tee /dev/tty
+uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -h | tee /dev/tty
 ```
 
 Notes:
 
 - This is the preferred path because it can provision LAMMPS and DeePMD-kit on demand.
-- The `gpu,torch` extras match the requested runtime pattern from the user.
+- The `gpu,torch,lmp` extras match the requested runtime pattern from the user.
 - If the environment is slow or the packages are large, warn the user that the first run may take time.
 
 ### Offline mode
@@ -270,13 +270,13 @@ When using NPT, it is often useful to keep `vol`, `lx`, `ly`, and `lz` in the th
 ### Online run
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch] lmp -in input.lammps
+uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -in input.lammps
 ```
 
 ### Online help
 
 ```bash
-uvx --from lammps --with deepmd-kit[gpu,torch] lmp -h | tee /dev/tty
+uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp -h | tee /dev/tty
 ```
 
 ### Offline run
