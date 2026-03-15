@@ -4,7 +4,7 @@ description: USE WHEN requesting core chemical structural data (SMILES, formula,
 compatibility: Requires `uv` installed.
 metadata:
   author: light-cyan
-  version: "0.1.0"
+  version: 0.1.0
   repository: https://github.com/light-cyan/search-species
 ---
 
@@ -17,31 +17,32 @@ This toolkit consists of **two core tools**—`search` and `render`—designed t
 When assisting users with chemical searches, you **MUST** adhere to the following step-by-step workflow:
 
 1. **Acquire Target**: Identify the chemical name, identifier, or SMILES the user wants to query.
-2. **Select Engine**: Choose the most appropriate search backend (`pubchem`, `opsin`, `wikidata`, or `all`) based on the query type.
-3. **Execute Search**: Use the `search` command to query the database.
-4. **Evaluate Results**: Carefully review the returned summary data and candidate JSON file paths in the output. **Do not blindly render all results.**
-5. **Render Card**: Select the most accurate candidate JSON file and use the `render` command to generate a visual species card.
-6. **Confirm & Iterate**: Present the generated card/data to the user for confirmation. If the result is ambiguous or incorrect, communicate with the user to adjust the search keywords and restart the process.
+1. **Select Engine**: Choose the most appropriate search backend (`pubchem`, `opsin`, `wikidata`, or `all`) based on the query type.
+1. **Execute Search**: Use the `search` command to query the database.
+1. **Evaluate Results**: Carefully review the returned summary data and candidate JSON file paths in the output. **Do not blindly render all results.**
+1. **Render Card**: Select the most accurate candidate JSON file and use the `render` command to generate a visual species card.
+1. **Confirm & Iterate**: Present the generated card/data to the user for confirmation. If the result is ambiguous or incorrect, communicate with the user to adjust the search keywords and restart the process.
 
----
+______________________________________________________________________
 
 ## Search Backend Overview
 
 `search-species` integrates three distinct backends. Each serves a specific purpose in the chemical informatics workflow:
 
-| Feature | **OPSIN** | **PubChem** | **Wikidata** |
-| :--- | :--- | :--- | :--- |
-| **Core Method** | Algorithmic Parser | Curated Database | Knowledge Graph |
-| **Primary Input** | IUPAC English Names | Names, CIDs, SMILES | **Common & Multilingual Names** |
-| **Molecular Image** | **Supported** (Rendered) | **Supported** (Stored) | **Rarely Available** |
-| **Mass/Formula** | Calculated via **RDKit** | Database Metadata | Database Metadata |
-| **Key Strength** | Handles theoretical molecules. | Highly standardized data. | **Vernacular** & Cross-lingual. |
+| Feature             | **OPSIN**                      | **PubChem**               | **Wikidata**                    |
+| :------------------ | :----------------------------- | :------------------------ | :------------------------------ |
+| **Core Method**     | Algorithmic Parser             | Curated Database          | Knowledge Graph                 |
+| **Primary Input**   | IUPAC English Names            | Names, CIDs, SMILES       | **Common & Multilingual Names** |
+| **Molecular Image** | **Supported** (Rendered)       | **Supported** (Stored)    | **Rarely Available**            |
+| **Mass/Formula**    | Calculated via **RDKit**       | Database Metadata         | Database Metadata               |
+| **Key Strength**    | Handles theoretical molecules. | Highly standardized data. | **Vernacular** & Cross-lingual. |
 
 *(For detailed engine capabilities, limitations, and data normalization behavior, see `reference/backends.md`)*
 
 ## Quick Start & Command Outputs
 
 Typical search syntax:
+
 ```bash
 uvx search-species <engine> "<query>" [max_cands] -o <output_dir>
 
@@ -113,13 +114,13 @@ uvx --from search-species render-species  ./cache/*.json -o ./gallery
 
 When using this toolkit for users, ensure you cross-check these points with the Core Workflow:
 
-* **Engine Match:** Match the engine to the query type based on the overview table.
-* **Data Scope:** Remember this tool *only* retrieves structural identity (Name, Formula, Mass, SMILES, 2D Image).
-* **Fallback:** If `pubchem` fails on a systematic name, fallback to `opsin`.
-* **Selective Rendering:** Evaluate the printed data from the `search` command output before passing specific paths to the `render` command.
-* **Quoting:** Always wrap the chemical `<query>` in quotes.
+- **Engine Match:** Match the engine to the query type based on the overview table.
+- **Data Scope:** Remember this tool *only* retrieves structural identity (Name, Formula, Mass, SMILES, 2D Image).
+- **Fallback:** If `pubchem` fails on a systematic name, fallback to `opsin`.
+- **Selective Rendering:** Evaluate the printed data from the `search` command output before passing specific paths to the `render` command.
+- **Quoting:** Always wrap the chemical `<query>` in quotes.
 
 ## References
 
-* Engine Details & Limitations: `reference/backends.md`
-* Render Rules & Constraints: `reference/render.md`
+- Engine Details & Limitations: `reference/backends.md`
+- Render Rules & Constraints: `reference/render.md`
