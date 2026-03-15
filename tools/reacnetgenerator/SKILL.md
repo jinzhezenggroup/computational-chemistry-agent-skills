@@ -1,6 +1,6 @@
 ---
 name: reacnetgenerator
-description: Run ReacNetGenerator on LAMMPS trajectories to generate reaction networks and reports. Use when the user wants to analyze reactive MD trajectories with ReacNetGenerator (dump/xyz/bond). Handles common LAMMPS dump quirks like x/y/z vs xs/ys/zs scaled coordinates by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools >= 0.1.1), infers atomname order from a LAMMPS data file when available, runs via local reacnetgenerator or via `uvx --from reacnetgenerator`, and writes outputs into out/<input_basename>/ with logs and a summary.
+description: Run ReacNetGenerator on LAMMPS trajectories to generate reaction networks and reports. Use when the user wants to analyze reactive MD trajectories with ReacNetGenerator (dump/xyz/bond). Handles common LAMMPS dump quirks like x/y/z vs xs/ys/zs scaled coordinates by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools >= 0.1.1), infers atomname order from a LAMMPS data file when available, runs via local reacnetgenerator or via `uvx --from reacnetgenerator`, and writes outputs into `out/<input_basename>/` with logs and a summary.
 compatibility: Requires uv and internet access (uses `uvx --from reacnet-md-tools ...` and `uvx --from reacnetgenerator ...`).
 metadata:
   author: hcustc-bot
@@ -16,22 +16,24 @@ metadata:
     os: [linux, darwin]
 ---
 
+# ReacNetGenerator
+
 ## Quick start (agent)
 
 1. Ask for or infer:
 
-- input trajectory path(s)
-- input type: dump | xyz | bond (default dump if LAMMPS "ITEM:" is detected)
-- atom names order for `-a` (infer from LAMMPS data file if present)
+  - input trajectory path(s)
+  - input type: dump | xyz | bond (default dump if LAMMPS "ITEM:" is detected)
+  - atom names order for `-a` (infer from LAMMPS data file if present)
 
 2. Prefer running the pipeline tool from PyPI (do not hand-compose long commands):
 
-- Use `reacnet-md-tools` → `rng-pipeline`.
+  - Use `reacnet-md-tools` → `rng-pipeline`.
 
 3. Avoid interactive prompts in non-interactive runs:
 
-- Prefer passing `--data path/to/file.data` explicitly.
-- Use `--pick-data` only as an interactive fallback when you have a TTY.
+  - Prefer passing `--data path/to/file.data` explicitly.
+  - Use `--pick-data` only as an interactive fallback when you have a TTY.
 
 ## Commands (preferred)
 
