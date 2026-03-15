@@ -52,9 +52,9 @@ last_upstream_ref = "master"
 updated_at = "2026-05-08T08:52:44.584596+00:00"
 
 [jobs."lammps-deepmd"]
-last_upstream_commit = "be9d87bcb06e5a19f6e27196ac6a6c1889c4deb1"
+last_upstream_commit = "373ce6d8beb10df9b8ea1a24510bcd92ebcbecd4"
 last_upstream_ref = "master"
-updated_at = "2026-05-08T08:53:28.567885+00:00"
+updated_at = "2026-05-08T08:53:29.949852+00:00"
 
 [jobs."reacnetgenerator"]
 last_upstream_commit = "84612a228a0c47ba4c22caef7942b30e20aa18dd"
