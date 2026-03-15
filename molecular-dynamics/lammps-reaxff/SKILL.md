@@ -49,6 +49,7 @@ uvx --from lammps lmp -in input.lammps
 
 Notes:
 - This provisions a LAMMPS binary, but may not include the REAXFF package in all environments. If `pair_style reaxff` is missing, switch to offline mode.
+- If you see an error like `error while loading shared libraries: libmpi.so...`, your LAMMPS binary was built with MPI support but an MPI runtime is not available on the machine. Install MPICH/OpenMPI (system packages, conda, or HPC module), then re-run. As a last resort, add the directory containing `libmpi.so*` to `LD_LIBRARY_PATH`.
 
 ### Offline mode (common / HPC)
 
@@ -57,6 +58,25 @@ Do **not** invent the executable. Ask which command should be used, e.g.:
 - `lmp -in input.lammps`
 - `mpirun -np 32 lmp_mpi -in input.lammps`
 - `srun lmp -in input.lammps`
+
+## Quickstart: run a known-good ReaxFF example (RDX)
+
+When the goal is to verify your LAMMPS+REAXFF build (not to model a new system yet), start from the upstream LAMMPS examples. This avoids guessing `data.*` / `ffield.*` formats.
+
+```bash
+# 1) Get LAMMPS examples (any recent version is fine)
+git clone --depth 1 https://github.com/lammps/lammps /tmp/lammps
+
+# 2) Copy the RDX ReaxFF example inputs
+mkdir -p /tmp/reaxff-demo
+cp /tmp/lammps/examples/reaxff/{in.reaxff.rdx,data.rdx,ffield.reax,control.reax_c.rdx} /tmp/reaxff-demo/
+
+# 3) Run (replace lmp with your executable)
+cd /tmp/reaxff-demo
+lmp -in in.reaxff.rdx
+```
+
+If this fails with `Unknown pair_style reaxff`, your LAMMPS binary does not have the REAXFF package enabled.
 
 ## Example: annotated NVT input (ReaxFF + QEq)
 
@@ -121,6 +141,16 @@ run             ${NSTEPS}
 - `pair_coeff * * ffield.reax C H O`:
   - The trailing symbols define the element mapping for LAMMPS atom types (type 1->C, type 2->H, type 3->O in this example). Adjust to match your data file.
 - `fix qeq/reaxff ... reaxff` uses QEq parameters extracted from the ReaxFF force field file.
+
+
+## Sanity checks (recommended before long runs)
+
+1) **Short NVE stability check** (no thermostat/barostat)
+- Run 1–5 ps NVE and check that `etotal` drift is reasonable (and that the run does not blow up).
+- If it blows up: reduce timestep (e.g. 0.25 fs → 0.1 fs → 0.05 fs), check the initial geometry, and ensure QEq converges.
+
+2) **QEq convergence**
+- If QEq hits max iterations often, consider better initial charges, looser timestep, or `maxiter` (see LAMMPS `fix qeq/reaxff`).
 
 ## Optional: species analysis
 
