@@ -29,6 +29,76 @@ const countsByCat = Object.fromEntries(
       <a href={REPO} target="_blank" rel="noreferrer">computational-chemistry-agent-skills</a>.
     </p>
 
+    <div class="card install-wrap" style="margin-bottom: 14px;" data-tabs>
+      <h2 style="margin: 0 0 10px; font-size: 16px;">Install all skills</h2>
+      <div class="subtle" style="margin-bottom: 10px;">
+        Want everything at once? Install the whole repository as a skills pack.
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Install all skills tabs">
+        <button class="tab" role="tab" aria-selected="true" aria-controls="tab-ask-agent" id="tab-ask-agent-btn" type="button">Ask an agent (recommended)</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="tab-run" id="tab-run-btn" type="button">Run commands yourself</button>
+      </div>
+
+      <section class="tab-panel" role="tabpanel" id="tab-ask-agent" aria-labelledby="tab-ask-agent-btn">
+        <div class="subtle" style="margin-bottom: 8px;">
+          Copy/paste this message to your OpenClaw agent.
+        </div>
+        <pre><code>{AGENT_INSTALL_ALL}</code></pre>
+      </section>
+
+      <section class="tab-panel" role="tabpanel" id="tab-run" aria-labelledby="tab-run-btn" hidden>
+        <div class="subtle" style="margin-bottom: 8px;">
+          If you have shell access on the OpenClaw host, run the commands below.
+        </div>
+        <pre><code>{`# Download repository ZIP
+wget -O computational-chemistry-agent-skills.zip ${REPO_ZIP_URL}
+
+# Unzip
+unzip computational-chemistry-agent-skills.zip
+
+ROOT=computational-chemistry-agent-skills-master
+DEST=${SKILLS_ROOT}
+mkdir -p "$DEST"
+
+# Copy each skill folder (the parent directory of each SKILL.md)
+# into DEST/<folder-name>/ so OpenClaw can discover it.
+while IFS= read -r -d '' f; do
+  d=$(dirname "$f")
+  name=$(basename "$d")
+  rm -rf "$DEST/$name"
+  cp -r "$d" "$DEST/$name"
+done < <(find "$ROOT" -name SKILL.md -print0)
+
+# Start a NEW OpenClaw session so skills reload
+
+# Verify
+openclaw skills list --eligible`}</code></pre>
+      </section>
+
+      <script is:inline>
+        // Minimal tabs: click -> toggle aria-selected + hidden panels.
+        (function () {
+          const root = document.currentScript?.closest('[data-tabs]');
+          if (!root) return;
+          const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+          const panels = new Map(tabs.map(t => [t.getAttribute('aria-controls'), root.querySelector('#' + t.getAttribute('aria-controls'))]));
+          function activate(id) {
+            tabs.forEach(t => {
+              const selected = t.getAttribute('aria-controls') === id;
+              t.setAttribute('aria-selected', selected ? 'true' : 'false');
+            });
+            panels.forEach((p, pid) => {
+              if (!p) return;
+              if (pid === id) p.removeAttribute('hidden');
+              else p.setAttribute('hidden', '');
+            });
+          }
+          tabs.forEach(t => t.addEventListener('click', () => activate(t.getAttribute('aria-controls'))));
+        })();
+      </script>
+    </div>
+
     <div class="hero-row">
       <form class="search" id="searchForm" method="get" action={href("/") }>
         <input id="qInput" name="q" value="" placeholder="Search skills (name / description)…" />
