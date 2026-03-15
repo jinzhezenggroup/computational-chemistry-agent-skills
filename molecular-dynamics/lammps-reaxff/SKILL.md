@@ -44,12 +44,12 @@ Ask only for what is missing:
 Use:
 
 ```bash
-uvx --from lammps lmp -in input.lammps
+uvx --from 'lammps[mpi]' lmp -in input.lammps
 ```
 
 Notes:
 - This provisions a LAMMPS binary, but may not include the REAXFF package in all environments. If `pair_style reaxff` is missing, switch to offline mode.
-- If you see an error like `error while loading shared libraries: libmpi.so...`, your LAMMPS binary was built with MPI support but an MPI runtime is not available on the machine. Install MPICH/OpenMPI (system packages, conda, or HPC module), then re-run. As a last resort, add the directory containing `libmpi.so*` to `LD_LIBRARY_PATH`.
+- If you see `error while loading shared libraries: libmpi.so...`, you likely installed a MPI-linked `lmp` without MPI runtime libraries. Prefer `uvx --from 'lammps[mpi]' ...` (bundles MPI runtime), or load/install MPICH/OpenMPI via system packages/conda/HPC module.
 
 ### Offline mode (common / HPC)
 
@@ -71,8 +71,11 @@ git clone --depth 1 https://github.com/lammps/lammps /tmp/lammps
 mkdir -p /tmp/reaxff-demo
 cp /tmp/lammps/examples/reaxff/{in.reaxff.rdx,data.rdx,ffield.reax,control.reax_c.rdx} /tmp/reaxff-demo/
 
-# 3) Run (replace lmp with your executable)
+# 3) Run (online, recommended)
 cd /tmp/reaxff-demo
+uvx --from 'lammps[mpi]' lmp -in in.reaxff.rdx -echo screen
+
+# Or run with your local executable (offline/HPC)
 lmp -in in.reaxff.rdx
 ```
 
@@ -147,6 +150,20 @@ run             ${NSTEPS}
 
 1) **Short NVE stability check** (no thermostat/barostat)
 - Run 1–5 ps NVE and check that `etotal` drift is reasonable (and that the run does not blow up).
+
+Example (`units real`):
+
+```lammps
+reset_timestep  0
+unfix           fnvt
+fix             fnve all nve
+
+# high-T ReaxFF often needs a smaller timestep
+# (common choices: 0.1 fs; if needed 0.05 fs)
+timestep        0.1
+run             2000
+```
+
 - If it blows up: reduce timestep (e.g. 0.25 fs → 0.1 fs → 0.05 fs), check the initial geometry, and ensure QEq converges.
 
 2) **QEq convergence**
