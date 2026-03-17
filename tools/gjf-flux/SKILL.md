@@ -4,7 +4,7 @@ description: Assemble and extract Gaussian .gjf input file sections (directives,
 compatibility: Requires `uv` installed and available in PATH.
 metadata:
   author: light-cyan
-  version: "0.1.0"
+  version: 0.1.0
   repository: https://github.com/light-cyan/gjf-flux
 ---
 
@@ -40,13 +40,13 @@ If a `.gjf` deviates from these conventions, extraction may fail or misclassify 
 When helping a user, clarify:
 
 1. Target action: **extract** vs **assemble**.
-2. File paths:
+1. File paths:
    - Existing `.gjf` to read, or component files to assemble.
-3. For Link1 jobs:
+1. For Link1 jobs:
    - Which step to extract (`job_index`, 0-based), or how many steps to assemble.
-4. Molecule content:
+1. Molecule content:
    - Total charge/multiplicity, fragment charge/multiplicity (if using fragments), coordinate format.
-5. Appendices:
+1. Appendices:
    - Whether there are basis sets, ECPs, ModRedundant constraints, etc.
 
 ## Core commands (cheat sheet)
@@ -66,10 +66,12 @@ Where `<section_name>` is one of:
 - `appendix` or `appendix-<idx>`
 
 Notes:
+
 - `<idx>` is **0-based**.
 - `--job_index` selects the Link1 step (**0-based**, default `0`).
 
 Examples:
+
 ```bash
 # Extract the route line from the first Link1 step
 uvx gjf-flux extract route input.gjf
@@ -90,11 +92,13 @@ uvx gjf-flux assemble directives --chk FILE --mem SIZE --nprocshared N
 This command accepts key/value pairs in the form `--key value`.
 
 Examples:
+
 ```bash
 uvx gjf-flux assemble directives --chk job.chk --mem 16GB --nprocshared 16
 ```
 
 Tip: redirect to a file for later composition:
+
 ```bash
 uvx gjf-flux assemble directives --chk job.chk --mem 16GB --nprocshared 16 > directives.txt
 ```
@@ -106,6 +110,7 @@ uvx gjf-flux assemble route [-l p|n|t|""] <keywords...>
 ```
 
 Examples:
+
 ```bash
 #p Opt B3LYP/6-31G(d)
 uvx gjf-flux assemble route -l p Opt B3LYP/6-31G(d)
@@ -115,6 +120,7 @@ uvx gjf-flux assemble route -l p "Opt(MaxCycle=100)" "Freq"
 ```
 
 Tip:
+
 ```bash
 uvx gjf-flux assemble route -l p "Opt(MaxCycle=100)" "Freq" > route.txt
 ```
@@ -131,10 +137,12 @@ Each fragment file must follow this format:
 - Following lines: atomic coordinates (Gaussian-style)
 
 Modes:
+
 - Default: merges into a **single** molecule block.
 - `--as-fragment`: assigns `Fragment=1,2,...` tags and expands the charge/multiplicity header.
 
 Examples:
+
 ```bash
 # Merge two fragments into a single molecule block
 uvx gjf-flux assemble molecules fragA.txt fragB.txt > molecule.txt
@@ -150,6 +158,7 @@ uvx gjf-flux assemble appendices <app1.txt> <app2.txt> ...
 ```
 
 Examples:
+
 ```bash
 uvx gjf-flux assemble appendices basis.txt modredundant.txt > appendix.txt
 ```
@@ -158,11 +167,11 @@ uvx gjf-flux assemble appendices basis.txt modredundant.txt > appendix.txt
 
 ```bash
 uvx gjf-flux assemble job \
-  --directives directives.txt \
-  --route route.txt \
-  --title "Your title" \
-  --molecule molecule.txt [molecule2.txt ...] \
-  [--appendices appendix.txt ...]
+    --directives directives.txt \
+    --route route.txt \
+    --title "Your title" \
+    --molecule molecule.txt [molecule2.txt ...] \
+    [--appendices appendix.txt ...]
 ```
 
 ### 7) Merge multiple tasks into a Link1 multi-step job
@@ -188,23 +197,24 @@ uvx gjf-flux assemble directives --chk job.chk --mem 16GB --nprocshared 16 > dir
 
 # 2) Assemble a full .gjf using inline-generated route/molecule/appendix blocks
 uvx gjf-flux assemble job \
-  --directives directives.txt \
-  --route <(uvx gjf-flux assemble route -l p "Opt(MaxCycle=100)" "Freq" B3LYP/6-31G(d)) \
-  --title "Opt+Freq from extracted building blocks" \
-  --molecule <( \
-    gjf-flux assemble molecules \
-      <(uvx gjf-flux extract molecule-0 reactant.gjf) \
-      fragment_extra.xyz \
-      --multi 1 \
-  ) \
-  --appendices \
+    --directives directives.txt \
+    --route <(uvx gjf-flux assemble route -l p "Opt(MaxCycle=100)" "Freq" B3LYP/6-31G(d)) \
+    --title "Opt+Freq from extracted building blocks" \
+    --molecule <( \
+        gjf-flux assemble molecules \
+        <(uvx gjf-flux extract molecule-0 reactant.gjf) \
+        fragment_extra.xyz \
+        --multi 1 \
+    ) \
+    --appendices \
     <(uvx gjf-flux extract appendix-1 reactant.gjf) \
     <(uvx gjf-flux extract appendix-0 reference.gjf) \
     app_manual.txt \
-  > job.gjf
+    > job.gjf
 ```
 
 Variants:
+
 - If you only want to **reuse** an extracted molecule block verbatim (no merge), pass:
   - `--molecule <(uvx gjf-flux extract molecule-0 input.gjf)`
 - If you are assembling a **Link1** workflow, build each step as its own `.gjf` and then:
@@ -217,9 +227,9 @@ Variants:
    - `route.txt` (from `assemble route`)
    - `molecule.txt` (from `assemble molecules` or extracted from a prior `.gjf`)
    - `appendix.txt` (optional)
-2. Assemble a complete job via `assemble job`.
-3. If you have multiple steps, build each step as a `.gjf` and then merge using `assemble tasks`.
-4. Verify by extracting critical sections from the final output.
+1. Assemble a complete job via `assemble job`.
+1. If you have multiple steps, build each step as a `.gjf` and then merge using `assemble tasks`.
+1. Verify by extracting critical sections from the final output.
 
 ## Common pitfalls
 
