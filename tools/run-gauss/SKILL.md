@@ -1,9 +1,9 @@
 ---
 name: gau-job
-description: Run Gaussian calculations from a .gjf input on local or remote/HPC environments: confirm Gaussian executable/setup (module/source/path), working directories, log filenames, and GAUSS_SCRDIR scratch; then provide a runnable command template with placeholders.
+description: 'Run Gaussian calculations from a .gjf input on local or remote/HPC environments: confirm Gaussian executable/setup (module/source/path), working directories, log filenames, and GAUSS_SCRDIR scratch; then provide a runnable command template with placeholders.'
 metadata:
   author: light-cyan
-  version: "0.1.0"
+  version: 0.1.0
 ---
 
 ## Ask the user for these details
