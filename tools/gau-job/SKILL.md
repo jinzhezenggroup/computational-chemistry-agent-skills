@@ -39,7 +39,7 @@ rm -rf "$GAUSS_SCRDIR"
 
 Use **gjf-flux** to extract/assemble `.gjf` sections and build workflows.
 
-Read: `../gjf-flux/SKILL.md`
+Read: `reference/gjf-flux/SKILL.md`
 
 ## Submit via dpdispatcher (recommended)
 
