@@ -140,6 +140,7 @@ Use the QE example input included in this repository:
 as the reference pattern for how a QE task is organized and how the `pw.x` input is laid out.
 
 In this workflow:
+
 - the user provides the structure in `openclaw_input`-style form
 - this skill generates the QE input task, analogous to files like `assets/pw-water-0.in`
 - a separate submission skill handles the job script and submission stage
@@ -221,3 +222,4 @@ When the user asks to submit the generated QE task, do not implement submission 
 - missing or inappropriate smearing
 - omitted spin settings for magnetic cases
 - requesting post-processing or phonons without prerequisite context
+
