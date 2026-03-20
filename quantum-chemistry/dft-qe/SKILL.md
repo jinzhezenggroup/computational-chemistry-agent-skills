@@ -224,4 +224,3 @@ When the user asks to submit the generated QE task, do not implement submission 
 - missing or inappropriate smearing
 - omitted spin settings for magnetic cases
 - requesting post-processing or phonons without prerequisite context
-
