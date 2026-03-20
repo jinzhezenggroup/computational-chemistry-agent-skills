@@ -57,12 +57,12 @@ For a concrete file-oriented workflow, see `references/commands-and-workflow.md`
 ## Expected workflow
 
 1. Start from a user-provided structure.
-2. Normalize the structure into the task layout if needed.
-3. Determine the target QE calculation type.
-4. Collect only the missing critical DFT parameters.
-5. Generate the QE input file.
-6. Place the generated task in a runnable task directory.
-7. If submission is requested, pass that directory to `dpdisp-submit`.
+1. Normalize the structure into the task layout if needed.
+1. Determine the target QE calculation type.
+1. Collect only the missing critical DFT parameters.
+1. Generate the QE input file.
+1. Place the generated task in a runnable task directory.
+1. If submission is requested, pass that directory to `dpdisp-submit`.
 
 ## DFT parameters to collect
 
@@ -122,14 +122,14 @@ Do not ask for everything at once; ask only for the missing essentials.
 ## Required behavior
 
 1. Inspect the provided structure if accessible.
-2. Determine elements, cell information, and coordinate representation.
-3. If format normalization is needed, convert the structure using `dpdata-cli`.
-4. Confirm the QE task type.
-5. Gather only the missing critical DFT settings.
-6. Generate the QE input yourself.
-7. Explain assumptions clearly.
-8. Flag unresolved scientific choices instead of hiding them.
-9. Prepare the task directory so another skill can submit it.
+1. Determine elements, cell information, and coordinate representation.
+1. If format normalization is needed, convert the structure using `dpdata-cli`.
+1. Confirm the QE task type.
+1. Gather only the missing critical DFT settings.
+1. Generate the QE input yourself.
+1. Explain assumptions clearly.
+1. Flag unresolved scientific choices instead of hiding them.
+1. Prepare the task directory so another skill can submit it.
 
 ## Template pattern
 
@@ -167,12 +167,13 @@ Do **not** silently invent:
 ## Expected output
 
 Provide:
+
 1. the full QE input file
-2. a short summary of the chosen settings
-3. explicit assumptions
-4. any decisions the user should still confirm
-5. the generated task directory or file set for the next skill
-6. if submission is requested, explicitly say the next step is `dpdisp-submit`
+1. a short summary of the chosen settings
+1. explicit assumptions
+1. any decisions the user should still confirm
+1. the generated task directory or file set for the next skill
+1. if submission is requested, explicitly say the next step is `dpdisp-submit`
 
 ## Minimal `pw.x` structure
 
