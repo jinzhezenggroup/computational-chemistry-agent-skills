@@ -127,15 +127,15 @@ Do not ask for everything at once; ask only for the missing essentials.
 
 ## Template pattern
 
-Use the example task at:
+Use the QE example input included in this repository:
 
-`/Users/yifanl/Work/OpenClawCompChem/run_dft/templateJob/qe`
+`assets/pw-water-0.in`
 
-as the reference pattern for how a QE task is organized.
+as the reference pattern for how a QE task is organized and how the `pw.x` input is laid out.
 
 In this workflow:
 - the user provides the structure in `openclaw_input`-style form
-- this skill generates the QE input task, analogous to files like `pw-water-0.in`
+- this skill generates the QE input task, analogous to files like `assets/pw-water-0.in`
 - a separate submission skill handles the job script and submission stage
 
 Do not hard-code the example chemistry. Reuse only the workflow pattern.

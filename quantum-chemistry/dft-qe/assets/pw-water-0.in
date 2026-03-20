@@ -3,7 +3,7 @@
    tprnfor          = .true.
    outdir           = './'
    disk_io          = 'none'
-   pseudo_dir       = '/tigress/yifanl/Softwares/ONCVPSP/sg15'
+   pseudo_dir       = '/path/to/pseudos'
 /
 &SYSTEM
    ecutwfc          = 110
