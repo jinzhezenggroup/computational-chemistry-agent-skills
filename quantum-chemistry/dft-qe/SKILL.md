@@ -92,11 +92,13 @@ These should normally be confirmed rather than guessed:
 Also collect task-dependent parameters when relevant.
 
 For `relax` / `vc-relax`:
+
 - `forc_conv_thr`
 - `etot_conv_thr`
 - `cell_dofree` for `vc-relax`
 
 For `md`:
+
 - `nstep`
 - `dt`
 - `ion_temperature`
@@ -104,11 +106,13 @@ For `md`:
 - `ion_dynamics`
 
 For spin-polarized or magnetic systems:
+
 - `nspin`
 - `starting_magnetization`
 - charge or spin-related settings if requested
 
 For advanced workflows if explicitly requested:
+
 - Hubbard U settings
 - hybrid-functional settings
 - electric field settings such as `edir`, `emaxpos`, or related controls
