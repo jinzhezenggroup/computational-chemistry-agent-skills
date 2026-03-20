@@ -15,6 +15,7 @@ Use this skill to **build a QE DFT task** from a user-provided structure and DFT
 ## Scope
 
 This skill should:
+
 - require a user-provided structure
 - read or normalize the structure input
 - identify the target calculation type
@@ -24,6 +25,7 @@ This skill should:
 - state assumptions and unresolved choices
 
 This skill should **not**:
+
 - submit jobs
 - manage schedulers
 - handle remote execution

@@ -31,16 +31,16 @@ openclaw_input/
 ## Workflow
 
 1. Read the user-provided structure.
-2. If needed, normalize or convert the structure using `dpdata-cli`.
-3. Extract:
+1. If needed, normalize or convert the structure using `dpdata-cli`.
+1. Extract:
    - elements
    - atom count
    - coordinates
    - cell vectors or box lengths
-4. Confirm the target QE task type.
-5. Collect the required DFT parameters.
-6. Generate the QE input file.
-7. Return the generated task directory and say it is ready for handoff to `dpdisp-submit` if submission is requested.
+1. Confirm the target QE task type.
+1. Collect the required DFT parameters.
+1. Generate the QE input file.
+1. Return the generated task directory and say it is ready for handoff to `dpdisp-submit` if submission is requested.
 
 ## Parameter checklist
 
