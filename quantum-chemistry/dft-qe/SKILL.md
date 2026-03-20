@@ -152,11 +152,13 @@ Do not hard-code the example chemistry. Reuse only the workflow pattern.
 Allowed only for low-risk, clearly labeled assumptions.
 
 Reasonable provisional defaults:
+
 - `calculation='scf'` for a plain single-point request
 - standard electronic convergence threshold when the user does not care
 - basic verbosity settings
 
 Do **not** silently invent:
+
 - structure data
 - pseudopotential filenames
 - production cutoffs
