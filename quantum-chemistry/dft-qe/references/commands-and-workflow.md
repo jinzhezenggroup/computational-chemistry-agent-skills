@@ -64,11 +64,13 @@ openclaw_input/
 ### Task-specific
 
 For `relax` / `vc-relax`:
+
 - `forc_conv_thr`
 - `etot_conv_thr`
 - `cell_dofree` when needed
 
 For `md`:
+
 - `nstep`
 - `dt`
 - `ion_temperature`
@@ -76,6 +78,7 @@ For `md`:
 - `ion_dynamics`
 
 For magnetic/spin-polarized systems:
+
 - `nspin`
 - `starting_magnetization`
 

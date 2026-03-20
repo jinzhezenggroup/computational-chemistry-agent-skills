@@ -201,6 +201,7 @@ kx ky kz 0 0 0
 ## Handoff rule
 
 When the user asks to submit the generated QE task, do not implement submission logic here. Instead:
+
 - finish generating the QE task directory and input file
 - tell the user the task is ready for submission
 - hand off to `dpdisp-submit`
