@@ -32,14 +32,14 @@ e, f, v = dp.eval(coord, cell, atype)
    - Frozen model file (`.pth` for PyTorch, `.pb` for TensorFlow)
    - Built-in pretrained model name (e.g., `DPA-3.2-5M`)
    - Checkpoint file (requires freezing first)
-2. Determine the inference task:
+1. Determine the inference task:
    - Single-frame prediction (energy, force, virial)
    - Batch prediction over multiple frames
    - Descriptor evaluation
    - Model deviation calculation
    - CLI-based testing against labeled data
-3. Help the user prepare input arrays in the correct format.
-4. Run inference and report results.
+1. Help the user prepare input arrays in the correct format.
+1. Run inference and report results.
 
 ## Python API: DeepPot
 
@@ -73,11 +73,21 @@ dp = DeepPot("model.pth")
 # cell: (nframes, 9) cell vectors in Angstrom, row-major
 # atype: list of atom type indices (length natoms)
 
-coord = np.array([
-    [0.0, 0.0, 0.0,    # atom 0 (O)
-     0.0, 0.0, 1.0,    # atom 1 (H)
-     0.0, 1.0, 0.0]    # atom 2 (H)
-]).reshape([1, -1])
+coord = np.array(
+    [
+        [
+            0.0,
+            0.0,
+            0.0,  # atom 0 (O)
+            0.0,
+            0.0,
+            1.0,  # atom 1 (H)
+            0.0,
+            1.0,
+            0.0,
+        ]  # atom 2 (H)
+    ]
+).reshape([1, -1])
 
 cell = np.diag([10.0, 10.0, 10.0]).reshape([1, -1])
 
@@ -87,9 +97,9 @@ atype = [0, 1, 1]
 
 e, f, v = dp.eval(coord, cell, atype)
 
-print(f"Energy (eV): {e}")          # shape: (nframes, 1)
-print(f"Forces (eV/A): {f}")        # shape: (nframes, natoms, 3)
-print(f"Virial (eV): {v}")          # shape: (nframes, 9)
+print(f"Energy (eV): {e}")  # shape: (nframes, 1)
+print(f"Forces (eV/A): {f}")  # shape: (nframes, natoms, 3)
+print(f"Virial (eV): {v}")  # shape: (nframes, 9)
 ```
 
 ### Non-periodic Systems
@@ -164,13 +174,13 @@ dp --pt test -m model.pth -s /path/to/test_system -n 30 -d test_detail
 
 ### dp test Options
 
-| Option | Description |
-|--------|-------------|
-| `-m MODEL` | Path to the frozen model file |
-| `-s SYSTEM` | Path to the test data system |
-| `-n NUMB` | Number of test frames |
-| `-d DETAIL` | Output prefix for detailed results |
-| `--shuffle-test` | Shuffle test frames |
+| Option           | Description                        |
+| ---------------- | ---------------------------------- |
+| `-m MODEL`       | Path to the frozen model file      |
+| `-s SYSTEM`      | Path to the test data system       |
+| `-n NUMB`        | Number of test frames              |
+| `-d DETAIL`      | Output prefix for detailed results |
+| `--shuffle-test` | Shuffle test frames                |
 
 ### Output
 
@@ -203,8 +213,8 @@ from deepmd.infer import DeepPot
 dp = DeepPot("model.pth")
 
 # Load test data from deepmd format
-coord = np.load("test_system/set.000/coord.npy")   # (nframes, natoms*3)
-cell = np.load("test_system/set.000/box.npy")       # (nframes, 9)
+coord = np.load("test_system/set.000/coord.npy")  # (nframes, natoms*3)
+cell = np.load("test_system/set.000/box.npy")  # (nframes, 9)
 atype_raw = np.loadtxt("test_system/type.raw", dtype=int).tolist()
 
 # Predict
@@ -234,11 +244,13 @@ import numpy as np
 dp = DeepPot("DPA-3.2-5M")
 
 # Water molecule example
-coord = np.array([
-    [0.000, 0.000, 0.117],   # O
-    [0.000, 0.757, -0.469],  # H
-    [0.000, -0.757, -0.469]  # H
-]).reshape([1, -1])
+coord = np.array(
+    [
+        [0.000, 0.000, 0.117],  # O
+        [0.000, 0.757, -0.469],  # H
+        [0.000, -0.757, -0.469],  # H
+    ]
+).reshape([1, -1])
 
 cell = np.diag([10.0, 10.0, 10.0]).reshape([1, -1])
 atype = [0, 1, 1]  # Check model's type_map for correct indices
@@ -258,22 +270,22 @@ dp pretrained download DPA-3.2-5M --cache-dir ./models
 
 ## Input Array Format Reference
 
-| Array | Shape | Unit | Description |
-|-------|-------|------|-------------|
-| `coord` | (nframes, natoms*3) | Angstrom | Atomic coordinates, flattened |
-| `cell` | (nframes, 9) | Angstrom | Cell vectors, row-major (a1x,a1y,a1z,a2x,...) |
-| `atype` | (natoms,) | - | Atom type indices matching model's type_map |
+| Array   | Shape                | Unit     | Description                                   |
+| ------- | -------------------- | -------- | --------------------------------------------- |
+| `coord` | (nframes, natoms\*3) | Angstrom | Atomic coordinates, flattened                 |
+| `cell`  | (nframes, 9)         | Angstrom | Cell vectors, row-major (a1x,a1y,a1z,a2x,...) |
+| `atype` | (natoms,)            | -        | Atom type indices matching model's type_map   |
 
-| Output | Shape | Unit | Description |
-|--------|-------|------|-------------|
-| `e` | (nframes, 1) | eV | Total energy per frame |
-| `f` | (nframes, natoms, 3) | eV/A | Forces on each atom |
-| `v` | (nframes, 9) | eV | Virial tensor per frame |
+| Output | Shape                | Unit | Description             |
+| ------ | -------------------- | ---- | ----------------------- |
+| `e`    | (nframes, 1)         | eV   | Total energy per frame  |
+| `f`    | (nframes, natoms, 3) | eV/A | Forces on each atom     |
+| `v`    | (nframes, 9)         | eV   | Virial tensor per frame |
 
 ## Agent Checklist
 
 - [ ] Model file exists and is accessible (`.pth`, `.pb`, or valid pretrained name)
-- [ ] `coord` array is shaped (nframes, natoms*3) and in Angstrom
+- [ ] `coord` array is shaped (nframes, natoms\*3) and in Angstrom
 - [ ] `cell` array is shaped (nframes, 9) or `None` for non-periodic systems
 - [ ] `atype` indices match the model's `type_map` ordering
 - [ ] For model deviation, multiple models are loaded only once (not in a loop)

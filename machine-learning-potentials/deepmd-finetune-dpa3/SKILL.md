@@ -14,8 +14,8 @@ metadata:
 Fine-tune a pre-trained DPA3 model on a downstream dataset. This skill covers three scenarios:
 
 1. Fine-tuning from a self-trained single-task DPA3 model
-2. Fine-tuning from a multi-task pre-trained DPA3 model
-3. Fine-tuning from a built-in pretrained model (e.g., DPA-3.1-3M, DPA-3.2-5M) downloaded via `dp pretrained download`
+1. Fine-tuning from a multi-task pre-trained DPA3 model
+1. Fine-tuning from a built-in pretrained model (e.g., DPA-3.1-3M, DPA-3.2-5M) downloaded via `dp pretrained download`
 
 ## Quick Start
 
@@ -34,11 +34,11 @@ dp --pt train input.json --finetune /path/to/DPA-3.2-5M.pt --use-pretrain-script
    - Does the user have a self-trained `.pt` model?
    - Does the user want to use a built-in pretrained model (DPA-3.1-3M, DPA-3.2-5M, etc.)?
    - Is the pre-trained model single-task or multi-task?
-2. If using a built-in pretrained model, download it first with `dp pretrained download`.
-3. Collect the downstream training data paths and element types.
-4. Generate the fine-tuning `input.json`.
-5. Run fine-tuning and monitor the learning curve.
-6. Freeze and test the fine-tuned model.
+1. If using a built-in pretrained model, download it first with `dp pretrained download`.
+1. Collect the downstream training data paths and element types.
+1. Generate the fine-tuning `input.json`.
+1. Run fine-tuning and monitor the learning curve.
+1. Freeze and test the fine-tuned model.
 
 ## Scenario 1: Fine-tune from a Self-trained Single-task Model
 
@@ -51,15 +51,18 @@ When using `--use-pretrain-script`, the model architecture is inherited from the
 ```json
 {
   "model": {
-    "type_map": ["O", "H"],
+    "type_map": [
+      "O",
+      "H"
+    ],
     "descriptor": {},
     "fitting_net": {}
   },
   "learning_rate": {
     "type": "exp",
     "decay_steps": 5000,
-    "start_lr": 1e-4,
-    "stop_lr": 3e-6
+    "start_lr": 0.0001,
+    "stop_lr": 3e-06
   },
   "loss": {
     "type": "ener",
@@ -76,11 +79,16 @@ When using `--use-pretrain-script`, the model architecture is inherited from the
   },
   "training": {
     "training_data": {
-      "systems": ["./downstream_data/train_0", "./downstream_data/train_1"],
+      "systems": [
+        "./downstream_data/train_0",
+        "./downstream_data/train_1"
+      ],
       "batch_size": 1
     },
     "validation_data": {
-      "systems": ["./downstream_data/valid_0"],
+      "systems": [
+        "./downstream_data/valid_0"
+      ],
       "batch_size": 1
     },
     "numb_steps": 200000,
@@ -94,6 +102,7 @@ When using `--use-pretrain-script`, the model architecture is inherited from the
 ```
 
 Fine-tuning tips:
+
 - Use a smaller `start_lr` (e.g., 1e-4) than training from scratch (1e-3).
 - Use fewer `numb_steps` since the model is already pre-trained.
 - The elements in the downstream data must be a subset of the pre-trained model's `type_map`.
@@ -107,7 +116,6 @@ dp --pt train input.json --finetune pretrained.pt --use-pretrain-script
 The `--use-pretrain-script` flag tells DeePMD-kit to inherit the model architecture from the pre-trained model, so the `descriptor` and `fitting_net` sections in `input.json` can be empty.
 
 Without `--use-pretrain-script`, the model section in `input.json` must exactly match the pre-trained model's architecture.
-
 
 ## Scenario 2: Fine-tune from a Multi-task Pre-trained Model
 
@@ -135,7 +143,12 @@ To retain knowledge from the pre-trained datasets during fine-tuning, use multi-
 {
   "model": {
     "shared_dict": {
-      "type_map_all": ["O", "H", "C", "N"],
+      "type_map_all": [
+        "O",
+        "H",
+        "C",
+        "N"
+      ],
       "dpa3_desc": {
         "type": "dpa3",
         "repflow": {}
@@ -163,24 +176,30 @@ To retain knowledge from the pre-trained datasets during fine-tuning, use multi-
   "learning_rate": {
     "type": "exp",
     "decay_steps": 5000,
-    "start_lr": 1e-4,
-    "stop_lr": 3e-6
+    "start_lr": 0.0001,
+    "stop_lr": 3e-06
   },
   "loss_dict": {
     "pre_data_1": {
       "type": "ener",
-      "start_pref_e": 0.2, "limit_pref_e": 20,
-      "start_pref_f": 100, "limit_pref_f": 60
+      "start_pref_e": 0.2,
+      "limit_pref_e": 20,
+      "start_pref_f": 100,
+      "limit_pref_f": 60
     },
     "pre_data_2": {
       "type": "ener",
-      "start_pref_e": 0.2, "limit_pref_e": 20,
-      "start_pref_f": 100, "limit_pref_f": 60
+      "start_pref_e": 0.2,
+      "limit_pref_e": 20,
+      "start_pref_f": 100,
+      "limit_pref_f": 60
     },
     "downstream": {
       "type": "ener",
-      "start_pref_e": 0.2, "limit_pref_e": 20,
-      "start_pref_f": 100, "limit_pref_f": 60
+      "start_pref_e": 0.2,
+      "limit_pref_e": 20,
+      "start_pref_f": 100,
+      "limit_pref_f": 60
     }
   },
   "training": {
@@ -191,14 +210,34 @@ To retain knowledge from the pre-trained datasets during fine-tuning, use multi-
     },
     "data_dict": {
       "pre_data_1": {
-        "training_data": { "systems": ["./pre_data_1/train"], "batch_size": 1 }
+        "training_data": {
+          "systems": [
+            "./pre_data_1/train"
+          ],
+          "batch_size": 1
+        }
       },
       "pre_data_2": {
-        "training_data": { "systems": ["./pre_data_2/train"], "batch_size": 1 }
+        "training_data": {
+          "systems": [
+            "./pre_data_2/train"
+          ],
+          "batch_size": 1
+        }
       },
       "downstream": {
-        "training_data": { "systems": ["./downstream/train"], "batch_size": 1 },
-        "validation_data": { "systems": ["./downstream/valid"], "batch_size": 1 }
+        "training_data": {
+          "systems": [
+            "./downstream/train"
+          ],
+          "batch_size": 1
+        },
+        "validation_data": {
+          "systems": [
+            "./downstream/valid"
+          ],
+          "batch_size": 1
+        }
       }
     },
     "numb_steps": 200000,
@@ -211,6 +250,7 @@ To retain knowledge from the pre-trained datasets during fine-tuning, use multi-
 ```
 
 Key points:
+
 - `"finetune_head": "pre_data_1"` specifies which branch the downstream task fine-tunes from.
 - `model_prob` controls the sampling probability for each dataset.
 - Pre-trained branches continue training in `init-model` mode; the downstream branch fine-tunes from the selected head.
@@ -238,6 +278,7 @@ dp pretrained download -h
 ```
 
 Currently available models include:
+
 - `DPA-3.2-5M` — latest large-scale pretrained model
 - `DPA-3.1-3M` — 3M parameter DPA3 pretrained model
 - `DPA3-Omol-Large` — large organic molecule model
@@ -267,15 +308,18 @@ The input.json is the same as Scenario 1. Use `--use-pretrain-script` to inherit
 ```json
 {
   "model": {
-    "type_map": ["O", "H"],
+    "type_map": [
+      "O",
+      "H"
+    ],
     "descriptor": {},
     "fitting_net": {}
   },
   "learning_rate": {
     "type": "exp",
     "decay_steps": 5000,
-    "start_lr": 1e-4,
-    "stop_lr": 3e-6
+    "start_lr": 0.0001,
+    "stop_lr": 3e-06
   },
   "loss": {
     "type": "ener",
@@ -292,11 +336,16 @@ The input.json is the same as Scenario 1. Use `--use-pretrain-script` to inherit
   },
   "training": {
     "training_data": {
-      "systems": ["./my_data/train_0", "./my_data/train_1"],
+      "systems": [
+        "./my_data/train_0",
+        "./my_data/train_1"
+      ],
       "batch_size": 1
     },
     "validation_data": {
-      "systems": ["./my_data/valid_0"],
+      "systems": [
+        "./my_data/valid_0"
+      ],
       "batch_size": 1
     },
     "numb_steps": 200000,
@@ -328,17 +377,17 @@ dp --pt test -m finetuned_model.pth -s /path/to/test_system -n 30
 
 ## Fine-tuning Command Reference
 
-| Command | Description |
-|---------|-------------|
-| `dp pretrained download <MODEL>` | Download a built-in pretrained model |
-| `dp pretrained download <MODEL> --cache-dir <PATH>` | Download to a custom directory |
-| `dp --pt train input.json --finetune <MODEL>.pt` | Fine-tune from a pre-trained model |
-| `dp --pt train input.json --finetune <MODEL>.pt --use-pretrain-script` | Inherit model architecture from pre-trained model |
-| `dp --pt train input.json --finetune <MODEL>.pt --model-branch <BRANCH>` | Fine-tune from a specific branch |
-| `dp --pt train input.json --finetune <MODEL>.pt --model-branch RANDOM` | Fine-tune with random fitting net |
-| `dp --pt show <MODEL>.pt model-branch` | List available branches in a multi-task model |
-| `dp --pt freeze -o model.pth` | Freeze the fine-tuned model |
-| `dp --pt freeze -o model.pth --head <BRANCH>` | Freeze a specific branch (multi-task) |
+| Command                                                                  | Description                                       |
+| ------------------------------------------------------------------------ | ------------------------------------------------- |
+| `dp pretrained download <MODEL>`                                         | Download a built-in pretrained model              |
+| `dp pretrained download <MODEL> --cache-dir <PATH>`                      | Download to a custom directory                    |
+| `dp --pt train input.json --finetune <MODEL>.pt`                         | Fine-tune from a pre-trained model                |
+| `dp --pt train input.json --finetune <MODEL>.pt --use-pretrain-script`   | Inherit model architecture from pre-trained model |
+| `dp --pt train input.json --finetune <MODEL>.pt --model-branch <BRANCH>` | Fine-tune from a specific branch                  |
+| `dp --pt train input.json --finetune <MODEL>.pt --model-branch RANDOM`   | Fine-tune with random fitting net                 |
+| `dp --pt show <MODEL>.pt model-branch`                                   | List available branches in a multi-task model     |
+| `dp --pt freeze -o model.pth`                                            | Freeze the fine-tuned model                       |
+| `dp --pt freeze -o model.pth --head <BRANCH>`                            | Freeze a specific branch (multi-task)             |
 
 ## Agent Checklist
 

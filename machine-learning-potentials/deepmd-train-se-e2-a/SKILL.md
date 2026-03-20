@@ -22,16 +22,16 @@ dp --pt train input.json
 ## Agent Responsibilities
 
 1. Confirm the user has a working deepmd-kit environment with PyTorch backend.
-2. Collect the minimum required information:
+1. Collect the minimum required information:
    - Training data paths (deepmd/npy or deepmd/hdf5 format)
    - Validation data paths
    - Element types (type_map)
    - Target number of training steps
-3. Generate a complete `input.json` training configuration.
-4. Explain key hyperparameters if the user is unfamiliar.
-5. Run training and monitor the learning curve (`lcurve.out`).
-6. Freeze the trained model to `.pth` format.
-7. Optionally test the model with `dp test`.
+1. Generate a complete `input.json` training configuration.
+1. Explain key hyperparameters if the user is unfamiliar.
+1. Run training and monitor the learning curve (`lcurve.out`).
+1. Freeze the trained model to `.pth` format.
+1. Optionally test the model with `dp test`.
 
 ## Workflow
 
@@ -59,20 +59,34 @@ A complete SE_E2_A training configuration:
 ```json
 {
   "model": {
-    "type_map": ["O", "H"],
+    "type_map": [
+      "O",
+      "H"
+    ],
     "descriptor": {
       "type": "se_e2_a",
-      "sel": [46, 92],
-      "rcut_smth": 0.50,
-      "rcut": 6.00,
-      "neuron": [25, 50, 100],
+      "sel": [
+        46,
+        92
+      ],
+      "rcut_smth": 0.5,
+      "rcut": 6.0,
+      "neuron": [
+        25,
+        50,
+        100
+      ],
       "resnet_dt": false,
       "axis_neuron": 16,
       "type_one_side": true,
       "seed": 1
     },
     "fitting_net": {
-      "neuron": [240, 240, 240],
+      "neuron": [
+        240,
+        240,
+        240
+      ],
       "resnet_dt": true,
       "seed": 1
     }
@@ -81,7 +95,7 @@ A complete SE_E2_A training configuration:
     "type": "exp",
     "decay_steps": 5000,
     "start_lr": 0.001,
-    "stop_lr": 3.51e-8
+    "stop_lr": 3.51e-08
   },
   "loss": {
     "type": "ener",
@@ -92,11 +106,16 @@ A complete SE_E2_A training configuration:
   },
   "training": {
     "training_data": {
-      "systems": ["./data/train_system_0", "./data/train_system_1"],
+      "systems": [
+        "./data/train_system_0",
+        "./data/train_system_1"
+      ],
       "batch_size": "auto"
     },
     "validation_data": {
-      "systems": ["./data/valid_system_0"],
+      "systems": [
+        "./data/valid_system_0"
+      ],
       "batch_size": 1,
       "numb_btch": 3
     },
@@ -173,41 +192,41 @@ dp --pt test -m model.pth -s /path/to/test_system -n 30
 
 ### Descriptor
 
-| Parameter | Description | Typical Value |
-|-----------|-------------|---------------|
-| `rcut` | Cutoff radius (A) | 6.0 |
-| `rcut_smth` | Smooth cutoff start (A) | 0.5 |
-| `sel` | Max neighbors per type | System-dependent |
-| `neuron` | Embedding net sizes | [25, 50, 100] |
-| `axis_neuron` | Axis matrix dimension | 16 |
-| `type_one_side` | Share embedding across center types | true |
+| Parameter       | Description                         | Typical Value    |
+| --------------- | ----------------------------------- | ---------------- |
+| `rcut`          | Cutoff radius (A)                   | 6.0              |
+| `rcut_smth`     | Smooth cutoff start (A)             | 0.5              |
+| `sel`           | Max neighbors per type              | System-dependent |
+| `neuron`        | Embedding net sizes                 | [25, 50, 100]    |
+| `axis_neuron`   | Axis matrix dimension               | 16               |
+| `type_one_side` | Share embedding across center types | true             |
 
 ### Fitting Net
 
-| Parameter | Description | Typical Value |
-|-----------|-------------|---------------|
-| `neuron` | Hidden layer sizes | [240, 240, 240] |
-| `resnet_dt` | Use timestep in ResNet | true |
+| Parameter   | Description            | Typical Value   |
+| ----------- | ---------------------- | --------------- |
+| `neuron`    | Hidden layer sizes     | [240, 240, 240] |
+| `resnet_dt` | Use timestep in ResNet | true            |
 
 ### Loss Prefactors
 
-| Parameter | Description | Start | Limit |
-|-----------|-------------|-------|-------|
-| `pref_e` | Energy weight | 0.02 | 1 |
-| `pref_f` | Force weight | 1000 | 1 |
-| `pref_v` | Virial weight (optional) | 0 | 0 |
+| Parameter | Description              | Start | Limit |
+| --------- | ------------------------ | ----- | ----- |
+| `pref_e`  | Energy weight            | 0.02  | 1     |
+| `pref_f`  | Force weight             | 1000  | 1     |
+| `pref_v`  | Virial weight (optional) | 0     | 0     |
 
 The loss shifts from force-dominated early training to balanced energy+force later.
 
 ### Training
 
-| Parameter | Description | Typical Value |
-|-----------|-------------|---------------|
-| `numb_steps` | Total training steps | 400000-1000000 |
-| `batch_size` | Frames per step | "auto" or "auto:32" |
-| `start_lr` | Initial learning rate | 0.001 |
-| `stop_lr` | Final learning rate | 3.51e-8 |
-| `decay_steps` | LR decay interval | 5000 |
+| Parameter     | Description           | Typical Value       |
+| ------------- | --------------------- | ------------------- |
+| `numb_steps`  | Total training steps  | 400000-1000000      |
+| `batch_size`  | Frames per step       | "auto" or "auto:32" |
+| `start_lr`    | Initial learning rate | 0.001               |
+| `stop_lr`     | Final learning rate   | 3.51e-8             |
+| `decay_steps` | LR decay interval     | 5000                |
 
 ### Setting `sel`
 

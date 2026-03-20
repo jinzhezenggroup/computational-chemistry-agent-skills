@@ -22,16 +22,16 @@ dp --pt train input.json
 ## Agent Responsibilities
 
 1. Confirm the user has a working deepmd-kit environment with PyTorch backend.
-2. Collect the minimum required information:
+1. Collect the minimum required information:
    - Training data paths (deepmd/npy or deepmd/hdf5 format)
    - Validation data paths
    - Element types (type_map)
    - Target number of training steps
    - Model size preference (L3/L6/L12 layers)
-3. Generate a complete `input.json` training configuration.
-4. Decide whether to use fixed or dynamic neighbor selection based on system diversity.
-5. Run training and monitor the learning curve.
-6. Freeze the trained model and optionally test it.
+1. Generate a complete `input.json` training configuration.
+1. Decide whether to use fixed or dynamic neighbor selection based on system diversity.
+1. Run training and monitor the learning curve.
+1. Freeze the trained model and optionally test it.
 
 ## Workflow
 
@@ -60,7 +60,10 @@ DPA3 also supports the mixed type data format for multi-element systems.
 ```json
 {
   "model": {
-    "type_map": ["O", "H"],
+    "type_map": [
+      "O",
+      "H"
+    ],
     "descriptor": {
       "type": "dpa3",
       "repflow": {
@@ -94,7 +97,11 @@ DPA3 also supports the mixed type data format for multi-element systems.
       "seed": 1
     },
     "fitting_net": {
-      "neuron": [240, 240, 240],
+      "neuron": [
+        240,
+        240,
+        240
+      ],
       "resnet_dt": true,
       "precision": "float32",
       "activation_function": "silut:10.0",
@@ -105,7 +112,7 @@ DPA3 also supports the mixed type data format for multi-element systems.
     "type": "exp",
     "decay_steps": 5000,
     "start_lr": 0.001,
-    "stop_lr": 3e-5
+    "stop_lr": 3e-05
   },
   "loss": {
     "type": "ener",
@@ -125,11 +132,17 @@ DPA3 also supports the mixed type data format for multi-element systems.
   "training": {
     "stat_file": "./dpa3.hdf5",
     "training_data": {
-      "systems": ["./data/train_0", "./data/train_1", "./data/train_2"],
+      "systems": [
+        "./data/train_0",
+        "./data/train_1",
+        "./data/train_2"
+      ],
       "batch_size": 1
     },
     "validation_data": {
-      "systems": ["./data/valid_0"],
+      "systems": [
+        "./data/valid_0"
+      ],
       "batch_size": 1
     },
     "numb_steps": 1000000,
@@ -193,55 +206,55 @@ dp --pt test -m model.pth -s /path/to/test_system -n 30
 
 Choose the number of layers based on accuracy vs. cost trade-off:
 
-| Model | nlayers | n_dim | e_dim | a_dim | Relative Cost | Use Case |
-|-------|---------|-------|-------|-------|---------------|----------|
-| DPA3-L3 | 3 | 256 | 128 | 32 | 1x | Quick prototyping, smaller systems |
-| DPA3-L3-small | 3 | 128 | 64 | 32 | 0.8x | Fast iteration, limited GPU memory |
-| DPA3-L6 | 6 | 256 | 128 | 32 | 2x | Recommended for production |
-| DPA3-L6-small | 6 | 128 | 64 | 32 | 1.4x | Good accuracy/cost balance |
+| Model         | nlayers | n_dim | e_dim | a_dim | Relative Cost | Use Case                           |
+| ------------- | ------- | ----- | ----- | ----- | ------------- | ---------------------------------- |
+| DPA3-L3       | 3       | 256   | 128   | 32    | 1x            | Quick prototyping, smaller systems |
+| DPA3-L3-small | 3       | 128   | 64    | 32    | 0.8x          | Fast iteration, limited GPU memory |
+| DPA3-L6       | 6       | 256   | 128   | 32    | 2x            | Recommended for production         |
+| DPA3-L6-small | 6       | 128   | 64    | 32    | 1.4x          | Good accuracy/cost balance         |
 
 Benchmark RMSE (averaged over 6 representative systems, 0.5M steps):
 
-| Model | Energy (meV/atom) | Force (meV/A) | Virial (meV/atom) |
-|-------|-------------------|----------------|--------------------|
-| DPA3-L3 (256/128/32) | 5.74 | 85.4 | 43.1 |
-| DPA3-L3-small (128/64/32) | 6.99 | 93.6 | 46.7 |
-| DPA3-L6 (256/128/32) | 4.85 | 79.9 | 39.7 |
-| DPA3-L6-small (128/64/32) | 5.11 | 77.7 | 41.2 |
-| DPA2-L6 (reference) | 12.12 | 109.3 | 83.1 |
+| Model                     | Energy (meV/atom) | Force (meV/A) | Virial (meV/atom) |
+| ------------------------- | ----------------- | ------------- | ----------------- |
+| DPA3-L3 (256/128/32)      | 5.74              | 85.4          | 43.1              |
+| DPA3-L3-small (128/64/32) | 6.99              | 93.6          | 46.7              |
+| DPA3-L6 (256/128/32)      | 4.85              | 79.9          | 39.7              |
+| DPA3-L6-small (128/64/32) | 5.11              | 77.7          | 41.2              |
+| DPA2-L6 (reference)       | 12.12             | 109.3         | 83.1              |
 
 ## Key Differences from SE_E2_A
 
-| Aspect | SE_E2_A | DPA3 |
-|--------|---------|------|
-| Architecture | Two-body embedding | Message passing on LiGS |
-| Default precision | float64 | float32 |
-| Optimizer | Adam | AdamW (with weight_decay) |
-| Loss prefactors | e: 0.02→1, f: 1000→1 | e: 0.2→20, f: 100→60, v: 0.02→1 |
-| stop_lr | 3.51e-8 | 3e-5 |
-| Gradient clipping | Not used | gradient_max_norm: 5.0 |
-| Virial training | Optional | Recommended |
-| Model compression | Supported | Not supported |
-| Activation | tanh (default) | silut:10.0 |
+| Aspect            | SE_E2_A              | DPA3                            |
+| ----------------- | -------------------- | ------------------------------- |
+| Architecture      | Two-body embedding   | Message passing on LiGS         |
+| Default precision | float64              | float32                         |
+| Optimizer         | Adam                 | AdamW (with weight_decay)       |
+| Loss prefactors   | e: 0.02→1, f: 1000→1 | e: 0.2→20, f: 100→60, v: 0.02→1 |
+| stop_lr           | 3.51e-8              | 3e-5                            |
+| Gradient clipping | Not used             | gradient_max_norm: 5.0          |
+| Virial training   | Optional             | Recommended                     |
+| Model compression | Supported            | Not supported                   |
+| Activation        | tanh (default)       | silut:10.0                      |
 
 ## Key Hyperparameters
 
 ### Repflow (Descriptor)
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `n_dim` | Node embedding dimension | 128 or 256 |
-| `e_dim` | Edge embedding dimension | 64 or 128 |
-| `a_dim` | Angle embedding dimension | 32 |
-| `nlayers` | Number of message passing layers | 3 or 6 |
-| `e_rcut` | Edge cutoff radius (A) | 6.0 |
-| `e_rcut_smth` | Edge smooth cutoff start | 5.3 |
-| `e_sel` | Max edge neighbors | 120 |
-| `a_rcut` | Angle cutoff radius (A) | 4.0 |
-| `a_rcut_smth` | Angle smooth cutoff start | 3.5 |
-| `a_sel` | Max angle neighbors | 30 |
-| `update_style` | Residual update style | "res_residual" |
-| `update_residual` | Residual scaling factor | 0.1 |
+| Parameter         | Description                      | Default        |
+| ----------------- | -------------------------------- | -------------- |
+| `n_dim`           | Node embedding dimension         | 128 or 256     |
+| `e_dim`           | Edge embedding dimension         | 64 or 128      |
+| `a_dim`           | Angle embedding dimension        | 32             |
+| `nlayers`         | Number of message passing layers | 3 or 6         |
+| `e_rcut`          | Edge cutoff radius (A)           | 6.0            |
+| `e_rcut_smth`     | Edge smooth cutoff start         | 5.3            |
+| `e_sel`           | Max edge neighbors               | 120            |
+| `a_rcut`          | Angle cutoff radius (A)          | 4.0            |
+| `a_rcut_smth`     | Angle smooth cutoff start        | 3.5            |
+| `a_sel`           | Max angle neighbors              | 30             |
+| `update_style`    | Residual update style            | "res_residual" |
+| `update_residual` | Residual scaling factor          | 0.1            |
 
 ### Optimizer
 
