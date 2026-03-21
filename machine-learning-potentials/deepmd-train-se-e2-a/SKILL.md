@@ -218,11 +218,11 @@ dp --pt test -m model.pth -s /path/to/test_system -n 30
 
 ### Loss Prefactors
 
-| JSON keys                         | Description              | Start | Limit |
-| --------------------------------- | ------------------------ | ----- | ----- |
-| `start_pref_e` / `limit_pref_e`   | Energy weight            | 0.02  | 1     |
-| `start_pref_f` / `limit_pref_f`   | Force weight             | 1000  | 1     |
-| `start_pref_v` / `limit_pref_v`   | Virial weight (optional) | 0     | 0     |
+| JSON keys                       | Description              | Start | Limit |
+| ------------------------------- | ------------------------ | ----- | ----- |
+| `start_pref_e` / `limit_pref_e` | Energy weight            | 0.02  | 1     |
+| `start_pref_f` / `limit_pref_f` | Force weight             | 1000  | 1     |
+| `start_pref_v` / `limit_pref_v` | Virial weight (optional) | 0     | 0     |
 
 Here, `start_pref_*` and `limit_pref_*` set the initial and final loss weights; the loss shifts from force-dominated early training to balanced energy+force later.
 
