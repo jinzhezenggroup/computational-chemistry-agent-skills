@@ -149,6 +149,7 @@ NOTE: AMBER restart file can only be read in as additional file.
 | Delete Charge    | dc           | 11    |
 
 NOTE:
+
 - RESP charge method requires a Gaussian output file with ESP data (`-fi gout`), a Gaussian ESP file (`-fi gesp`) or a GAMESS dat file (`-fi gamess`) as input.
 - CM1 and CM2 charge methods require specific interfaces and are not recommended for general use.
 - ESP (Kollman) charge method requires a Gaussian output file with ESP data (`-fi gout`) as input.
@@ -160,21 +161,25 @@ NOTE:
 Unmentioned options are recommended to be left at their default values unless you have specific needs or understand the implications of changing them. The following heuristics can help guide your choices for the most commonly used options:
 
 ### Basic IO
+
 - `-i`, `-fi`, `-o`, `-fo` must appear.
 - `-a`, `-fa`, `-ao` are used when you want to read in additional information from another file and overwrite specific attributes in the input file. WARNING: this can lead to mismatches if the additional file does not correspond to the input file in atom order.
 - `-rn` is used when you want to specify a custom residue name in order to increase readability.
 
 ### Charge Generation
+
 - `-c` is used when the input file does not contain usable atomic charges, including cases where (1) the input file lacks charge information, (2) the existing charges cannot be directly interpreted (e.g., they originate from upstream quantum chemistry calculations where charges are not explicitly mapped one-to-one to atoms or are stored in complex formats), or (3) new charges need to be recalculated using a chosen method.
 - Typically, `-c bcc` is recommended for general use. Unless higher accuracy is required or the system is sensitive to charge details, in which case `-c resp` with a properly prepared Gaussian output file is recommended. The other charge methods are generally not recommended for typical use cases.
 - `-cf` is only used when `-c rc` is specified, otherwise it will be ignored.
 - `-nc` is required when charges need to be calculated and the net molecular charge is not zero. It will be ignored if there is no charge calculation.
 
 ### Calculation Control
+
 - `-ek` is not recommended for general use. If additional mopac or sqm keywords are needed, it is recommended to run mopac or sqm separately.
 - `-gk`, `-gopt`, `-gsp`, `-gm`, `-gn`, `-gdsk`, `-gv`, `-ge` should never be used. If a gaussian job is needed, use external Gaussian instead.
 
 ### Atom Type Assignment
+
 - `-at` is used when the input file does not contain usable atom type information.
 - Typically, `-at gaff2` is recommended for general use. Unless you are parameterizing a modified residue that must be fully consistent with the standard AMBER force fields, in which case `-at amber` should be used to ensure compatibility and higher accuracy. The other atom type options are generally not recommended for typical use cases.
 
