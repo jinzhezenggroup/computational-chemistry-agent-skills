@@ -135,8 +135,8 @@ NOTE：AMBER restart file can only be read in as additional file.
 
 ### Charge Methods
 
-|	Charge method    | Abbreviation | Index |
-|	---------------- | ------------ | ----- |
+| Charge method    | Abbreviation | Index |
+| ---------------- | ------------ | ----- |
 | RESP             | resp         |    1  |
 | AM1-BCC          | bcc          |    2  |
 | CM1              | cm1          |    3  |
