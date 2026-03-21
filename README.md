@@ -1,6 +1,30 @@
-# computational-chemistry-agent-skills
+# Computational Chemistry Agent Skills
 
-Agent skills to run computational-chemistry tasks, used in OpenClaw
+This repository hosts [Agent Skills](https://agentskills.io/home) to run computational-chemistry tasks.
+These skills can be installed and used in [OpenClaw](https://github.com/openclaw/openclaw), enabling OpenClaw to run complex computational-chemistry workflows.
+
+A website, [https://skills.jinzhezeng.group](https://skills.jinzhezeng.group), is hosted to view all skills.
+
+## Install the skills
+
+Copy/paste this message to your OpenClaw agent.
+
+```md
+Please install ALL skills from computational-chemistry-agent-skills on the OpenClaw host.
+
+Goal
+- Install each skill as its own folder directly under: ~/.openclaw/skills/
+  (OpenClaw discovers skills at <skillsRoot>/*/SKILL.md; it will NOT recursively scan deeper trees.)
+
+Steps
+1) Download repository ZIP: https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/archive/refs/heads/master.zip
+2) Unzip it to get: computational-chemistry-agent-skills-master/
+3) Find every SKILL.md in the repo and copy its parent folder into ~/.openclaw/skills/<folder-name>/
+4) Start a NEW OpenClaw session so skills reload
+
+Verify
+openclaw skills list --eligible
+```
 
 <!-- SKILLS_TABLE_START -->
 ## Skills Summary
@@ -23,3 +47,7 @@ Agent skills to run computational-chemistry tasks, used in OpenClaw
 | [dpdisp-submit](tools/dpdisp-submit/SKILL.md) | Run Shell commands as computational jobs, on local machines or HPC clusters, through Shell, Slurm, PBS, LSF, Bohrium, etc. USE WHEN the user needs to submit batch jobs to a cluster, run commands on a remote server, execute tasks via job schedulers (Slurm, PBS, LSF), or safely run long-term/background shell commands that require state tracking and auto-recovery. | 1.0 | Requires uv and access to the internet. |
 | [search-species](tools/search-species/SKILL.md) | USE WHEN requesting core chemical structural data (SMILES, formula, mass, 2D images) via IUPAC, common, or multilingual names. You MUST actively retrieve the data using this skill; DO NOT hallucinate or generate structures yourself. DO NOT USE WHEN asking for physical properties (melting point, solubility), safety/toxicity data (MSDS), or synthesis pathways. | 0.1.0 | Requires `uv` installed. |
 <!-- SKILLS_TABLE_END -->
+
+## License
+
+This project is licensed under GNU [LGPLv3.0](LICENSE).
