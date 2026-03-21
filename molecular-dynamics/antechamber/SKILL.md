@@ -99,37 +99,37 @@ Usage: antechamber -i     input file name
 
 | File Format Type   | Abbreviation | Index |
 |--------------------| ------------ | ----- |
-|	Antechamber        | ac           |    1  |
+| Antechamber        | ac           |    1  |
 | Sybyl Mol2         | mol2         |    2  |
-|	PDB                | pdb          |    3  |
+| PDB                | pdb          |    3  |
 | Modified PDB       | mpdb         |    4  |
-|	AMBER PREP (int)   | prepi        |    5  |
+| AMBER PREP (int)   | prepi        |    5  |
 | AMBER PREP (car)   | prepc        |    6  |
-|	Gaussian Z-Matrix  | gzmat        |    7  |
+| Gaussian Z-Matrix  | gzmat        |    7  |
 | Gaussian Cartesian | gcrt         |    8  |
-|	Mopac Internal     | mopint       |    9  |
+| Mopac Internal     | mopint       |    9  |
 | Mopac Cartesian    | mopcrt       |   10  |
-|	Gaussian Output    | gout         |   11  |
+| Gaussian Output    | gout         |   11  |
 | Mopac Output       | mopout       |   12  |
-|	Alchemy            | alc          |   13  |
+| Alchemy            | alc          |   13  |
 | CSD                | csd          |   14  |
-|	MDL                | mdl          |   15  |
+| MDL                | mdl          |   15  |
 | Hyper              | hin          |   16  |
-|	AMBER Restart      | rst          |   17  |
+| AMBER Restart      | rst          |   17  |
 | Jaguar Cartesian   | jcrt         |   18  |
-|	Jaguar Z-Matrix    | jzmat        |   19  |
+| Jaguar Z-Matrix    | jzmat        |   19  |
 | Jaguar Output      | jout         |   20  |
-|	Divcon Input       | divcrt       |   21  |
+| Divcon Input       | divcrt       |   21  |
 | Divcon Output      | divout       |   22  |
-|	SQM Input          | sqmcrt       |   23  |
+| SQM Input          | sqmcrt       |   23  |
 | SQM Output         | sqmout       |   24  |
-|	Charmm             | charmm       |   25  |
+| Charmm             | charmm       |   25  |
 | Gaussian ESP       | gesp         |   26  |
-|	geostd cif         | ccif         |   27  |
+| geostd cif         | ccif         |   27  |
 | GAMESS dat         | gamess       |   28  |
-|	Orca input         | orcinp       |   29  |
+| Orca input         | orcinp       |   29  |
 | Orca output        | orcout       |   30  |
-|	pdbqt              | pdbqt        |   31  |
+| pdbqt              | pdbqt        |   31  |
 
 NOTE：AMBER restart file can only be read in as additional file.
 
@@ -137,17 +137,17 @@ NOTE：AMBER restart file can only be read in as additional file.
 
 |	Charge method    | Abbreviation | Index |
 |	---------------- | ------------ | ----- |
-|	RESP             | resp         |    1  |
+| RESP             | resp         |    1  |
 | AM1-BCC          | bcc          |    2  |
-|	CM1              | cm1          |    3  |
+| CM1              | cm1          |    3  |
 | CM2              | cm2          |    4  |
-|	ESP (Kollman)    | esp          |    5  |
+| ESP (Kollman)    | esp          |    5  |
 | Mulliken         | mul          |    6  |
-|	Gasteiger        | gas          |    7  |
+| Gasteiger        | gas          |    7  |
 | ABCG2            | abcg2        |    8  |
-|	Read in charge   | rc           |    9  |
+| Read in charge   | rc           |    9  |
 | Write out charge | wc           |   10  |
-|	Delete Charge    | dc           |   11  |
+| Delete Charge    | dc           |   11  |
 
 NOTE: 
 - RESP charge method requires a Gaussian output file with ESP data (`-fi gout`), a Gaussian ESP file (`-fi gesp`) or a GAMESS dat file (`-fi gamess`) as input.
