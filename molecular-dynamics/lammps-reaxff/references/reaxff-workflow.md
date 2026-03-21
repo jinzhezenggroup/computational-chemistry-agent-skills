@@ -5,7 +5,7 @@ This note is intentionally short and practical.
 ## Core pieces for a working ReaxFF MD in LAMMPS
 
 1. **Charge support**
-   - Use an atom style with charges (commonly `atom_style charge`) or otherwise ensure per-atom charges exist.
+   - Use a charge-capable atom style, such as `atom_style charge` or `atom_style full`; per-atom charges are then read from the data file or initialized/updated by the charge-equilibration (QEq) fix.
 
 2. **ReaxFF pair style**
    - Typical minimal form:

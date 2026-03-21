@@ -20,7 +20,7 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a Re
    - If the user does not have a force field yet, point them to known sources (e.g. LAMMPS `potentials/ffield.reax.*`, LAMMPS `examples/reaxff`, or the PSU Materials Computation Center / van Duin group repository).
 2. Confirm the **structure/data file** (e.g. `data.system`) and the **atom type → element mapping** needed by `pair_coeff`.
 3. Ensure the input includes charge handling:
-   - Use an atom style that supports charges (commonly `atom_style charge`) **or** ensure charges exist via data file / `fix property/atom q`.
+   - Use a charge-capable atom style, such as `atom_style charge` or `atom_style full`, and ensure charges are initialized either from the data file (with a charge column compatible with the chosen `atom_style`) or via explicit commands (e.g. `set` or equal-style variables). Do **not** rely on `fix property/atom q` as a substitute for a real charge field used by ReaxFF/QEq.
    - Add **one** charge equilibration fix, typically `fix qeq/reaxff`, unless the user explicitly requests otherwise.
 4. Write the LAMMPS input script yourself; keep examples readable and annotated.
 5. When possible, validate command availability against LAMMPS docs or local `lmp -h` output before execution.
