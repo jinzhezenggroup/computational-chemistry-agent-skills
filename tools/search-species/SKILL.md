@@ -1,6 +1,8 @@
 ---
 name: search-species
-description: USE WHEN requesting core chemical structural data (SMILES, formula, mass, 2D images) via IUPAC, common, or multilingual names. You MUST actively retrieve the data using this skill; DO NOT hallucinate or generate structures yourself. DO NOT USE WHEN asking for physical properties (melting point, solubility), safety/toxicity data (MSDS), or synthesis pathways.
+description: >
+  USE WHEN requesting core chemical structural data (SMILES, formula, mass, 2D images) via IUPAC, common, or multilingual names. You MUST actively retrieve the data using this skill; DO NOT hallucinate or generate structures yourself.
+  DO NOT USE WHEN asking for physical properties (melting point, solubility), safety/toxicity data (MSDS), or synthesis pathways.
 compatibility: Requires `uv` installed.
 metadata:
   author: light-cyan
@@ -10,18 +12,15 @@ metadata:
 
 # Search Species
 
-This toolkit consists of **two core tools**—`search` and `render`—designed to retrieve chemical structural information and generate visual species cards.
-
 ## 🔄 Core Workflow (CRITICAL)
 
-When assisting users with chemical searches, you **MUST** adhere to the following step-by-step workflow:
+When assisting users with chemical searches, you **MUST** adhere to the following step-by-step workflow. **Note: Searching can be highly time-consuming; always prioritize efficiency.**
 
 1. **Acquire Target**: Identify the chemical name, identifier, or SMILES the user wants to query.
-1. **Select Engine**: Choose the most appropriate search backend (`pubchem`, `opsin`, `wikidata`, or `all`) based on the query type.
-1. **Execute Search**: Use the `search` command to query the database.
-1. **Evaluate Results**: Carefully review the returned summary data and candidate JSON file paths in the output. **Do not blindly render all results.**
-1. **Render Card**: Select the most accurate candidate JSON file and use the `render` command to generate a visual species card.
-1. **Confirm & Iterate**: Present the generated card/data to the user for confirmation. If the result is ambiguous or incorrect, communicate with the user to adjust the search keywords and restart the process.
+1. **Select Engine**: Choose the most targeted search backend (`pubchem`, `opsin`, `wikidata`, or `all`) based on the query type. Avoid using `all` unless strictly necessary, to minimize search times.
+1. **Execute Search**: Use the `search` command to query the database. You must set an appropriate `max_cands` limit to prevent excessively long processing times and reduce data noise.
+1. **Evaluate Results**: Carefully review the returned summary data in the output.
+1. **Confirm & Iterate**: Present the retrieved data to the user for confirmation. If the result is ambiguous or incorrect, communicate with the user to adjust the search keywords and restart the process.
 
 ______________________________________________________________________
 
@@ -37,7 +36,7 @@ ______________________________________________________________________
 | **Mass/Formula**    | Calculated via **RDKit**       | Database Metadata         | Database Metadata               |
 | **Key Strength**    | Handles theoretical molecules. | Highly standardized data. | **Vernacular** & Cross-lingual. |
 
-*(For detailed engine capabilities, limitations, and data normalization behavior, see `reference/backends.md`)*
+*(For more detailed engine capabilities, limitations, and data normalization behavior, see `reference/backends.md`)*
 
 ## Quick Start & Command Outputs
 
@@ -59,18 +58,7 @@ uvx --from search-species render-species <candidate_files...> -o <output_dir>
 
 > **Output:** Prints the file path of the successfully generated image card (e.g., `Successfully rendered -> ./gallery/xyz.png`).
 
-## Core Tasks
-
-### 1) Universal search
-
-Search across all available backends (PubChem, OPSIN, and Wikidata) for a common name:
-
-```bash
-uvx search-species all "Aspirin"
-
-```
-
-### 2) Engine-specific searches
+## Example
 
 **PubChem** (Standard database lookups):
 
@@ -94,22 +82,6 @@ uvx search-species wikidata "TNT"
 
 ```
 
-### 3) Render species cards
-
-Generate visual image cards from specific JSON files (selected after reviewing search results):
-
-```bash
-uvx --from search-species render-species  ./cache/candidate_1.json ./cache/candidate_2.json -o ./gallery
-
-```
-
-Render all JSON files in a directory (Use with caution):
-
-```bash
-uvx --from search-species render-species  ./cache/*.json -o ./gallery
-
-```
-
 ## Agent Checklist
 
 When using this toolkit for users, ensure you cross-check these points with the Core Workflow:
@@ -117,10 +89,8 @@ When using this toolkit for users, ensure you cross-check these points with the 
 - **Engine Match:** Match the engine to the query type based on the overview table.
 - **Data Scope:** Remember this tool *only* retrieves structural identity (Name, Formula, Mass, SMILES, 2D Image).
 - **Fallback:** If `pubchem` fails on a systematic name, fallback to `opsin`.
-- **Selective Rendering:** Evaluate the printed data from the `search` command output before passing specific paths to the `render` command.
 - **Quoting:** Always wrap the chemical `<query>` in quotes.
 
 ## References
 
 - Engine Details & Limitations: `reference/backends.md`
-- Render Rules & Constraints: `reference/render.md`
