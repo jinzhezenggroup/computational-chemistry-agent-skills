@@ -1,6 +1,8 @@
 ---
 name: gjf-flux
-description: Assemble and extract Gaussian .gjf input file sections (directives, route, title, molecule blocks, appendices) and build single- or multi-step Link1 jobs from modular component files. Use when generating, refactoring, templating, or scripting Gaussian job files.
+description: >
+  Assemble and extract Gaussian .gjf input file sections (directives, route, title, molecule blocks, appendices) and build single- or multi-step Link1 jobs from modular component files.
+  USE WHEN needed for generating, refactoring, templating, or scripting Gaussian job files.
 compatibility: Requires `uv` installed and available in PATH.
 metadata:
   author: light-cyan

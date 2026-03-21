@@ -1,6 +1,8 @@
 ---
-name: gau-job
-description: 'Run Gaussian calculations from a .gjf input on local or remote/HPC environments: confirm Gaussian executable/setup (module/source/path), working directories, log filenames, and GAUSS_SCRDIR scratch; then provide a runnable command template with placeholders.'
+name: run-gauss
+description: >
+  Acts as a knowledge base providing environment checklists, directory/scratch management, and bash command templates.
+  USE WHEN you need to guide the execution of Gaussian computational chemistry jobs (.gjf) on local or remote/HPC environments.
 metadata:
   author: light-cyan
   version: 0.1.0
@@ -35,7 +37,7 @@ mkdir -p "$GAUSS_SCRDIR"
 rm -rf "$GAUSS_SCRDIR"
 ```
 
-## Generate / assemble `.gjf` (when needed)
+## Generate / assemble `.gjf` (when there is not an existing one)
 
 Use **gjf-flux** to extract/assemble `.gjf` sections and build workflows.
 
