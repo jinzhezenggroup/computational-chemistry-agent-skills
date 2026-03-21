@@ -6,7 +6,6 @@ description: >
   Typical use cases include parameterizing ligands or modified residues (assigning atom/bond types, generating or reading partial charges), converting structures from upstream tools into mol2/prepi formats, and preparing topology-ready inputs for downstream tools such as LEaP.
   DO NOT USE for standard residues, metal complexes, inorganic systems, or when no valid molecular structure is available (e.g., only SMILES).
 compatibility: Requires AmberTools installed and available in PATH
-license: GPL
 metadata:
   author: yuxt0261-ops
   version: '1.0'
@@ -47,7 +46,7 @@ Usage: antechamber -i     input file name
                           bond  : only read in bond type 
                    -m     multiplicity (2S+1), default is 1
                    -rn    residue name, overrides input file, default is MOL
-                   -rf    residue toplogy file name in prep input file,
+                   -rf    residue topology file name in prep input file,
                           default is molecule.res
                    -ch    check file name for gaussian, default is 'molecule'
                    -ek    mopac or sqm keyword, inside quotes; overwrites previous ones
@@ -88,10 +87,10 @@ Usage: antechamber -i     input file name
                           1    : by atomic paths 
                           2    : by atomic paths and structural information, i.e. E/Z configurations 
                    -pf    remove intermediate files: yes(y) or no(n)[default]
-                   -pl    maximum path length to determin equivalence of atomic charges for resp, bcc and abcg2,
+                   -pl    maximum path length to determine equivalence of atomic charges for resp, bcc and abcg2,
                           the smaller the value, the faster the algorithm, default is -1 (use full length),
                           set this parameter to 10 to 30 if your molecule is big (# atoms >= 100)
-                   -seq   atomic sequence order changable: yes(y)[default] or no(n)
+                   -seq   atomic sequence order changeable: yes(y)[default] or no(n)
                    -dr    acdoctor mode: yes(y)[default] or no(n)
 ```
 
@@ -131,7 +130,7 @@ Usage: antechamber -i     input file name
 | Orca output        | orcout       |   30  |
 | pdbqt              | pdbqt        |   31  |
 
-NOTE：AMBER restart file can only be read in as additional file.
+NOTE: AMBER restart file can only be read in as additional file.
 
 ### Charge Methods
 
@@ -169,10 +168,10 @@ Unmentioned options are recommended to be left at their default values unless yo
 - `-c` is used when the input file does not contain usable atomic charges, including cases where (1) the input file lacks charge information, (2) the existing charges cannot be directly interpreted (e.g., they originate from upstream quantum chemistry calculations where charges are not explicitly mapped one-to-one to atoms or are stored in complex formats), or (3) new charges need to be recalculated using a chosen method.
 - Typically, `-c bcc` is recommended for general use. Unless higher accuracy is required or the system is sensitive to charge details, in which case `-c resp` with a properly prepared Gaussian output file is recommended. The other charge methods are generally not recommended for typical use cases.
 - `-cf` is only used when `-c rc` is specified, otherwise it will be ignored.
-- `-nc` is required when charge need to be calculated and the net molecular charge is not zero. It will be ignored if there is no charge calculation.
+- `-nc` is required when charges need to be calculated and the net molecular charge is not zero. It will be ignored if there is no charge calculation.
 
 ### Calculation Control
-- `-ek` is not recommended for general use. If addtional mopac or sqm keywords are needed, it is recommended to run mopac or sqm separately.
+- `-ek` is not recommended for general use. If additional mopac or sqm keywords are needed, it is recommended to run mopac or sqm separately.
 - `-gk`, `-gopt`, `-gsp`, `-gm`, `-gn`, `-gdsk`, `-gv`, `-ge` should never be used. If a gaussian job is needed, use external Gaussian instead.
 
 ### Atom Type Assignment
@@ -187,7 +186,7 @@ Unmentioned options are recommended to be left at their default values unless yo
 antechamber -i input.ac -fi ac -o output.mol2 -fo mol2
 ```
 
-### Convert antechamber format to Sybyl Mol2, and use charges from addtional file instead
+### Convert antechamber format to Sybyl Mol2, and use charges from additional file instead
 
 ```bash
 antechamber -i input.ac -fi ac -o output.mol2 -fo mol2 -a additional.mol2 -fa mol2 -ao crg
