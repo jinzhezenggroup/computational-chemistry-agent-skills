@@ -127,7 +127,7 @@ when:
     evidence: torch.cuda.is_available() returned False
     response: raise(unsupported environment)
     message: This workflow heavily relies on GPU acceleration. Please inform the
-      user to check the Nvidia drivers or switch to a GPU node on Slurm before 
+      user to check the Nvidia drivers or switch to a GPU node on Slurm before
       retrying.
 
     # --- Automatic retry ---

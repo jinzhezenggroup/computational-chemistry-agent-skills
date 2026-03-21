@@ -1,8 +1,8 @@
 ---
 name: agent-taskboard-manifest
 description: >
-  It is a specification for semantic workflows used by agents to plan, generate, formalize, summarize, and execute complex tasks, projects, experiments,and research efforts for agents, requiring explicit structure, lazy loading,scoped context, evidence-grounded routing, and human review at critical checkpoints.
-  USE WHEN the user asks for a complex task, project, experiment, or research effort that needs to be carefully planned before execution
+  It is a specification for semantic workflows used by agents to plan, generate, formalize, summarize, and execute complex tasks, projects, experiments, and research efforts for agents, requiring explicit structure, lazy loading, scoped context, evidence-grounded routing, and human review at critical checkpoints.
+  USE WHEN the user asks for a complex task, project, experiment, or research effort that needs to be carefully planned before execution.
   USE WHEN the user provides a text-based plan and wants it to be made more detailed and formalized according to this specification.
   USE WHEN the user asks to summarize ongoing or completed work into a reusable workflow manifest.
   USE WHEN the user specifies the location of an existing agent workflow and wants it loaded and executed according to the specification.
