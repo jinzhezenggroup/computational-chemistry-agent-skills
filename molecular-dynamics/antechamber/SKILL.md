@@ -97,7 +97,7 @@ Usage: antechamber -i     input file name
 ### File Formats
 
 | File Format Type   | Abbreviation | Index |
-|--------------------| ------------ | ----- |
+| ------------------ | ------------ | ----- |
 | Antechamber        | ac           | 1     |
 | Sybyl Mol2         | mol2         | 2     |
 | PDB                | pdb          | 3     |
@@ -148,7 +148,7 @@ NOTE: AMBER restart file can only be read in as additional file.
 | Write out charge | wc           | 10    |
 | Delete Charge    | dc           | 11    |
 
-NOTE: 
+NOTE:
 - RESP charge method requires a Gaussian output file with ESP data (`-fi gout`), a Gaussian ESP file (`-fi gesp`) or a GAMESS dat file (`-fi gamess`) as input.
 - CM1 and CM2 charge methods require specific interfaces and are not recommended for general use.
 - ESP (Kollman) charge method requires a Gaussian output file with ESP data (`-fi gout`) as input.
