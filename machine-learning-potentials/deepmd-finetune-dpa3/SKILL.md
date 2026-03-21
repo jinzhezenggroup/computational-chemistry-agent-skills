@@ -358,6 +358,13 @@ The input.json is the same as Scenario 1. Use `--use-pretrain-script` to inherit
 }
 ```
 
+The meaning of each parameter can be generated through `dp doc-train-input`.
+Considering the output RST documentation on the screen is very long, use `grep` to find the documentation of a specific parameter:
+
+```sh
+dp doc-train-input | grep -A 7 training/numb_steps
+```
+
 Run fine-tuning:
 
 ```bash

@@ -128,6 +128,14 @@ A complete SE_E2_A training configuration:
 }
 ```
 
+The meaning of each parameter can be generated through `dp doc-train-input`.
+Considering the output RST documentation on the screen is very long, use `grep` to find the documentation of a specific parameter:
+
+```sh
+dp doc-train-input | grep -A 7 training/numb_steps
+dp doc-train-input | grep -A 7 'model\[standard\]/descriptor\[se_e2_a\]/sel'
+```
+
 ### Step 3: Run Training
 
 ```bash

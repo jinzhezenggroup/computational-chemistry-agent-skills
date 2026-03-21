@@ -155,6 +155,14 @@ DPA3 also supports the mixed type data format for multi-element systems.
 }
 ```
 
+The meaning of each parameter can be generated through `dp doc-train-input`.
+Considering the output RST documentation on the screen is very long, use `grep` to find the documentation of a specific parameter:
+
+```sh
+dp doc-train-input | grep -A 7 training/numb_steps
+dp doc-train-input | grep -A 7 'model\[standard\]/descriptor\[dpa3\]/repflow/e_sel'
+```
+
 #### DPA3 with Dynamic Selection
 
 For systems with highly variable neighbor counts (e.g., multi-element datasets), use dynamic selection by modifying the `repflow` section:
