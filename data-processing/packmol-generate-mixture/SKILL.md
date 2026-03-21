@@ -1,6 +1,8 @@
 ---
 name: packmol-generate-mixture
-description: Generate an initial packed molecular configuration (packed XYZ) from one or more single-molecule XYZ structures using Packmol. Use when you need to pack molecules into a cubic box for MD/prep; ask for packing parameters (counts, density/box, tolerance) and desired output location; then generate Packmol input, run Packmol via uvx, and report output paths + box metadata.
+description: >
+  A tool for generating initial packed molecular configurations (XYZ format) from single-molecule structures by calculating box dimensions, writing input scripts, and executing Packmol.
+  USE WHEN you need to randomly pack a specific number of molecules into a simulation box (defined by target density or fixed lengths) to create starting geometries for molecular dynamics or related computational chemistry workflows.
 compatibility: Requires uv and internet access (uses `uvx packmol ...`).
 metadata:
   author: hcustc-bot
