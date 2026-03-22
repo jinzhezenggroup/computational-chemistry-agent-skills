@@ -4,8 +4,10 @@ description: Generate Quantum ESPRESSO DFT input tasks from a user-provided stru
 compatibility: Requires a user-provided initial structure and enough DFT parameters to build a scientifically meaningful QE input.
 license: MIT
 metadata:
-  author: OpenClaw
-  version: '1.3'
+  author: Yi-FanLi
+  version: '1.0'
+  repository: https://gitlab.com/QEF/q-e
+  qe_docs: https://www.quantum-espresso.org/Doc/user_guide/
 ---
 
 # DFT with Quantum ESPRESSO
