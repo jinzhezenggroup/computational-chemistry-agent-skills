@@ -1,11 +1,11 @@
 ---
 name: lammps-reaxff
-description: "Run reactive molecular dynamics simulations in LAMMPS with the ReaxFF potential, including preparing input scripts (pair_style reaxff + fix qeq/reaxff), mapping LAMMPS atom types to elements via pair_coeff, choosing ensembles (NVE/NVT/NPT), and adding common ReaxFF diagnostics such as species analysis. Use when the user wants LAMMPS+ReaxFF workflows or needs a working, annotated `input.lammps` template."
-compatibility: "Requires a LAMMPS build with the REAXFF package enabled (pair_style reaxff and fix qeq/reaxff). Optional acceleration variants: reaxff/omp or reaxff/kk."
+description: Run reactive molecular dynamics simulations in LAMMPS with the ReaxFF potential, including preparing input scripts (pair_style reaxff + fix qeq/reaxff), mapping LAMMPS atom types to elements via pair_coeff, choosing ensembles (NVE/NVT/NPT), and adding common ReaxFF diagnostics such as species analysis. Use when the user wants LAMMPS+ReaxFF workflows or needs a working, annotated `input.lammps` template.
+compatibility: 'Requires a LAMMPS build with the REAXFF package enabled (pair_style reaxff and fix qeq/reaxff). Optional acceleration variants: reaxff/omp or reaxff/kk.'
 license: LGPL-3.0-or-later
 metadata:
   author: njzjz-bot
-  version: "1.0"
+  version: '1.0'
   repository: https://www.lammps.org/
   lammps_docs: https://docs.lammps.org/
 ---
@@ -18,13 +18,13 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a Re
 
 1. Confirm the **ReaxFF force field file** (e.g. `ffield.reax.*`). Do not guess which file is appropriate.
    - If the user does not have a force field yet, point them to known sources (e.g. LAMMPS `potentials/ffield.reax.*` at https://github.com/lammps/lammps/tree/develop/potentials).
-2. Confirm the **structure/data file** (e.g. `data.system`) and the **atom type → element mapping** needed by `pair_coeff`.
-3. Ensure the input includes charge handling:
+1. Confirm the **structure/data file** (e.g. `data.system`) and the **atom type → element mapping** needed by `pair_coeff`.
+1. Ensure the input includes charge handling:
    - Use a charge-capable atom style, such as `atom_style charge` or `atom_style full`, and ensure charges are initialized either from the data file (with a charge column compatible with the chosen `atom_style`) or via explicit commands (e.g. `set` or equal-style variables). Do **not** rely on `fix property/atom q` as a substitute for a real charge field used by ReaxFF/QEq.
    - Add **one** charge equilibration fix, typically `fix qeq/reaxff`, unless the user explicitly requests otherwise.
-4. Write the LAMMPS input script yourself; keep examples readable and annotated.
-5. When possible, validate command availability against LAMMPS docs or local `lmp -h` output before execution.
-6. Report clearly which command was run, which files were used, and where outputs were written.
+1. Write the LAMMPS input script yourself; keep examples readable and annotated.
+1. When possible, validate command availability against LAMMPS docs or local `lmp -h` output before execution.
+1. Report clearly which command was run, which files were used, and where outputs were written.
 
 ## Minimum information to collect
 
@@ -48,6 +48,7 @@ uvx --from 'lammps[mpi]' lmp -in input.lammps
 ```
 
 Notes:
+
 - If you see `error while loading shared libraries: libmpi.so...`, you likely installed an MPI-linked `lmp` without MPI runtime libraries. Prefer `uvx --from 'lammps[mpi]' ...` (bundles MPI runtime), or load/install MPICH/OpenMPI via system packages/conda/HPC module.
 
 ### Offline mode (common / HPC)
@@ -122,10 +123,10 @@ run             ${NSTEPS}
   - The trailing symbols define the element mapping for LAMMPS atom types (type 1->C, type 2->H, type 3->O in this example). Adjust to match your data file.
 - `fix qeq/reaxff ... reaxff` uses QEq parameters extracted from the ReaxFF force field file.
 
-
 ## Sanity checks (recommended before long runs)
 
-1) **Short NVE stability check** (no thermostat/barostat)
+1. **Short NVE stability check** (no thermostat/barostat)
+
 - Run 1–5 ps NVE and check that `etotal` drift is reasonable (and that the run does not blow up).
 
 Example (`units real`):
@@ -143,7 +144,8 @@ run             2000
 
 - If it blows up: reduce timestep (e.g. 0.25 fs → 0.1 fs → 0.05 fs), check the initial geometry, and ensure QEq converges.
 
-2) **QEq convergence**
+2. **QEq convergence**
+
 - If QEq hits max iterations often, consider better initial charges, looser timestep, or `maxiter` (see LAMMPS `fix qeq/reaxff`).
 
 ## Optional: species analysis

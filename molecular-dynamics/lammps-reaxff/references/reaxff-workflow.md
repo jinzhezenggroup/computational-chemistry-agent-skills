@@ -5,9 +5,11 @@ This note is intentionally short and practical.
 ## Core pieces for a working ReaxFF MD in LAMMPS
 
 1. **Charge support**
+
    - Use a charge-capable atom style, such as `atom_style charge` or `atom_style full`; per-atom charges are then read from the data file or initialized/updated by the charge-equilibration (QEq) fix.
 
-2. **ReaxFF pair style**
+1. **ReaxFF pair style**
+
    - Typical minimal form:
      ```lammps
      pair_style reaxff NULL
@@ -15,7 +17,8 @@ This note is intentionally short and practical.
      ```
    - The element list defines the mapping from LAMMPS atom types (1..Ntypes) to element symbols.
 
-3. **Charge equilibration (QEq)**
+1. **Charge equilibration (QEq)**
+
    - Most ReaxFF parameterizations expect QEq each step:
      ```lammps
      fix fqeq all qeq/reaxff 1 0.0 10.0 1.0e-6 reaxff
