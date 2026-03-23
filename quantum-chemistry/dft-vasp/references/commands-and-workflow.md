@@ -1,125 +1,36 @@
 # Commands and Workflow
 
-Use this reference when the user wants a concrete, file-oriented `dft-vasp` workflow.
+Use this reference for the top-level `dft-vasp` router workflow.
 
-## Recommended task layout
+## Router role
 
-Prefer a compact task directory:
+`dft-vasp` does not own full task templates. It dispatches to one subskill path:
 
-```text
-vasp_task/
-├── POSCAR
-├── INCAR
-├── KPOINTS   (optional)
-└── POTCAR    (or assembly instructions)
-```
+- `dft-vasp/static`
+- `dft-vasp/relax`
+- `dft-vasp/dos`
+- `dft-vasp/band`
 
-## Workflow
+## Dispatch checklist
 
-1. Read user-provided structure.
-1. Normalize to `POSCAR` if needed.
-1. Confirm task type (`static` or `relax`).
-1. Collect required parameters.
-1. Generate `INCAR` with `KSPACING` by default.
-1. Generate `KPOINTS` only if user asks for explicit manual mesh.
-1. Return file set and POTCAR assembly instructions.
+1. Identify task intent from user request.
+1. Verify minimal prerequisites.
+1. Route to one subskill.
+1. Let subskill generate task-specific files.
+1. If execution is requested, hand off to `dpdisp-submit`.
 
-## Parameter checklist
+## Intent to subskill mapping
 
-### Must provide
+- single-point SCF/energy -> `dft-vasp/static`
+- geometry optimization -> `dft-vasp/relax`
+- density of states -> `dft-vasp/dos`
+- band structure -> `dft-vasp/band`
 
-- `ENCUT`
-- k-point policy (`KSPACING` preferred for v0.1)
-- `ISMEAR` / `SIGMA`
-- POTCAR mapping for each element
+## Shared output contract
 
-### Usually should be explicit
+All subskills should return:
 
-- `EDIFF`
-- `NELM`
-- `PREC`
-- `LREAL`
-- `ISPIN` / `MAGMOM` if relevant
-- `IVDW` if relevant
-
-### Relax-only
-
-- `IBRION`
-- `NSW`
-- `EDIFFG`
-- `ISIF` (must match intended relaxation target)
-
-## Minimal INCAR examples
-
-### static (KSPACING-based)
-
-```text
-SYSTEM = example-static
-ENCUT = 520
-EDIFF = 1E-6
-ISMEAR = 0
-SIGMA = 0.05
-PREC = Accurate
-NELM = 120
-ISPIN = 1
-KSPACING = 0.20
-```
-
-### relax (illustrative)
-
-```text
-SYSTEM = example-relax
-ENCUT = 520
-EDIFF = 1E-6
-EDIFFG = -0.02
-IBRION = 2
-NSW = 120
-ISMEAR = 0
-SIGMA = 0.05
-ISIF = 2
-KSPACING = 0.20
-```
-
-## Optional explicit KPOINTS example
-
-Generate only when user explicitly requests manual mesh:
-
-```text
-Automatic mesh
-0
-Gamma
-4 4 4
-0 0 0
-```
-
-## POTCAR assembly note
-
-This skill should provide explicit mapping and ordering, for example:
-
-- `Si -> Si`
-- `O -> O`
-
-`POTCAR` must be assembled in the exact species order listed in `POSCAR`.
-For example, if `POSCAR` species line is `Si O`, assemble:
-
-- `POTCAR(Si)` then `POTCAR(O)`
-
-Example command pattern (adapt paths to your local pseudopotential library):
-
-```bash
-cat /path/to/potpaw_PBE/Si/POTCAR /path/to/potpaw_PBE/O/POTCAR > POTCAR
-```
-
-## Next-stage execution (outside this skill)
-
-```bash
-vasp_std > vasp.out
-```
-
-or with scheduler launcher:
-
-```bash
-srun vasp_std > vasp.out
-```
-
-Execution/submission should be handled by `dpdisp-submit`.
+1. task directory/file set
+1. parameter summary
+1. explicit assumptions and unresolved choices
+1. submission handoff note when requested

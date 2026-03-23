@@ -1,186 +1,73 @@
 ---
 name: dft-vasp
-description: Generate VASP DFT input tasks from a user-provided structure plus user-specified DFT settings. Use when the user wants to prepare VASP calculations for static SCF and structural relaxation workflows, including robust INCAR generation with KSPACING-based k-point policy (KPOINTS optional) and explicit POTCAR mapping. This skill prepares VASP input tasks only; use a separate submission skill such as dpdisp-submit for execution.
-compatibility: Requires a user-provided initial structure and valid VASP pseudopotential resources/license in the target environment.
+description: Route VASP DFT requests to task-specific subskills based on user intent. Use when the user asks for VASP workflows and you must decide between static SCF, relaxation, DOS, or band-structure task preparation. This orchestration skill does not own detailed input generation logic; it dispatches to the correct VASP subskill and enforces consistent handoff to submission skills.
+compatibility: Requires a user-provided structure and valid VASP pseudopotential resources/license in the target environment.
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: '0.2.0'
   repository: https://vasp.at/
 ---
 
-# DFT with VASP
+# VASP Task Router
 
-Use this skill to **build VASP DFT tasks** from a user-provided structure and DFT settings.
+Use this skill as the **top-level VASP orchestration layer**.
+
+## Purpose
+
+This skill routes the request to one task-specific VASP subskill path:
+
+- `dft-vasp/static`
+- `dft-vasp/relax`
+- `dft-vasp/dos`
+- `dft-vasp/band`
 
 ## Scope
 
-This skill should:
+This router skill should:
 
-- require a user-provided structure
-- read or normalize structure input into VASP-ready form
-- identify the target calculation type (`static`, `relax`)
-- collect only missing critical DFT settings
-- generate VASP input files (`POSCAR`, `INCAR`, optional `KPOINTS`)
-- provide explicit POTCAR mapping/assembly instructions
-- organize a handoff-ready task directory
-- state assumptions and unresolved choices
+- require a user-provided structure or prerequisite run artifacts
+- classify user intent into one VASP task type
+- collect only minimal shared context before dispatch
+- delegate detailed parameter handling to the selected subskill
+- enforce consistent output/handoff policy across subskills
 
-This skill should **not**:
+This router skill should **not**:
 
-- submit jobs
-- manage schedulers
-- handle remote execution
-- fabricate unavailable pseudopotential files
-
-If submission is requested, hand off to `dpdisp-submit` after input generation.
+- own full INCAR/KPOINTS templates for all tasks
+- execute or submit calculations
+- bypass task-specific guardrails
 
 ## Hard requirement
 
-The user must provide a structure.
+The user must provide enough starting context:
 
-Do not generate a VASP task without a user-provided structure source. If missing, stop and ask for it.
+- structure input for `static` / `relax`
+- prerequisite SCF artifacts for `dos` / `band` when required
 
-## Supported task types (v0.1)
+If prerequisites are missing, stop and ask for them.
 
-- `static` (single-point SCF)
-- `relax` (geometry relaxation)
+## Routing rules
 
-`dos` / `band` are intentionally out of scope for this version.
+1. If user requests single-point energy/electronic SCF: route to `dft-vasp/static`.
+1. If user requests geometry optimization: route to `dft-vasp/relax`.
+1. If user requests density of states workflow: route to `dft-vasp/dos`.
+1. If user requests band-structure workflow: route to `dft-vasp/band`.
+1. If intent is ambiguous, ask one focused clarification question before routing.
 
-## Structure input convention
+## Shared policy for all subskills
 
-Accept common structure sources such as `POSCAR`, `CONTCAR`, `cif`, `xyz` (with cell information for periodic systems).
+- do not invent pseudopotentials
+- expose assumptions explicitly
+- report unresolved scientific choices
+- return handoff-ready task directory
+- if execution is requested, hand off to `dpdisp-submit`
 
-If conversion is needed, use `dpdata-cli` or `pymatgen-structure` first.
-
-For periodic systems, ensure lattice/cell is preserved and consistent.
-
-## Expected workflow
-
-1. Start from a user-provided structure.
-1. Normalize structure to `POSCAR` if needed.
-1. Determine calculation type (`static` or `relax`).
-1. Collect only missing critical parameters.
-1. Generate `INCAR` (with `KSPACING` policy by default).
-1. Generate optional `KPOINTS` only when explicitly requested.
-1. Provide `POTCAR` mapping and assembly instructions.
-1. Return a handoff-ready task directory; if requested, hand off to `dpdisp-submit`.
-
-## VASP parameters to collect
-
-### Must provide
-
-Do not generate a formal VASP task unless these are known or explicitly confirmed:
-
-- `SYSTEM` label
-- `ENCUT`
-- k-point policy (`KSPACING` value by default, or explicit mesh)
-- `ISMEAR` and `SIGMA` policy
-- pseudopotential mapping for each element
-
-### Usually should be explicit
-
-These should normally be confirmed rather than guessed:
-
-- `EDIFF`
-- `NELM`
-- `PREC`
-- `LREAL`
-- `ISPIN` and `MAGMOM` when relevant
-- `IVDW` when dispersion may matter
-
-### Task-specific additions
-
-For `relax`:
-
-- `IBRION`
-- `NSW`
-- `EDIFFG`
-- `ISIF` relaxation mode (must match user intent)
-
-## Relaxation policy (important)
-
-`relax` must be classified by intent before setting `ISIF`:
-
-- ion-only relaxation
-- cell+ion relaxation
-- low-dimensional/slab-style relaxation policy
-
-Do not silently choose a relaxation mode when user intent is ambiguous.
-
-For 2D/slab cases, explicitly confirm constraints and note assumptions in output.
-
-## K-point policy
-
-For this version:
-
-- default path for `static`/`relax`: use `KSPACING` in `INCAR`
-- `KPOINTS` file is optional and generated only when user explicitly requests manual mesh
-
-## Required behavior
-
-1. Inspect structure if accessible.
-1. Determine element list, atom count, and lattice consistency.
-1. Normalize to VASP-ready files when needed.
-1. Confirm task type and relaxation intent.
-1. Gather only missing critical settings.
-1. Generate files and explain assumptions.
-1. Flag unresolved scientific choices instead of hiding them.
-1. Return exact output paths.
-
-## Defaulting policy
-
-Allowed only for low-risk, clearly labeled assumptions.
-
-Reasonable provisional defaults:
-
-- `static` for plain single-point requests
-- conservative convergence defaults when user is indifferent
-- `KSPACING`-driven sampling for `static`/`relax`
-
-Do **not** silently invent:
-
-- structure data
-- pseudopotential files
-- production `ENCUT` values
-- magnetic state for potentially open-shell systems
-- relaxation `ISIF` mode when intent is unclear
-
-## Expected output
+## Output from router
 
 Provide:
 
-1. generated file set (`POSCAR`, `INCAR`, optional `KPOINTS`)
-1. `POTCAR` mapping/assembly instructions
-1. short summary of chosen settings
-1. explicit assumptions
-1. unresolved decisions for user confirmation
-1. handoff note to `dpdisp-submit` if execution is requested
-
-## Minimal task layout
-
-```text
-vasp_task/
-├── POSCAR
-├── INCAR
-├── KPOINTS   (optional)
-└── POTCAR    (or assembly instructions)
-```
-
-## Handoff rule
-
-When the user asks to submit the generated VASP task:
-
-- finish generating the task directory and input files
-- tell the user the task is ready
-- hand off to `dpdisp-submit`
-
-## Common failure points
-
-- missing user-provided structure
-- inconsistent lattice/cell for periodic systems
-- invalid POTCAR mapping for elements
-- poor `ENCUT` / k-point policy
-- inappropriate smearing choices
-- incorrect relaxation intent mapped to `ISIF`
+1. selected subskill name
+1. why it was selected
+1. minimal required inputs still missing (if any)
+1. explicit next step (invoke selected subskill)
