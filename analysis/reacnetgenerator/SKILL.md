@@ -1,10 +1,11 @@
 ---
 name: reacnetgenerator
-description: Run ReacNetGenerator on LAMMPS trajectories to generate reaction networks and reports. Use when the user wants to analyze reactive MD trajectories with ReacNetGenerator (dump/xyz/bond). Handles common LAMMPS dump quirks like x/y/z vs xs/ys/zs scaled coordinates by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools >= 0.1.1), infers atomname order from a LAMMPS data file when available, runs via local reacnetgenerator or via `uvx --from reacnetgenerator`, and writes outputs into `out/<input_basename>/` with logs and a summary.
-compatibility: Requires uv and internet access (uses `uvx --from reacnet-md-tools ...` and `uvx --from reacnetgenerator ...`).
+description: Run ReacNetGenerator on reactive MD trajectories to generate reaction networks and reports. Use when the user wants to analyze LAMMPS dump/xyz/bond trajectories with ReacNetGenerator. Handles LAMMPS dump quirks like x/y/z vs xs/ys/zs by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools). Can infer atomname order from a LAMMPS data file. Runs via local reacnetgenerator if available or via `uvx --from reacnetgenerator ...`. Writes outputs into `out/<input_basename>/` with logs and a summary.
+license: MIT
+compatibility: Requires `uv` and `python3`. Usually requires internet access for `uvx --from ...` resolution unless packages are already cached.
 metadata:
   author: hcustc-bot
-  version: '1.0'
+  version: '2.3'
   repository: https://github.com/tongzhugroup/ReacNetGenerator
   repositories:
     - https://github.com/tongzhugroup/ReacNetGenerator
@@ -18,95 +19,140 @@ metadata:
 
 # ReacNetGenerator
 
-## Quick start (agent)
+## 10-second quickstart
 
-1. Ask for or infer:
+- Run a standard LAMMPS dump workflow:
+  - `uvx --refresh --from reacnet-md-tools rng-pipeline ...`
+- Analyze existing outputs (no rerun):
+  - `uvx --refresh --from reacnet-md-tools rng-query ...`
 
-- input trajectory path(s)
-- input type: dump | xyz | bond (default dump if LAMMPS "ITEM:" is detected)
-- atom names order for `-a` (infer from LAMMPS data file if present)
+If you need full official flags (e.g. `--cell`, `--nopbc`, `--use-ase`, `--miso`, HMM matrices), use native:
 
-2. Prefer running the pipeline tool from PyPI (do not hand-compose long commands):
+- `uvx --refresh --from reacnetgenerator reacnetgenerator ...`
 
-- Use `reacnet-md-tools` → `rng-pipeline`.
+## What this skill is for
 
-3. Avoid interactive prompts in non-interactive runs:
+Use this skill for **reactive MD post-processing** when the user wants to:
 
-- Prefer passing `--data path/to/file.data` explicitly.
-- Use `--pick-data` only as an interactive fallback when you have a TTY.
+- run **ReacNetGenerator** on `bond`, `dump`, `xyz`, or `extxyz` trajectories
+- handle common LAMMPS trajectory issues before running analysis
+- choose between a **high-level wrapper** (`reacnet-md-tools`) and the **native `reacnetgenerator` CLI**
+- inspect generated `.reactionabcd` / `.species` outputs after a run
 
-## Commands (preferred)
+## References (read only when needed)
 
-### Non-interactive (recommended default)
+Read only what is relevant:
 
-```bash
-uvx --refresh --from 'reacnet-md-tools>=0.1.1' rng-pipeline \
-    --input /path/to/trajectory.lammpstrj \
-    --type dump \
-    --outroot out \
-    --data /path/to/system.data \
-    --nohmm \
-    --stepinterval 10 \
-    --maxspecies 50
-```
+- If the user asks about official flags or default values: [references/cli.md](references/cli.md)
+- If the user asks about PBC/cell/`--nopbc` or input-type choice: [references/pbc-and-inputs.md](references/pbc-and-inputs.md)
+- If the user wants copy-paste commands: [references/examples.md](references/examples.md)
 
-### Interactive fallback (TTY only)
+## Tool-selection rule
 
-If multiple `.data` files exist and you are running interactively, you may use `--pick-data`:
+Choose the narrowest tool that solves the user’s request:
 
-```bash
-uvx --refresh --from 'reacnet-md-tools>=0.1.1' rng-pipeline \
-    --input /path/to/trajectory.lammpstrj \
-    --type dump \
-    --outroot out \
-    --pick-data
-```
+1. **Use `rng-pipeline` by default** for standard LAMMPS dump workflows.
+1. **Use native `reacnetgenerator`** when the user needs official low-level flags not exposed by the wrapper.
+1. **Use `rng-query`** when the user already has `.reactionabcd` / `.species` outputs and wants analysis rather than rerunning.
+1. **Use `rng-webapp`** only when the user explicitly wants an interactive local browser UI.
 
-## What this skill does
+## Ask only for the missing inputs
 
-- Detect whether a LAMMPS dump uses `x y z` or scaled `xs ys zs` coordinates.
-- If scaled coords are present:
-  - Convert to `x y z` using BOX BOUNDS (orthorhombic + triclinic with tilt factors `xy xz yz`).
-  - Requires `reacnet-md-tools >= 0.1.1`.
-  - Write the converted dump as `out/<basename>/dump_with_xyz.lammpstrj`.
-- Infer `-a/--atomname` order from a LAMMPS data file in the same directory (optional):
-  - Parse `Masses` section and map common masses to elements (C, H, O, Cl, N, F, S, P, Br, I, etc.).
-  - If inference is ambiguous, stop and ask the user.
-- Run ReacNetGenerator:
-  - Prefer `reacnetgenerator` if available on PATH.
-  - Otherwise run via `uvx --refresh --from reacnetgenerator reacnetgenerator ...`.
-- Put all outputs in `out/<basename>/`:
-  - `run.log` (stdout/stderr)
-  - generated `*.html`, `*.svg`, `*.json`, `*.species`, `*.reaction`, etc.
-  - `summary.md` listing key outputs and parameters
+Usually you only need:
 
-## Version check (agent)
+- trajectory path(s)
+- input type: `bond | dump | xyz | extxyz` if not obvious
+- atom names for `-a/--atomname` unless they can be inferred from a LAMMPS data file
+- whether the run should be treated as periodic, **only if cell information is missing or ambiguous**
+
+Do **not** ask unnecessary questions when the trajectory already contains enough information.
+
+## Default execution policy
+
+### Preferred default: wrapper CLIs (`reacnet-md-tools`)
+
+Use `reacnet-md-tools` for routine runs because it is safer and more agent-friendly:
+
+- handles standard LAMMPS dump workflows
+- can infer atom names from nearby `.data` files
+- writes outputs into a predictable `out/<basename>/` directory
+- reduces manual CLI assembly errors
+
+When running the wrapper from an agent, prefer `uvx` so the latest published version is resolved automatically:
 
 ```bash
-uvx --refresh --from 'reacnet-md-tools>=0.1.1' python -c "import reacnet_md_tools; print(reacnet_md_tools.__version__)"
+uvx --refresh --from reacnet-md-tools rng-pipeline --help
+uvx --refresh --from reacnet-md-tools rng-query --help
 ```
 
-If you still see triclinic conversion errors:
+### Fallback: native `reacnetgenerator`
 
-- ensure your run is resolving `reacnet-md-tools >= 0.1.1` (use `--refresh`), or
-- re-dump trajectories with `x y z` instead of `xs ys zs`.
+Use native `reacnetgenerator` when the user explicitly needs official flags such as:
 
-## Default parameters (safe, adjustable)
+- `--miso`
+- `--use-ase`
+- `--ase-cutoff-mult`
+- `--ase-pair-cutoffs`
+- `--nopbc`
+- `--cell`
+- `-n/--nproc`
+- `-s/--selectatoms`
+- `--matrixa`
+- `--matrixb`
+- `--urls`
 
-- `--nohmm` (default ON unless user explicitly wants HMM)
-- `--stepinterval 10` for a quick first pass (ask user; default to 1 if they want the full trajectory)
-- `--maxspecies 50` (adjustable)
-- `--split 1`
+If using native CLI, follow the official flag semantics in [references/cli.md](references/cli.md).
 
-## Usage pattern (what to ask the user)
+## Decision rules
 
-Ask only what you need:
+### Input type
 
-- "What is the trajectory file path? (e.g., .lammpstrj/.xyz/.reaxc)"
-- "Which input type should be used: dump/xyz/bond? If unsure, I can auto-detect."
-- "Do you have a LAMMPS data file (.data) for inferring the element order? If yes, give me its path; otherwise provide the atomname list (e.g., C Cl H O)."
-- "What stride/stepinterval should be used? For a quick sanity run, 10 is fine."
+- If the file clearly looks like a LAMMPS dump (`ITEM:` blocks), treat it as `dump`.
+- If the input is a bond trajectory such as `bonds.reaxc`, treat it as `bond` / `lammpsbondfile`.
+- If the input is `.xyz`, treat it as `xyz` unless it is explicitly `extxyz`.
 
-## Notes / limitations
+### PBC / cell
 
-- If your dump already contains `x y z`, no conversion is needed.
+Read [references/pbc-and-inputs.md](references/pbc-and-inputs.md) when choosing `--cell` or `--nopbc`.
+
+Short version:
+
+- For **LAMMPS dump/lammpstrj with valid `BOX BOUNDS`**, do **not** ask for `--cell`.
+- For **XYZ without cell info**, ask whether the system should be treated as periodic.
+- Use `--nopbc` only when the run is truly non-periodic, already unwrapped/reconstructed, or lacks meaningful periodic cell semantics.
+
+### HMM
+
+- For a quick first pass, use `--nohmm` unless the user explicitly wants HMM behavior.
+- If the user asks for more faithful / publication-style treatment and knows what HMM means here, allow HMM by omitting `--nohmm`.
+
+## Post-analysis rule
+
+If the user already has outputs such as:
+
+- `.reactionabcd`
+- `.species`
+- generated HTML / SVG / JSON reports
+
+prefer **post-analysis** over rerunning. Use `rng-query` first unless the user specifically wants the raw files opened or a browser UI.
+
+## Output expectations
+
+For normal runs, make outputs predictable and easy to inspect:
+
+- `run.log`
+- generated `*.html`, `*.svg`, `*.json`, `*.species`, `*.reaction*`
+- `summary.md` if using the wrapper workflow
+
+## Working style
+
+- Prefer non-interactive commands unless you truly have a TTY.
+- Prefer explicit paths over implicit discovery when multiple candidate files exist.
+- Stop and ask if atom-type inference is ambiguous.
+- Do not invent unsupported flags; use the official CLI definitions from [references/cli.md](references/cli.md).
+
+## Quick references
+
+- Official CLI coverage: [references/cli.md](references/cli.md)
+- Common recipes: [references/examples.md](references/examples.md)
+- PBC and input decisions: [references/pbc-and-inputs.md](references/pbc-and-inputs.md)
