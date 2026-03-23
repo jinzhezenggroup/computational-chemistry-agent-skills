@@ -26,6 +26,7 @@ README = ROOT / "README.md"
 
 START_MARK = "<!-- SKILLS_TABLE_START -->"
 END_MARK = "<!-- SKILLS_TABLE_END -->"
+EXCLUDED_DIRS = {".github"}
 
 
 @dataclass
@@ -65,9 +66,17 @@ def normalize_version(meta: dict) -> str:
     return "-"
 
 
+def is_excluded(skill_file: Path) -> bool:
+    rel_parts = skill_file.relative_to(ROOT).parts
+    return any(part in EXCLUDED_DIRS for part in rel_parts)
+
+
 def collect_skills() -> list[SkillMeta]:
     rows: list[SkillMeta] = []
     for skill_file in sorted(ROOT.glob("**/SKILL.md")):
+        if is_excluded(skill_file):
+            continue
+
         text = skill_file.read_text(encoding="utf-8", errors="replace")
         fm = parse_front_matter(text)
 

@@ -40,6 +40,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Setup git identity
         run: |
           git config user.name "GitHub Actions"

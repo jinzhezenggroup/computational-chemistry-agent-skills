@@ -17,12 +17,19 @@ Also preserves high-level categorization by directory. For a SKILL located at:
   tools/openbabel/SKILL.md
 category will be:
   tools
+
+Additionally generates per-skill zip files for download on the static site:
+  - site/public/skill-zips/<slug>.zip
+
+Each zip contains a single top-level folder equal to the skill directory name,
+and includes the full contents of that skill directory (SKILL.md + any scripts/files).
 """
 
 from __future__ import annotations
 
 import json
 import re
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -32,6 +39,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SITE_DIR = ROOT / "site"
 OUT_JSON = SITE_DIR / "src" / "data" / "skills.json"
 OUT_CONTENT_DIR = SITE_DIR / "src" / "content" / "skills"
+OUT_ZIPS_DIR = SITE_DIR / "public" / "skill-zips"
+EXCLUDED_DIRS = {".github"}
 
 
 @dataclass
@@ -91,9 +100,17 @@ def derive_category(rel_path: str) -> str | None:
     return None
 
 
+def is_excluded(skill_file: Path) -> bool:
+    rel_parts = skill_file.relative_to(ROOT).parts
+    return any(part in EXCLUDED_DIRS for part in rel_parts)
+
+
 def collect() -> list[Skill]:
     rows: list[Skill] = []
     for p in sorted(ROOT.glob("**/SKILL.md")):
+        if is_excluded(p):
+            continue
+
         rel = p.relative_to(ROOT).as_posix()
         text = p.read_text(encoding="utf-8", errors="replace")
         fm, body = parse_front_matter(text)
@@ -167,10 +184,52 @@ def write_outputs(skills: list[Skill]) -> None:
         )
 
 
+def _iter_zip_files(skill_dir_abs: Path) -> list[Path]:
+    """Return all files under skill_dir_abs to include in zip."""
+    files: list[Path] = []
+    for p in skill_dir_abs.rglob("*"):
+        if p.is_dir():
+            continue
+        # Skip obvious junk if present
+        if p.name in {".DS_Store"}:
+            continue
+        if "__pycache__" in p.parts:
+            continue
+        files.append(p)
+    return files
+
+
+def write_skill_zips(skills: list[Skill]) -> None:
+    OUT_ZIPS_DIR.mkdir(parents=True, exist_ok=True)
+
+    for s in skills:
+        # source_path is like tools/openbabel/SKILL.md
+        skill_dir_rel = Path(s.source_path).parent
+        skill_dir_abs = ROOT / skill_dir_rel
+        install_folder_name = skill_dir_rel.name
+
+        if not (skill_dir_abs / "SKILL.md").exists():
+            raise FileNotFoundError(f"Expected SKILL.md under {skill_dir_abs}")
+
+        out_zip = OUT_ZIPS_DIR / f"{s.slug}.zip"
+
+        files = _iter_zip_files(skill_dir_abs)
+        # Ensure deterministic output: fixed order
+        files = sorted(files, key=lambda p: p.as_posix())
+
+        with zipfile.ZipFile(out_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for f in files:
+                rel_in_skill = f.relative_to(skill_dir_abs).as_posix()
+                arcname = f"{install_folder_name}/{rel_in_skill}"
+                zf.write(f, arcname)
+
+
 def main() -> int:
     skills = collect()
     write_outputs(skills)
+    write_skill_zips(skills)
     print(f"Generated site data for {len(skills)} skills")
+    print(f"Generated per-skill zips into {OUT_ZIPS_DIR}")
     return 0
 
 
