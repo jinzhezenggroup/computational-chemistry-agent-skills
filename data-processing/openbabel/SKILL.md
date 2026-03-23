@@ -4,6 +4,7 @@ description: >
   A versatile CLI tool for converting molecular file formats, generating 3D atomic coordinates from SMILES, rendering 2D chemical structure images, and preparing or extracting structures for computational workflows.
   USE WHEN you need to convert between chemical file formats (e.g., xyz, pdb, mol, smi, gjf), generate 3D structures from SMILES using `--gen3d`, render molecule images (PNG/SVG), or extract geometries from simulation logs to build new inputs.
 compatibility: Requires uv and internet access (uses `uvx --from openbabel-wheel obabel ...`).
+license: LGPL-3.0-or-later
 metadata:
   author: njzjz-bot
   version: '1.1'

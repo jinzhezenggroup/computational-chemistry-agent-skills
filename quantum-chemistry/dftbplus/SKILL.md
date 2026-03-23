@@ -2,7 +2,7 @@
 name: dftbplus
 description: Route DFTB+ requests to task-specific subskills based on user intent. Use when the user asks for DFTB+ workflows and you must decide between static, relaxation, molecular dynamics, or electronic-structure post-ground-state preparation. This orchestration skill dispatches to the correct subskill and enforces consistent handoff to submission skills.
 compatibility: Requires a runnable DFTB+ environment with suitable Slater-Koster parameter sets for the target elements.
-license: MIT
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

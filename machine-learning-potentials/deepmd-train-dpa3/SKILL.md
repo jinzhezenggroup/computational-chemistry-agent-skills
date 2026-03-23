@@ -2,7 +2,7 @@
 name: deepmd-train-dpa3
 description: Train a DeePMD-kit model using the DPA3 descriptor with the PyTorch backend. Use when the user wants to train a state-of-the-art deep potential model based on message passing on Line Graph Series (LiGS). DPA3 provides high accuracy and strong generalization, suitable for large atomic models (LAM) and diverse chemical systems. Supports both fixed and dynamic neighbor selection.
 compatibility: Requires deepmd-kit with PyTorch backend installed. GPU strongly recommended. Custom OP library required for LAMMPS deployment.
-license: LGPL-3.0
+license: LGPL-3.0-or-later
 metadata:
   author: iProzd
   version: '1.0'

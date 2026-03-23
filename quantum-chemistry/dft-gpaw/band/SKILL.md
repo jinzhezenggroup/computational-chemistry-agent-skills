@@ -2,8 +2,8 @@
 name: band
 description: Prepare GPAW band-structure workflow scripts from existing ground-state context and user-specified k-path settings. Use when the user requests electronic band-structure calculations with explicit prerequisite checks and path-definition handling.
 compatibility: Requires prerequisite ground-state context and runnable GPAW+ASE Python environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

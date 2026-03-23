@@ -3,6 +3,7 @@ name: run-gauss
 description: >
   Acts as a knowledge base providing environment checklists, directory/scratch management, and bash command templates.
   USE WHEN you need to guide the execution of Gaussian computational chemistry jobs (.gjf) on local or remote/HPC environments.
+license: LGPL-3.0-or-later
 metadata:
   author: light-cyan
   version: 0.1.0

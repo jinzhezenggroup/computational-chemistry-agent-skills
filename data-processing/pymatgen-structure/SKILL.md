@@ -6,7 +6,7 @@ description: >
   build supercells, perform site substitution/doping, inspect symmetry
   (space group), or compute local structure descriptors for materials tasks.
 compatibility: Requires Python 3.10+ and pymatgen (recommended via uv).
-license: MIT
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

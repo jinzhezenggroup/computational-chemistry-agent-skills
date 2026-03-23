@@ -2,8 +2,8 @@
 name: static
 description: Prepare DFTB+ single-point (static) task inputs from a user-provided structure and essential SCC/settings choices. Use when the user needs total-energy/electronic single-point evaluation.
 compatibility: Requires a user-provided structure, valid Slater-Koster parameter files, and runnable DFTB+ environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

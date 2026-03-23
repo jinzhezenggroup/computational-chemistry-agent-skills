@@ -2,8 +2,8 @@
 name: static
 description: Prepare GPAW static SCF task inputs/scripts from a user-provided structure and essential DFT settings. Use when the user needs single-point total-energy/electronic calculations with explicit GPAW calculator settings and reproducible run script layout.
 compatibility: Requires a user-provided structure and runnable GPAW+ASE Python environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

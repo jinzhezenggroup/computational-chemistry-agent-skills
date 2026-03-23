@@ -2,8 +2,8 @@
 name: md
 description: Prepare DFTB+ molecular-dynamics task inputs from a user-provided structure and MD controls. Use when the user needs finite-temperature trajectories using DFTB+.
 compatibility: Requires a user-provided structure, valid Slater-Koster parameter files, and runnable DFTB+ environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

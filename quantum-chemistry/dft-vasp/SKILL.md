@@ -2,7 +2,7 @@
 name: dft-vasp
 description: Route VASP DFT requests to task-specific subskills based on user intent. Use when the user asks for VASP workflows and you must decide between static SCF, relaxation, DOS, or band-structure task preparation. This orchestration skill does not own detailed input generation logic; it dispatches to the correct VASP subskill and enforces consistent handoff to submission skills.
 compatibility: Requires a user-provided structure and valid VASP pseudopotential resources/license in the target environment.
-license: MIT
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.2.0

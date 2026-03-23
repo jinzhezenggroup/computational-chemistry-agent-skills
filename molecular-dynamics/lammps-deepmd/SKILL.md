@@ -4,7 +4,7 @@ description: >
   A tool and knowledge base for running molecular dynamics (MD) simulations in LAMMPS with the DeePMD-kit plugin. It handles input script preparation, ensemble selection (NVE/NVT/NPT), and job execution via `uv` or offline binaries.
   USE WHEN you need to set up, write, explain, or execute a LAMMPS molecular dynamics simulation using a DeePMD machine learning potential (e.g., `graph.pb`).
 compatibility: Requires LAMMPS with DeePMD-kit support. Online mode prefers `uvx --from lammps --with deepmd-kit[gpu,torch,lmp] lmp`; offline mode requires a user-provided LAMMPS executable or module.
-license: MIT
+license: LGPL-3.0-or-later
 metadata:
   author: OpenClaw
   version: '1.0'

@@ -2,8 +2,8 @@
 name: dos
 description: Prepare GPAW DOS workflow scripts from existing ground-state context and user-specified DOS settings. Use when the user requests total/projected DOS setup with explicit prerequisite checks against prior converged calculations.
 compatibility: Requires prerequisite ground-state context and runnable GPAW+ASE Python environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

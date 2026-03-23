@@ -2,8 +2,8 @@
 name: relax
 description: Prepare GPAW geometry-relaxation task inputs/scripts from a user-provided structure and essential optimization settings. Use when the user needs structure optimization with explicit optimizer and force-convergence policies.
 compatibility: Requires a user-provided structure and runnable GPAW+ASE Python environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

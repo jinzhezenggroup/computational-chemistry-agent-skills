@@ -2,7 +2,7 @@
 name: dft-qe
 description: Generate Quantum ESPRESSO DFT input tasks from a user-provided structure plus user-specified DFT settings. Use when the user wants to prepare QE calculations such as SCF, NSCF, relax, vc-relax, MD, bands, DOS, or phonons starting from a structure file or coordinates together with pseudopotentials, functional choice, cutoffs, k-point settings, smearing, spin/charge, and convergence parameters. This skill prepares the QE task only; use a separate submission skill such as dpdisp-submit to submit the generated task.
 compatibility: Requires a user-provided initial structure and enough DFT parameters to build a scientifically meaningful QE input.
-license: MIT
+license: LGPL-3.0-or-later
 metadata:
   author: Yi-FanLi
   version: '1.0'

@@ -1,8 +1,8 @@
 ---
 name: reacnetgenerator
 description: Run ReacNetGenerator on reactive MD trajectories to generate reaction networks and reports. Use when the user wants to analyze LAMMPS dump/xyz/bond trajectories with ReacNetGenerator. Handles LAMMPS dump quirks like x/y/z vs xs/ys/zs by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools). Can infer atomname order from a LAMMPS data file. Runs via local reacnetgenerator if available or via `uvx --from reacnetgenerator ...`. Writes outputs into `out/<input_basename>/` with logs and a summary.
-license: MIT
 compatibility: Requires `uv` and `python3`. Usually requires internet access for `uvx --from ...` resolution unless packages are already cached.
+license: LGPL-3.0-or-later
 metadata:
   author: hcustc-bot
   version: '2.3'

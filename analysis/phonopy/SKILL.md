@@ -6,7 +6,7 @@ description: >
   and analyze phonon properties (band structure, DOS, thermal quantities) while obtaining
   forces from different engines such as VASP, Quantum ESPRESSO, or ML force fields.
 compatibility: Requires phonopy and a force provider workflow (e.g., VASP/QE/MLFF) that can return forces for displaced supercells.
-license: BSD-3-Clause
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

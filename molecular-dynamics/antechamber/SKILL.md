@@ -6,6 +6,7 @@ description: >
   Typical use cases include parameterizing ligands or modified residues (assigning atom/bond types, generating or reading partial charges), converting structures from upstream tools into mol2/prepi formats, and preparing topology-ready inputs for downstream tools such as LEaP.
   DO NOT USE for standard residues, metal complexes, inorganic systems, or when no valid molecular structure is available (e.g., only SMILES).
 compatibility: Requires AmberTools installed and available in PATH
+license: LGPL-3.0-or-later
 metadata:
   author: yuxt0261-ops
   version: '1.0'

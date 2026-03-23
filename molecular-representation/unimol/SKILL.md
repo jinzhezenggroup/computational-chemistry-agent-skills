@@ -4,6 +4,7 @@ description: >
   A standardized CLI wrapper for Uni-Mol molecular ML workflows that handles representation extraction (embeddings), model training (regression/classification), and property prediction with built-in RDKit SMILES validation.
   USE WHEN you need to generate molecular embeddings, train machine learning models for chemical properties, or run predictions on SMILES datasets (.csv/.smi) using the Uni-Mol framework.
 compatibility: Requires uv. Dependencies (unimol-tools, rdkit, etc.) are handled automatically via inline script metadata in unimol_helper.py.
+license: LGPL-3.0-or-later
 metadata:
   author: luzitian
   version: '1.0'
