@@ -25,7 +25,6 @@ non_goals:                     # Overall boundaries (explicitly stating what NOT
   - <out_of_scope_behavior>
 success_criteria:              # Success criteria
   - <observable_outcome>
-
 prerequisites:                 # Global prerequisite dependency declarations
   <dependency>: <requirement_description_and_verification_method>
   # Example: `python_env: "Require Python 3.10 or higher. Execute 'python --version' to verify compatibility."`
@@ -78,6 +77,7 @@ The atomic operational unit within the task sequence. Contains behavioral action
   - id: <step_id>                                           # Step identifier, facilitates routing jumps
     action: <executable_action_description>                 # Core action. Directly describe the behavior the Agent needs to execute using natural language.
   # Examples:
+  # - `"Load skill '<name of the agent skill>'"`
   # - `"Execute sub-task './prepare_data.task.yaml'"`
   # - `"Run shell command 'pytest tests/'"`
   # - `"Request user to review the intermediate results and confirm before proceeding."`
