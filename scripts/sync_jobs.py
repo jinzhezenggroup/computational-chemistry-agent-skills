@@ -205,12 +205,23 @@ def path_exists_in_commit(up_repo: Path, sha: str, path: str) -> bool:
     return p.returncode == 0
 
 
+def run_pre_commit() -> None:
+    p = run(["uvx", "prek", "run", "-a"], cwd=ROOT, check=False)
+    if p.returncode != 0:
+        raise SystemExit(
+            f"pre-commit failed:\nSTDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}"
+        )
+
+
 def commit_if_changed(
     message: str, author_name: str, author_email: str, author_date: str
 ) -> bool:
     git(["add", "-A"], cwd=ROOT)
     if not git(["diff", "--cached", "--name-only"], cwd=ROOT).strip():
         return False
+
+    run_pre_commit()
+    git(["add", "-A"], cwd=ROOT)
 
     env = os.environ.copy()
     env.update(
