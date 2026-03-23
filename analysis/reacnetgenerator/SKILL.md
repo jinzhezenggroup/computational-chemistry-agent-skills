@@ -5,16 +5,16 @@ license: MIT
 compatibility: Requires `uv` and `python3`. Usually requires internet access for `uvx --from ...` resolution unless packages are already cached.
 metadata:
   author: hcustc-bot
-  version: "2.3"
+  version: '2.3'
   repository: https://github.com/tongzhugroup/ReacNetGenerator
   repositories:
     - https://github.com/tongzhugroup/ReacNetGenerator
     - https://github.com/hcustc/reacnet-md-tools
   openclaw:
-    emoji: "🧪"
+    emoji: 🧪
     requires:
-      bins: ["uv", "python3"]
-    os: ["linux", "darwin"]
+      bins: [uv, python3]
+    os: [linux, darwin]
 ---
 
 # ReacNetGenerator
@@ -27,6 +27,7 @@ metadata:
   - `uvx --refresh --from reacnet-md-tools rng-query ...`
 
 If you need full official flags (e.g. `--cell`, `--nopbc`, `--use-ase`, `--miso`, HMM matrices), use native:
+
 - `uvx --refresh --from reacnetgenerator reacnetgenerator ...`
 
 ## What this skill is for
@@ -51,9 +52,9 @@ Read only what is relevant:
 Choose the narrowest tool that solves the user’s request:
 
 1. **Use `rng-pipeline` by default** for standard LAMMPS dump workflows.
-2. **Use native `reacnetgenerator`** when the user needs official low-level flags not exposed by the wrapper.
-3. **Use `rng-query`** when the user already has `.reactionabcd` / `.species` outputs and wants analysis rather than rerunning.
-4. **Use `rng-webapp`** only when the user explicitly wants an interactive local browser UI.
+1. **Use native `reacnetgenerator`** when the user needs official low-level flags not exposed by the wrapper.
+1. **Use `rng-query`** when the user already has `.reactionabcd` / `.species` outputs and wants analysis rather than rerunning.
+1. **Use `rng-webapp`** only when the user explicitly wants an interactive local browser UI.
 
 ## Ask only for the missing inputs
 
