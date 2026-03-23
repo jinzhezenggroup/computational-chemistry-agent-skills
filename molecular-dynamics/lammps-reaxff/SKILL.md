@@ -2,9 +2,9 @@
 name: lammps-reaxff
 description: "Run reactive molecular dynamics simulations in LAMMPS with the ReaxFF potential, including preparing input scripts (pair_style reaxff + fix qeq/reaxff), mapping LAMMPS atom types to elements via pair_coeff, choosing ensembles (NVE/NVT/NPT), and adding common ReaxFF diagnostics such as species analysis. Use when the user wants LAMMPS+ReaxFF workflows or needs a working, annotated `input.lammps` template."
 compatibility: "Requires a LAMMPS build with the REAXFF package enabled (pair_style reaxff and fix qeq/reaxff). Optional acceleration variants: reaxff/omp or reaxff/kk."
-license: MIT
+license: LGPL-3.0-or-later
 metadata:
-  author: OpenClaw
+  author: njzjz-bot
   version: "1.0"
   repository: https://www.lammps.org/
   lammps_docs: https://docs.lammps.org/
@@ -17,7 +17,7 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a Re
 ## Agent responsibilities
 
 1. Confirm the **ReaxFF force field file** (e.g. `ffield.reax.*`). Do not guess which file is appropriate.
-   - If the user does not have a force field yet, point them to known sources (e.g. LAMMPS `potentials/ffield.reax.*`, LAMMPS `examples/reaxff`, or the PSU Materials Computation Center / van Duin group repository).
+   - If the user does not have a force field yet, point them to known sources (e.g. LAMMPS `potentials/ffield.reax.*` at https://github.com/lammps/lammps/tree/develop/potentials).
 2. Confirm the **structure/data file** (e.g. `data.system`) and the **atom type → element mapping** needed by `pair_coeff`.
 3. Ensure the input includes charge handling:
    - Use a charge-capable atom style, such as `atom_style charge` or `atom_style full`, and ensure charges are initialized either from the data file (with a charge column compatible with the chosen `atom_style`) or via explicit commands (e.g. `set` or equal-style variables). Do **not** rely on `fix property/atom q` as a substitute for a real charge field used by ReaxFF/QEq.
@@ -48,8 +48,7 @@ uvx --from 'lammps[mpi]' lmp -in input.lammps
 ```
 
 Notes:
-- This provisions a LAMMPS binary, but may not include the REAXFF package in all environments. If `pair_style reaxff` is missing, switch to offline mode.
-- If you see `error while loading shared libraries: libmpi.so...`, you likely installed a MPI-linked `lmp` without MPI runtime libraries. Prefer `uvx --from 'lammps[mpi]' ...` (bundles MPI runtime), or load/install MPICH/OpenMPI via system packages/conda/HPC module.
+- If you see `error while loading shared libraries: libmpi.so...`, you likely installed an MPI-linked `lmp` without MPI runtime libraries. Prefer `uvx --from 'lammps[mpi]' ...` (bundles MPI runtime), or load/install MPICH/OpenMPI via system packages/conda/HPC module.
 
 ### Offline mode (common / HPC)
 
@@ -58,28 +57,6 @@ Do **not** invent the executable. Ask which command should be used, e.g.:
 - `lmp -in input.lammps`
 - `mpirun -np 32 lmp_mpi -in input.lammps`
 - `srun lmp -in input.lammps`
-
-## Quickstart: run a known-good ReaxFF example (RDX)
-
-When the goal is to verify your LAMMPS+REAXFF build (not to model a new system yet), start from the upstream LAMMPS examples. This avoids guessing `data.*` / `ffield.*` formats.
-
-```bash
-# 1) Get LAMMPS examples (any recent version is fine)
-git clone --depth 1 https://github.com/lammps/lammps /tmp/lammps
-
-# 2) Copy the RDX ReaxFF example inputs
-mkdir -p /tmp/reaxff-demo
-cp /tmp/lammps/examples/reaxff/{in.reaxff.rdx,data.rdx,ffield.reax,control.reax_c.rdx} /tmp/reaxff-demo/
-
-# 3) Run (online, recommended)
-cd /tmp/reaxff-demo
-uvx --from 'lammps[mpi]' lmp -in in.reaxff.rdx -echo screen
-
-# Or run with your local executable (offline/HPC)
-lmp -in in.reaxff.rdx
-```
-
-If this fails with `Unknown pair_style reaxff`, your LAMMPS binary does not have the REAXFF package enabled.
 
 ## Example: annotated NVT input (ReaxFF + QEq)
 
