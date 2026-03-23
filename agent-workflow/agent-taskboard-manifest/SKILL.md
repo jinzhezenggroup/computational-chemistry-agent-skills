@@ -1,8 +1,8 @@
 ---
 name: agent-taskboard-manifest
 description: >
-  It is a specification for semantic workflows used by agents to plan, generate, formalize, summarize, and execute complex tasks, projects, experiments, and research efforts for agents, requiring explicit structure, lazy loading, scoped context, evidence-grounded routing, and human review at critical checkpoints.
-  USE WHEN the user asks for a complex task, project, experiment, or research effort that needs to be carefully planned before execution.
+  It is a specification for semantic workflows used by agents to plan, generate, formalize, summarize, and execute complex tasks, projects, experiments,and research efforts for agents, requiring explicit structure, lazy loading,scoped context, evidence-grounded routing, and human review at critical checkpoints.
+  USE WHEN the user asks for a complex task, project, experiment, or research effort that needs to be carefully planned before execution
   USE WHEN the user provides a text-based plan and wants it to be made more detailed and formalized according to this specification.
   USE WHEN the user asks to summarize ongoing or completed work into a reusable workflow manifest.
   USE WHEN the user specifies the location of an existing agent workflow and wants it loaded and executed according to the specification.
@@ -24,10 +24,14 @@ After establishing this foundation, the Agent must determine the applicable exec
 
 *Applies when building a new workflow from scratch collaboratively.*
 
+- **Core Planning Constraints:**
+  - **No Execution Allowed:** The planning phase is strictly for structural modeling. Executing operations, running commands, or validating the environment is **strictly prohibited** (these actions belong exclusively to the execution phase).
+  - **Skill Priority:** When formulating strategies, always prioritize solutions supported by existing **Agent Skills** over custom script generation or manual tool creation.
+
 1. **Mandatory Reading:** `./reference/plan_communication_guidelines.md`.
-1. **Initial Alignment & Baseline:** Engage with the user to outline the macro-level structure. Produce the minimum baseline deliverables (`-workflow.yaml` and `!entry.task.yaml`), report the preliminary architecture to the user, and **pause execution** to await user confirmation.
-1. **Mandatory Reading:** `./reference/design_guidelines.md` (Proceed only after user approval of the baseline).
-1. **Iterative Refinement:** Progressively expand the workflow details and deep-level tasks through continuous user consultation. Strictly adhere to syntax and design constraints. Arbitrary fabrication of steps or dependencies is strictly prohibited.
+1. **Mandatory Reading:** `./reference/design_guidelines.md`.
+1. **Initial Alignment & Baseline:** Engage with the user to outline the **strictly macro-level structure**. Produce the minimum baseline deliverables (`-workflow.yaml` and `!entry.task.yaml`). **Do not delve into any execution details, concrete parameters, or deep sub-tasks at this stage.** Report the preliminary architecture to the user and wait for the user's confirmation.
+1. **Iterative Refinement:** Progressively expand the workflow details and deep-level tasks through continuous user consultation. **You must discuss and design only ONE specific sub-task at a time.** Unfolding or generating the entire detailed workflow tree simultaneously is strictly prohibited. Strictly adhere to syntax and design constraints. Arbitrary fabrication of steps or dependencies is strictly prohibited.
 
 ### Route 2: Formalization / Summarization
 

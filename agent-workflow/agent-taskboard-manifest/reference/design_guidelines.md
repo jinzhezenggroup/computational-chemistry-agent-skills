@@ -18,7 +18,18 @@ When designing I/O contracts for a workflow, the visibility boundaries and lifec
 
 ## Semantic Action Descriptions
 
-The authoring of `action` and `guard` fields in `checks` should favor describing "intent" and "acceptance criteria" rather than being constrained by the rigid syntax of a specific programming language. **KEY PRINCIPLES: When planning specific actions, priority must be given to scheduling Agent Skills; do not manually code low-level scripts to execute tasks or generate structured data files that should be produced by specialized tools.** Trust that the downstream Agent can accurately translate natural language instructions into actual environmental operations at runtime.
+The authoring of `action` and `guard` fields in `checks` should favor describing "intent" and "acceptance criteria" rather than rigid syntax. Trust that the downstream Agent can accurately translate natural language instructions into actual environmental operations at runtime, provided the necessary context and skills are in place.
+
+### Zero-Tolerance Policies (Planning & Action Constraints)
+
+When designing these actions, the Agent must strictly adhere to the following absolute boundaries. Violating these constraints constitutes a critical failure:
+
+- **Zero-Overconfidence (Mandatory Knowledge Loading):** The Agent is strictly prohibited from assuming it can independently execute specialized operations based solely on itself.
+  - **Tool Operations:** Before scheduling any action involving a specific tool, the Agent **must explicitly load the corresponding skill documentation** (e.g., `action: "Load skill '<name of the agent skill>'"` to read the relevant `SKILL.md`).
+  - **Domain Tasks:** Before undertaking tasks requiring domain-specific expertise, the Agent **must** schedule preliminary actions to read official documentation, search the web, or retrieve relevant context.
+- **Prohibit Native Generation (Delegation over Creation):** The Agent is strictly forbidden from "self-generating" logic, scripts, or structured data for tasks where a dedicated tool or Skill exists.
+  - **No Manual Scripting:** Prioritize scheduling existing Agent Skills. Do not manually code low-level Python or Shell scripts to execute standard tasks (e.g., parsing files, extracting data).
+  - **No Forging Files:** Do not manually concatenate strings or guess the syntax to generate structured data files (e.g., Gaussian `.gjf`, Slurm scripts). If a file needs to be created, the Agent must invoke the specialized tool or template designed for that exact purpose.
 
 ## Managing Unknowns
 
