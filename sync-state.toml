@@ -1,10 +1,25 @@
 version = 1
 
 [jobs]
-[jobs."dpdata-cli"]
-last_upstream_commit = "26171f27474deca5a4c7d217b8ec237b51517dbb"
+[jobs."create-skill"]
+last_upstream_commit = "0934c552d7b2aa5be3378e0d53fdadd134c7f4ce"
 last_upstream_ref = "master"
-updated_at = "2026-03-21T04:40:48.767537+00:00"
+updated_at = "2026-03-23T11:09:52.783767+00:00"
+
+[jobs."dpdata-cli"]
+last_upstream_commit = "b9b2ac591e9458089565e0a3e064ff66aaa316d2"
+last_upstream_ref = "master"
+updated_at = "2026-03-23T11:09:39.530367+00:00"
+
+[jobs."dpdata-driver"]
+last_upstream_commit = "b9b2ac591e9458089565e0a3e064ff66aaa316d2"
+last_upstream_ref = "master"
+updated_at = "2026-03-23T11:09:47.687389+00:00"
+
+[jobs."dpdata-minimizer"]
+last_upstream_commit = "04b3ba4b188ac9b94c9cfc8e2fe130a921e8d547"
+last_upstream_ref = "master"
+updated_at = "2026-03-23T11:09:50.692806+00:00"
 
 [jobs."dpdisp-submit"]
 last_upstream_commit = "2367bf522f993520e7ae2a87de8dab05612e1dd5"
