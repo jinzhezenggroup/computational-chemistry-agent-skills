@@ -2,8 +2,8 @@
 name: relax
 description: Prepare VASP geometry-relaxation input tasks from a user-provided structure and essential DFT settings. Use when the user needs ionic or cell-coupled relaxation and requires explicit ISIF-driven relaxation intent mapping, INCAR generation, and POTCAR mapping instructions.
 compatibility: Requires a user-provided structure and valid VASP pseudopotential resources/license in the target environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

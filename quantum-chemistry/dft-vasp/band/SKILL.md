@@ -2,8 +2,8 @@
 name: band
 description: Prepare VASP band-structure workflow inputs from existing SCF context and user-specified band-path settings. Use when the user requests electronic band-structure calculations and needs explicit prerequisite checks, line-mode KPOINTS path setup, and stage-specific INCAR preparation.
 compatibility: Requires prerequisite SCF context and valid VASP pseudopotential resources/license in the target environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

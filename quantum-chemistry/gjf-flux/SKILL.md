@@ -4,6 +4,7 @@ description: >
   Assemble and extract Gaussian .gjf input file sections (directives, route, title, molecule blocks, appendices) and build single- or multi-step Link1 jobs from modular component files.
   USE WHEN needed for generating, refactoring, templating, or scripting Gaussian job files.
 compatibility: Requires `uv` installed and available in PATH.
+license: LGPL-3.0-or-later
 metadata:
   author: light-cyan
   version: 0.1.0

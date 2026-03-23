@@ -2,8 +2,8 @@
 name: dos
 description: Prepare VASP DOS workflow inputs from existing SCF artifacts and user-specified DOS settings. Use when the user requests total/projected DOS setup and needs INCAR/KPOINTS preparation with explicit prerequisite checks against prior SCF runs.
 compatibility: Requires prerequisite SCF artifacts and valid VASP pseudopotential resources/license in the target environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

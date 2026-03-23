@@ -2,8 +2,8 @@
 name: static
 description: Prepare VASP static SCF input tasks from a user-provided structure and essential DFT settings. Use when the user needs single-point electronic structure/total-energy calculations with INCAR generation, KSPACING-based k-point policy (or explicit KPOINTS on request), and POTCAR mapping instructions.
 compatibility: Requires a user-provided structure and valid VASP pseudopotential resources/license in the target environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

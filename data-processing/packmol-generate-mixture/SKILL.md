@@ -4,6 +4,7 @@ description: >
   A tool for generating initial packed molecular configurations (XYZ format) from single-molecule structures by calculating box dimensions, writing input scripts, and executing Packmol.
   USE WHEN you need to randomly pack a specific number of molecules into a simulation box (defined by target density or fixed lengths) to create starting geometries for molecular dynamics or related computational chemistry workflows.
 compatibility: Requires uv and internet access (uses `uvx packmol ...`).
+license: LGPL-3.0-or-later
 metadata:
   author: hcustc-bot
   version: '1.0'

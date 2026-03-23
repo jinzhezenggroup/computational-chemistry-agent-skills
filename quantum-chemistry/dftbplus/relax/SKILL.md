@@ -2,8 +2,8 @@
 name: relax
 description: Prepare DFTB+ geometry-relaxation task inputs from a user-provided structure and optimization settings. Use when the user needs ion-only or cell-coupled structural optimization.
 compatibility: Requires a user-provided structure, valid Slater-Koster parameter files, and runnable DFTB+ environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

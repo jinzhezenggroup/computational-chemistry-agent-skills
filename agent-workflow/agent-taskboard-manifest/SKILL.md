@@ -6,6 +6,7 @@ description: >
   USE WHEN the user provides a text-based plan and wants it to be made more detailed and formalized according to this specification.
   USE WHEN the user asks to summarize ongoing or completed work into a reusable workflow manifest.
   USE WHEN the user specifies the location of an existing agent workflow and wants it loaded and executed according to the specification.
+license: LGPL-3.0-or-later
 metadata:
   author: light-cyan
   version: 0.1.0

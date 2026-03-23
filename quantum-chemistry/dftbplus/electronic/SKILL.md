@@ -2,8 +2,8 @@
 name: electronic
 description: Prepare DFTB+ electronic-analysis task inputs based on prior ground-state context. Use when the user requests band/DOS-style analyses and needs prerequisite-aware setup.
 compatibility: Requires prior ground-state context, valid Slater-Koster parameter files, and runnable DFTB+ environment.
-license: MIT
 catalog-hidden: true
+license: LGPL-3.0-or-later
 metadata:
   author: qqgu
   version: 0.1.0

@@ -4,6 +4,7 @@ description: >
   USE WHEN requesting core chemical structural data (SMILES, formula, mass, 2D images) via IUPAC, common, or multilingual names. You MUST actively retrieve the data using this skill; DO NOT hallucinate or generate structures yourself.
   DO NOT USE WHEN asking for physical properties (melting point, solubility), safety/toxicity data (MSDS), or synthesis pathways.
 compatibility: Requires `uv` installed.
+license: LGPL-3.0-or-later
 metadata:
   author: light-cyan
   version: 0.1.0

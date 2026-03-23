@@ -2,7 +2,7 @@
 name: deepmd-python-inference
 description: Run Python inference with DeePMD-kit models using the DeepPot API. Use when the user wants to load a trained/frozen DeePMD model (.pth or .pb) or a built-in pretrained model (e.g., DPA-3.2-5M) in Python, predict energy/force/virial for atomic configurations, evaluate descriptors, or calculate model deviation between multiple models. Also covers using `dp test` CLI for batch evaluation against labeled data.
 compatibility: Requires deepmd-kit Python package installed. PyTorch backend for .pth models, TensorFlow for .pb models.
-license: LGPL-3.0
+license: LGPL-3.0-or-later
 metadata:
   author: iProzd
   version: '1.0'
