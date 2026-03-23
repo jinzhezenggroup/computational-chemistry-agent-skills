@@ -11,7 +11,7 @@
 Designed for pre-commit.
 
 - Parse YAML frontmatter from SKILL.md
-- Validate the parsed mapping against `schemas/skill-frontmatter.schema.json`
+- Validate the parsed mapping against `.schema/skill-frontmatter.schema.json`
 
 Exit code:
 - 0 if all files are valid
@@ -52,7 +52,7 @@ def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser()
     p.add_argument(
         "--schema",
-        default=str(Path("schemas") / "skill-frontmatter.schema.json"),
+        default=str(Path(".schema") / "skill-frontmatter.schema.json"),
         help="Path to JSON schema file",
     )
     p.add_argument(

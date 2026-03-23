@@ -6,7 +6,7 @@ on:
       - master
     paths:
       - 'sync.toml'
-      - 'scripts/sync_jobs.py'
+      - '.scripts/sync_jobs.py'
       - '.github/workflows/sync-jobs.yml'
   schedule:
     - cron: '17 */6 * * *'
@@ -40,6 +40,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+
       - name: Setup git identity
         run: |
           git config user.name "GitHub Actions"
@@ -63,12 +66,12 @@ jobs:
           if [ -n "${INPUT_REV}" ]; then
             ARGS="$ARGS --rev ${INPUT_REV}"
           fi
-          python3 scripts/sync_jobs.py $ARGS
+          python3 .scripts/sync_jobs.py $ARGS
 
       - name: Generate README skills summary
         run: |
           set -euo pipefail
-          python3 scripts/generate_skills_table.py
+          python3 .scripts/generate_skills_table.py
 
       - name: Push sync branch
         id: push

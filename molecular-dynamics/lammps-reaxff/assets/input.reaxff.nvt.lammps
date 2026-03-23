@@ -1,0 +1,36 @@
+variable        NSTEPS      equal 200000
+variable        THERMO      equal 200
+variable        DUMP        equal 1000
+
+variable        TEMP        equal 300.0
+variable        TAU_T       equal 100.0
+
+variable        QEQ_EVERY   equal 1
+variable        QEQ_TOL     equal 1.0e-6
+variable        QEQ_CUTLO   equal 0.0
+variable        QEQ_CUTHI   equal 10.0
+
+units           real
+boundary        p p p
+atom_style      charge
+
+read_data       data.system
+
+neighbor        2.0 bin
+neigh_modify    every 1 delay 0 check yes
+
+pair_style      reaxff NULL
+pair_coeff      * * ffield.reax C H O
+
+fix             fqeq all qeq/reaxff ${QEQ_EVERY} ${QEQ_CUTLO} ${QEQ_CUTHI} ${QEQ_TOL} reaxff
+
+thermo_style    custom step temp pe ke etotal press vol density
+thermo          ${THERMO}
+
+dump            1 all custom ${DUMP} traj.lammpstrj id type q x y z
+
+velocity        all create ${TEMP} 12345 mom yes rot yes dist gaussian
+fix             fnvt all nvt temp ${TEMP} ${TEMP} ${TAU_T}
+
+timestep        0.25
+run             ${NSTEPS}

@@ -40,6 +40,7 @@ SITE_DIR = ROOT / "site"
 OUT_JSON = SITE_DIR / "src" / "data" / "skills.json"
 OUT_CONTENT_DIR = SITE_DIR / "src" / "content" / "skills"
 OUT_ZIPS_DIR = SITE_DIR / "public" / "skill-zips"
+EXCLUDED_DIRS = {".github"}
 
 
 @dataclass
@@ -108,9 +109,17 @@ def derive_category(rel_path: str) -> str | None:
     return None
 
 
+def is_excluded(skill_file: Path) -> bool:
+    rel_parts = skill_file.relative_to(ROOT).parts
+    return any(part in EXCLUDED_DIRS for part in rel_parts)
+
+
 def collect() -> list[Skill]:
     rows: list[Skill] = []
     for p in sorted(ROOT.glob("**/SKILL.md")):
+        if is_excluded(p):
+            continue
+
         rel = p.relative_to(ROOT).as_posix()
         text = p.read_text(encoding="utf-8", errors="replace")
         fm, body = parse_front_matter(text)
