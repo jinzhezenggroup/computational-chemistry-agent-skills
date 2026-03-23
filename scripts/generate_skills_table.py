@@ -65,11 +65,22 @@ def normalize_version(meta: dict) -> str:
     return "-"
 
 
+def is_catalog_hidden(meta: dict) -> bool:
+    val = meta.get("catalog-hidden", False)
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, str):
+        return val.strip().lower() in {"1", "true", "yes", "on"}
+    return False
+
+
 def collect_skills() -> list[SkillMeta]:
     rows: list[SkillMeta] = []
     for skill_file in sorted(ROOT.glob("**/SKILL.md")):
         text = skill_file.read_text(encoding="utf-8", errors="replace")
         fm = parse_front_matter(text)
+        if is_catalog_hidden(fm):
+            continue
 
         name = str(fm.get("name") or skill_file.parent.name)
         slug = str(fm.get("slug") or skill_file.parent.name)

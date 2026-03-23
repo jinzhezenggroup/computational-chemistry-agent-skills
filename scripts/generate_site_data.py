@@ -91,6 +91,15 @@ def get_repo(fm: dict) -> str | None:
     return norm_str(repo) if repo else None
 
 
+def is_catalog_hidden(fm: dict) -> bool:
+    val = fm.get("catalog-hidden", False)
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, str):
+        return val.strip().lower() in {"1", "true", "yes", "on"}
+    return False
+
+
 def derive_category(rel_path: str) -> str | None:
     # rel_path like "tools/openbabel/SKILL.md" or "molecular-dynamics/lammps-deepmd/SKILL.md"
     parts = rel_path.split("/")
@@ -105,6 +114,8 @@ def collect() -> list[Skill]:
         rel = p.relative_to(ROOT).as_posix()
         text = p.read_text(encoding="utf-8", errors="replace")
         fm, body = parse_front_matter(text)
+        if is_catalog_hidden(fm):
+            continue
 
         name = norm_str(fm.get("name"), p.parent.name)
         slug = norm_str(fm.get("slug"), p.parent.name)
@@ -153,6 +164,11 @@ def write_outputs(skills: list[Skill]) -> None:
     )
 
     # Content collection markdown pages
+    expected = {f"{s.slug}.md" for s in skills}
+    for old in OUT_CONTENT_DIR.glob("*.md"):
+        if old.name not in expected:
+            old.unlink()
+
     for s in skills:
         out = OUT_CONTENT_DIR / f"{s.slug}.md"
         fm = {
@@ -192,6 +208,11 @@ def _iter_zip_files(skill_dir_abs: Path) -> list[Path]:
 
 def write_skill_zips(skills: list[Skill]) -> None:
     OUT_ZIPS_DIR.mkdir(parents=True, exist_ok=True)
+
+    expected = {f"{s.slug}.zip" for s in skills}
+    for old in OUT_ZIPS_DIR.glob("*.zip"):
+        if old.name not in expected:
+            old.unlink()
 
     for s in skills:
         # source_path is like tools/openbabel/SKILL.md
