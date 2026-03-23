@@ -28,3 +28,27 @@ upstream_repo = "deepmodeling/dpdata"
 upstream_ref = "master"
 path = "skills/dpdata-cli"
 dest = "tools/dpdata-cli"
+
+[[jobs]]
+name = "dpdata-driver"
+enabled = true
+upstream_repo = "deepmodeling/dpdata"
+upstream_ref = "master"
+path = "skills/dpdata-driver"
+dest = "tools/dpdata-driver"
+
+[[jobs]]
+name = "dpdata-minimizer"
+enabled = true
+upstream_repo = "deepmodeling/dpdata"
+upstream_ref = "master"
+path = "skills/dpdata-minimizer"
+dest = "tools/dpdata-minimizer"
+
+[[jobs]]
+name = "create-skill"
+enabled = true
+upstream_repo = "njzjz/create-skill-agent-skill"
+upstream_ref = "master"
+path = "skills/create-skill"
+dest = ".github/skills/create-skill"
