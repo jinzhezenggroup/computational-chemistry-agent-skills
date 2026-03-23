@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/blob/master/schemas/skill-frontmatter.schema.json",
+  "$id": "https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/blob/master/.schema/skill-frontmatter.schema.json",
   "title": "AgentSkills SKILL.md frontmatter schema",
   "type": "object",
   "additionalProperties": true,
