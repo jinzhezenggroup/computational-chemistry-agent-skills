@@ -2,7 +2,7 @@
 name: deepmd-train-se-e2-a
 description: Train a DeePMD-kit model using the SE_E2_A (DeepPot-SE) descriptor with the PyTorch backend. Use when the user wants to train a classical deep potential model for a specific system, prepare training input JSON, run `dp --pt train`, monitor learning curves, freeze the model, and test it. SE_E2_A is the foundational two-body embedding descriptor suitable for most condensed-phase systems.
 compatibility: Requires deepmd-kit with PyTorch backend installed. GPU recommended for production training.
-license: LGPL-3.0
+license: LGPL-3.0-or-later
 metadata:
   author: iProzd
   version: '1.0'
