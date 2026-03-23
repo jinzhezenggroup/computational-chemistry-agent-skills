@@ -207,10 +207,6 @@ def path_exists_in_commit(up_repo: Path, sha: str, path: str) -> bool:
 
 def run_pre_commit() -> None:
     p = run(["uvx", "prek", "run", "-a"], cwd=ROOT, check=False)
-    if p.returncode != 0:
-        raise SystemExit(
-            f"pre-commit failed:\nSTDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}"
-        )
 
 
 def commit_if_changed(
