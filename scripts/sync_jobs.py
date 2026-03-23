@@ -205,6 +205,10 @@ def path_exists_in_commit(up_repo: Path, sha: str, path: str) -> bool:
     return p.returncode == 0
 
 
+def run_prek_all() -> None:
+    run(["uvx", "prek", "run", "-a"], cwd=ROOT)
+
+
 def commit_if_changed(
     message: str, author_name: str, author_email: str, author_date: str
 ) -> bool:
@@ -284,6 +288,7 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
                 "updated_at": now_iso(),
             }
             save_state(state)
+            run_prek_all()
 
             msg = (
                 f"sync({job.name}): {subject}\n\n"
@@ -304,6 +309,7 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
                     "updated_at": now_iso(),
                 }
                 save_state(state)
+                run_prek_all()
 
                 msg = (
                     f"chore(sync): update state for {job.name}\n\n"

@@ -102,6 +102,8 @@ def derive_category(rel_path: str) -> str | None:
 def collect() -> list[Skill]:
     rows: list[Skill] = []
     for p in sorted(ROOT.glob("**/SKILL.md")):
+        if ".github" in p.parts:
+            continue
         rel = p.relative_to(ROOT).as_posix()
         text = p.read_text(encoding="utf-8", errors="replace")
         fm, body = parse_front_matter(text)

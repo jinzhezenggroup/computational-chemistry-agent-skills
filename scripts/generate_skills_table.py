@@ -68,6 +68,8 @@ def normalize_version(meta: dict) -> str:
 def collect_skills() -> list[SkillMeta]:
     rows: list[SkillMeta] = []
     for skill_file in sorted(ROOT.glob("**/SKILL.md")):
+        if ".github" in skill_file.parts:
+            continue
         text = skill_file.read_text(encoding="utf-8", errors="replace")
         fm = parse_front_matter(text)
 
