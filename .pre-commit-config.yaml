@@ -27,12 +27,12 @@ repos:
         additional_dependencies:
           - pyyaml
           - jsonschema
-        entry: python scripts/validate_skills_schema.py
+        entry: python .scripts/validate_skills_schema.py
         files: (^|/)SKILL\.md$
       - id: generate-readme
         name: Generate README.md
         language: python
-        entry: scripts/generate_skills_table.py
+        entry: .scripts/generate_skills_table.py
         pass_filenames: false
   - repo: https://github.com/hukkin/mdformat
     rev: 1.0.0
