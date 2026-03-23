@@ -3,7 +3,6 @@
 This file summarizes the **official ReacNetGenerator CLI** and maps it to agent usage.
 
 Source used while preparing this reference:
-
 - https://docs.deepmodeling.com/projects/reacnetgenerator/en/latest/guide/cli.html
 
 ## Official CLI shape
@@ -94,54 +93,54 @@ Prefer native `reacnetgenerator` if the request depends on official low-level fl
 
 ```bash
 uvx --refresh --from reacnetgenerator reacnetgenerator \
-    --type bond \
-    -i bonds.reaxc \
-    -a C H O \
-    --nohmm
+  --type bond \
+  -i bonds.reaxc \
+  -a C H O \
+  --nohmm
 ```
 
 ### Dump trajectory
 
 ```bash
 uvx --refresh --from reacnetgenerator reacnetgenerator \
-    --type dump \
-    -i dump.reaxc \
-    -a C H O \
-    --nohmm
+  --type dump \
+  -i dump.reaxc \
+  -a C H O \
+  --nohmm
 ```
 
 ### XYZ trajectory with explicit cell
 
 ```bash
 uvx --refresh --from reacnetgenerator reacnetgenerator \
-    --type xyz \
-    -i md.xyz \
-    -a C H O \
-    --nohmm \
-    --cell 10 0 0 0 10 0 0 0 10
+  --type xyz \
+  -i md.xyz \
+  -a C H O \
+  --nohmm \
+  --cell 10 0 0 0 10 0 0 0 10
 ```
 
 ### ASE mode with custom pair cutoffs
 
 ```bash
 uvx --refresh --from reacnetgenerator reacnetgenerator \
-    --type xyz \
-    -i md.xyz \
-    -a C H O \
-    --use-ase \
-    --ase-cutoff-mult 1.2 \
-    --ase-pair-cutoffs C-O:1.8,H-O:1.2
+  --type xyz \
+  -i md.xyz \
+  -a C H O \
+  --use-ase \
+  --ase-cutoff-mult 1.2 \
+  --ase-pair-cutoffs C-O:1.8,H-O:1.2
 ```
 
 ### HMM tuning
 
 ```bash
 uvx --refresh --from reacnetgenerator reacnetgenerator \
-    --type dump \
-    -i dump.reaxc \
-    -a C H O \
-    --matrixa 0.999 0.001 0.001 0.999 \
-    --matrixb 0.6 0.4 0.4 0.6
+  --type dump \
+  -i dump.reaxc \
+  -a C H O \
+  --matrixa 0.999 0.001 0.001 0.999 \
+  --matrixb 0.6 0.4 0.4 0.6
 ```
 
 ## Warnings

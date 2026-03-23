@@ -1,6 +1,20 @@
 ---
 name: reacnetgenerator
-description: Run ReacNetGenerator (native CLI) and/or reacnet-md-tools wrapper CLIs on reactive MD trajectories to generate reaction networks and reports. Triggers on requests like “run ReacNetGenerator on a LAMMPS dump/xyz/bond file”, “analyze .reactionabcd/.species”, “how to set PBC/cell vs --nopbc”, or “use ASE / miso / HMM matrices”.
+description: Run ReacNetGenerator on reactive MD trajectories to generate reaction networks and reports. Use when the user wants to analyze LAMMPS dump/xyz/bond trajectories with ReacNetGenerator. Handles LAMMPS dump quirks like x/y/z vs xs/ys/zs by converting to x/y/z (orthorhombic + triclinic supported via reacnet-md-tools). Can infer atomname order from a LAMMPS data file. Runs via local reacnetgenerator if available or via `uvx --from reacnetgenerator ...`. Writes outputs into `out/<input_basename>/` with logs and a summary.
+license: MIT
+compatibility: Requires `uv` and `python3`. Usually requires internet access for `uvx --from ...` resolution unless packages are already cached.
+metadata:
+  author: hcustc-bot
+  version: "2.3"
+  repository: https://github.com/tongzhugroup/ReacNetGenerator
+  repositories:
+    - https://github.com/tongzhugroup/ReacNetGenerator
+    - https://github.com/hcustc/reacnet-md-tools
+  openclaw:
+    emoji: "🧪"
+    requires:
+      bins: ["uv", "python3"]
+    os: ["linux", "darwin"]
 ---
 
 # ReacNetGenerator
@@ -13,7 +27,6 @@ description: Run ReacNetGenerator (native CLI) and/or reacnet-md-tools wrapper C
   - `uvx --refresh --from reacnet-md-tools rng-query ...`
 
 If you need full official flags (e.g. `--cell`, `--nopbc`, `--use-ase`, `--miso`, HMM matrices), use native:
-
 - `uvx --refresh --from reacnetgenerator reacnetgenerator ...`
 
 ## What this skill is for
@@ -38,9 +51,9 @@ Read only what is relevant:
 Choose the narrowest tool that solves the user’s request:
 
 1. **Use `rng-pipeline` by default** for standard LAMMPS dump workflows.
-1. **Use native `reacnetgenerator`** when the user needs official low-level flags not exposed by the wrapper.
-1. **Use `rng-query`** when the user already has `.reactionabcd` / `.species` outputs and wants analysis rather than rerunning.
-1. **Use `rng-webapp`** only when the user explicitly wants an interactive local browser UI.
+2. **Use native `reacnetgenerator`** when the user needs official low-level flags not exposed by the wrapper.
+3. **Use `rng-query`** when the user already has `.reactionabcd` / `.species` outputs and wants analysis rather than rerunning.
+4. **Use `rng-webapp`** only when the user explicitly wants an interactive local browser UI.
 
 ## Ask only for the missing inputs
 
