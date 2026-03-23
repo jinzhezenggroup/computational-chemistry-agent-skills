@@ -5,7 +5,7 @@ compatibility: Requires a runnable DFTB+ environment with suitable Slater-Koster
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://github.com/dftbplus/dftbplus
 ---
 

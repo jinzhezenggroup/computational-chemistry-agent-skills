@@ -9,7 +9,7 @@ compatibility: Requires phonopy and a force provider workflow (e.g., VASP/QE/MLF
 license: BSD-3-Clause
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://github.com/phonopy/phonopy
 ---
 

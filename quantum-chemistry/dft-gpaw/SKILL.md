@@ -5,7 +5,7 @@ compatibility: Requires a user-provided structure and a runnable GPAW Python env
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://gitlab.com/gpaw/gpaw
 ---
 

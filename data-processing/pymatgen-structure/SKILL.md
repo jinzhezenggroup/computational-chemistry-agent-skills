@@ -9,7 +9,7 @@ compatibility: Requires Python 3.10+ and pymatgen (recommended via uv).
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://github.com/materialsproject/pymatgen
 ---
 

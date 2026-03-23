@@ -5,7 +5,7 @@ compatibility: Requires a user-provided structure and valid VASP pseudopotential
 license: MIT
 metadata:
   author: qqgu
-  version: '0.2.0'
+  version: 0.2.0
   repository: https://vasp.at/
 ---
 
