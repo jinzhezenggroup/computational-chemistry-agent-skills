@@ -5,7 +5,7 @@ compatibility: Requires Python and ASE. Optional backend dependencies are GPAW a
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://gitlab.com/ase/ase
 ---
 

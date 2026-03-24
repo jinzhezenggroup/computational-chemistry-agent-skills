@@ -5,7 +5,7 @@ compatibility: Requires a runnable ABINIT environment and suitable pseudopotenti
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://github.com/abinit/abinit
 ---
 

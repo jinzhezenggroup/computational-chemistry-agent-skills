@@ -6,7 +6,7 @@ license: MIT
 catalog-hidden: true
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://github.com/cp2k/cp2k
 ---
 

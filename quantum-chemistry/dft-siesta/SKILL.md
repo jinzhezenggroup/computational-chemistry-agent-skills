@@ -5,7 +5,7 @@ compatibility: Requires a runnable SIESTA environment and compatible pseudopoten
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://gitlab.com/siesta-project/siesta
 ---
 

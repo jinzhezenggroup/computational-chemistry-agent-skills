@@ -5,7 +5,7 @@ compatibility: Requires a runnable CP2K environment and suitable basis/pseudopot
 license: MIT
 metadata:
   author: qqgu
-  version: '0.1.0'
+  version: 0.1.0
   repository: https://github.com/cp2k/cp2k
 ---
 
