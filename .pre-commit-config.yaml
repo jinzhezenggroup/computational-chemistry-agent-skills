@@ -32,6 +32,8 @@ repos:
       - id: generate-readme
         name: Generate README.md
         language: python
+        additional_dependencies:
+          - pyyaml
         entry: .scripts/generate_skills_table.py
         pass_filenames: false
   - repo: https://github.com/hukkin/mdformat
