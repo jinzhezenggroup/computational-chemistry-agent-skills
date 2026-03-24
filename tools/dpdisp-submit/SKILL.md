@@ -168,7 +168,9 @@ Agent-generated `submission.template.json`:
         "input.dat"
       ],
       "backward_files": [
-        "result.out"
+        "result.out",
+        "log",
+        "err"
       ]
     }
   ]
