@@ -17,9 +17,9 @@ last_upstream_ref = "master"
 updated_at = "2026-03-25T11:34:53.749356+00:00"
 
 [jobs."dpdata-minimizer"]
-last_upstream_commit = "b9b2ac591e9458089565e0a3e064ff66aaa316d2"
+last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"
 last_upstream_ref = "master"
-updated_at = "2026-03-24T00:48:56.490471+00:00"
+updated_at = "2026-03-25T11:34:56.449573+00:00"
 
 [jobs."dpdisp-submit"]
 last_upstream_commit = "b7a3b1266fa67e6c21aff2fac276946225171329"
