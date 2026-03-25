@@ -12,134 +12,145 @@ metadata:
 
 # dpdisp-submit
 
-This skill uses the DPDispatcher tool to run Shell commands as computational jobs, on local machines or HPC clusters, through Shell, Slurm, PBS, LSF, Bohrium, etc.
+This Skill guides the Agent to use the DPDispatcher tool to convert Shell commands into computational jobs and submit them to local machines or High-Performance Computing (HPC) clusters (supporting environments such as Shell, Slurm, PBS, LSF, Bohrium, etc.).
 
-## Agent responsibilities
+## Syntax & Protocol
 
-1. Collect enough information from the user in plain language.
-1. Generate the submission JSON file based on collected user input.
-1. Validate `submission.json` before submission.
-1. Submit with `uvx --from dpdispatcher dpdisp submit submission.json`.
-1. Automatically manage job interruptions and retries by relying on built-in state tracking (see the "Resuming Jobs" section for details).
-1. **CRITICAL SECURITY CONSTRAINT: DO NOT attempt direct SSH connections.** Never attempt to connect to the remote HPC directly using `ssh`, write custom Paramiko/Fabric Python scripts, or manually execute remote commands. Just generate the `submission.json` and use the `dpdisp submit` tool. DPDispatcher will handle all remote connections, file transfers, and job management safely.
+This section defines the field mappings, variable syntax, and special flags for the configuration file.
 
-## Autonomous Information Gathering & User Prompts
+### Protocol Acquisition (Initialize)
 
-Before this step, always execute `uvx --with dpdispatcher dargs doc dpdispatcher.entrypoints.submit.submission_args` to learn what information needs to be filled.
-
-If information is missing, ask questions users can understand, for example:
-
-- Where should this run: your local machine or a remote HPC cluster?
-- Are there any existing configuration files?
-- Is any sensitive information in the environment variables?
-- What shell command should be executed?
-- How many CPUs/GPUs/nodes do you need?
-- Which queue/partition/account should we use (if applicable)?
-- Which input files should be uploaded, and which output files should be collected?
-
-## Generate `submission.json` from user input
-
-According the result of `uvx --with dpdispatcher dargs doc dpdispatcher.entrypoints.submit.submission_args`, translate user answers into:
-
-- `machine` (where/how to run),
-- `resources` (compute resources),
-- `task_list` (which shell commands/files to run).
-
-If the user indicates that a specific value (like a username, token, or remote path) should be read from a local environment variable, format that value in the JSON template as `${ENV_VAR_NAME}`.
-*Example:* `"remote_root": "${USER_HPC_WORKSPACE}"`
-
-### Handling Environment Variables
-
-If the user specifies values that must be loaded from local environment variables (e.g., sensitive tokens, dynamic paths), do **not** write them directly into the final JSON. Instead:
-
-1. Generate a `submission.template.json` file using the `${VAR_NAME}` syntax **only for the variables you intend to substitute**.
-   *Example:* `"remote_root": "${USER_HPC_WORKSPACE}"`
-1. Use `envsubst` with an explicit variable list to inject only those variables and create the final file. This avoids accidentally expanding unrelated `$...` tokens in the JSON (such as a `"$ref"` key):
-   `envsubst '${USER_HPC_WORKSPACE}' < submission.template.json > submission.json`
-1. **CRITICAL SECURITY CONSTRAINT: DO NOT read or print the contents of the newly generated `submission.json` file.** Once `envsubst` replaces the variables, the file contains raw sensitive data. Reading it will leak these secrets into your context, which is strictly prohibited.
-
-If multiple environment variables are needed, list them all explicitly in the `envsubst` call, for example:
-`envsubst '${USER_HPC_WORKSPACE} ${USER_OTHER_VAR}' < submission.template.json > submission.json`
-If no environment variables are needed, simply generate `submission.json` directly.
-
-### Simple local shell tasks
-
-When the user asks for a simple local shell task, prefer these defaults to avoid common failures:
-
-- `machine.context_type = "LazyLocalContext"`
-- `machine.batch_type = "Shell"`
-- `task_list[0].task_work_path = "."` (avoid non-existing subdirectory failures)
-- `resources.group_size = 1`
-
-## Required commands
-
-### Core Flow
+As an Agent, before gathering information and building the configuration, you **MUST FIRST execute** the following command to read and learn the latest Schema protocol specifications and requirements:
 
 ```bash
-# 1) Print full submission schema
 uvx --with dpdispatcher dargs doc dpdispatcher.entrypoints.submit.submission_args
+```
 
-# 2) [Optional] Substitute environment variables if a template was generated
-envsubst '${USER_VAR} ${USER_OTHER_VAR}' < submission.template.json > submission.json
+### Field Mapping
 
-# 3) Syntax check JSON
-uv run -m json.tool submission.json >/dev/null
+You must accurately translate the gathered user requirements into the following core JSON hierarchy:
 
-# 4) Validate generated submission.json
+- `machine`: Defines the execution location and method (connection protocol, scheduler type).
+- `resources`: Defines the computational resource requirements (nodes, CPUs, GPUs, queues, etc.).
+- `task_list`: Defines the specific Shell commands to be executed and the file flow paths.
+
+### Environment Variable Syntax & Injection Rules
+
+If user-specified values (e.g., username, Token, remote path) need to be read from local environment variables, you must strictly use the `${ENV_VAR_NAME}` format in the template.
+
+- *Example:* `"remote_root": "${USER_HPC_WORKSPACE}"`
+
+### Reference & Reuse
+
+The protocol allows the use of the `{"$ref": "other.json"}` syntax to nest and reference reusable configuration snippets from other JSON files (the referenced file is loaded first, and then the current file's fields override or extend it). The relative path for `$ref` is resolved relative to the execution directory where `submission.json` is located. You must ensure that the execution path strictly matches the path pointed to by `$ref`.
+
+### Path Resolution Rules
+
+- **Base Directory (`work_base`)**: Defines the base working directory level for all tasks, typically set to `.` (i.e., the current execution directory).
+- **Task and File Path Resolution**: `task_work_path` is resolved relative to `work_base`, whereas the file paths specified in `forward_files` are strictly resolved relative to `task_work_path`.
+
+### Dry-Run Testing (--dry-run)
+
+Parses the configuration, generates local directories, and validates the Schema, but **DOES NOT** actually submit the job to the machine or cluster. You can use this flag for a final safety check before real execution.
+
+## Execution Workflow
+
+As an Agent, you MUST strictly execute tasks in the sequence of the following stages, without skipping any steps:
+
+### Information Gathering
+
+When feeling vague or uncertain about the specific parameters and configuration information for running the job, you **MUST** proactively ask the user in natural language to supplement the necessary information.
+
+### Secure Build
+
+You **MUST** generate the configuration file based on the acquired Schema protocol and the gathered information.
+
+- **Pure Static Configuration**: If no environment variable injection is needed, directly generate the final `submission.json`.
+- **Environment Variable Injection Required**:
+  - You must generate a `submission.template.json` file, using the `${VAR_NAME}` syntax **ONLY for the variables that need to be replaced**.
+  - You must use the `envsubst` command and **explicitly list** the variables to be replaced to prevent unrelated `$…` symbols in the JSON (such as `"$ref"`) from being accidentally expanded.
+  - *Example:*
+    ```bash
+    envsubst '${USER_HPC_WORKSPACE} ${USER_OTHER_VAR}' < submission.template.json > submission.json
+    ```
+
+### Validate & Submit
+
+You **MUST** strictly execute the following command chain in sequence.
+**Note**: If the `$ref` syntax is used in the configuration, you must pass the `--allow-ref` flag to all validation and submission commands, otherwise parsing or validation will fail even if the JSON content is correct.
+
+```bash
+# Logic and Schema Validation
 uvx --with dpdispatcher dargs check -f dpdispatcher.entrypoints.submit.submission_args submission.json
-
-# 5) Submit
+# Submit Job
 uvx --from dpdispatcher dpdisp submit submission.json
 ```
 
-### Best Practices for Long-Running Jobs
+### Reporting Standard
 
-When executing tasks that are expected to take a long time, it is important to avoid losing the monitoring process due to SSH timeouts or closed terminals. Use one of the following approaches:
+After execution finishes, you **MUST** output a structured report to the user with the following fixed elements:
 
-- **Wrap in `tmux`:** Run the `dpdisp submit` command inside a `tmux` session. This keeps the process alive and allows you to detach and reattach safely if your network connection drops.
-- **Use the `--exit-on-submit` flag:** Add this flag if you only need to submit the job and return immediately. This exits as soon as the job has been successfully handed off to the scheduling system (for example, Slurm), without waiting for execution to finish or for outputs to be downloaded. However, a successful return from `dpdisp submit` with `--exit-on-submit` is **not** a signal that the overall job is finished. It only confirms successful submission. A separate follow-up step is still required to monitor job status and verify that results have been downloaded back to the local workspace.
+- **Task Summary**: Briefly describe the user's request (execution location, executed command, allocated resources).
+- **Current State**: Explicitly point out the status of the job (started / running / finished / failed).
+- **Artifact Path**: Explicitly point out the location of the output files (for example, when `task_work_path` is `.`, point out the specific paths of `log` and `err`).
+- **Exception Guidance**: If the job encounters an interruption or partial failure, provide the user with detailed issue information and execute according to the user's further instructions.
 
-### More Useful Flags
+## Long-Running Jobs
 
-- **`--dry-run`**: Parses the configuration, generates local directories, and validates the schema, but does **not** actually submit the job to the machine or cluster. Useful for a final safety check before real execution.
-- **`--allow-ref`**: Allows nesting and referencing other JSON files using `{"$ref": "other.json"}` for reusable config snippets. The referenced file is loaded first, and then the current file's fields override or extend it. If your configuration uses `$ref`, you should also pass `--allow-ref` to ***all related*** validation and submission commands (for example, `dargs check` and `dpdisp submit`). Otherwise, the config may fail to parse or validate even if the JSON content itself is correct.
+High-performance computing tasks usually take an extremely long time (from hours to weeks), and there is a **long time gap** between the submission command and the final result. This is **not a one-off, instant Q&A process**, and you must choose the appropriate disconnect-prevention execution mode based on the specific scenario:
 
-## Submission vs. Completion
+### Blocking Mode
 
-It is important to distinguish between **successful submission** and **full completion**:
+- **Wrap in `tmux`**: Run the standard `dpdisp submit submission.json`. The program will **continuously hang and wait** until the job is truly finished calculating on the cluster and the files are downloaded back before exiting. You must run it inside a `tmux` session to prevent any possible disconnection from killing the process.
 
-1. **Successfully Submitted**
+### Non-blocking Mode
 
-- The `dpdisp submit` command exits with a success code (`0`).
-- If `--exit-on-submit` is used, this only means the job was accepted and submitted to the backend scheduler.
-- At this stage, the tasks may still be queued or running, and output files may not yet be available locally.
+- **Use the `--exit-on-submit` flag**: After successfully handing over the job to the scheduling system (e.g., Slurm), the program will **immediately exit the terminal** and return `<exit_code>`. It will not wait for execution to complete or download outputs.
+- **State Definition**: In this mode, you must strictly distinguish between the following two states for the user:
+  - **Successfully Submitted (Submitted)**: Just finished executing the command with the flag and returned `0`. At this time, the job is only accepted by the backend, may be queuing, and output files are temporarily unavailable.
+  - **Fully Completed (Completed)**: After re-running the synchronization command later, the backend task finishes successfully, **AND** all required output files have been successfully retrieved to the local machine.
+- **Idempotent Recovery Principle (Resuming Jobs)**: DPDispatcher has built-in state tracking and idempotency. It will automatically resume unfinished tasks and will not repeatedly execute completed ones.
+  - **Trigger Conditions**: Used for **state synchronization and file downloading** in non-blocking mode; or when the job fails, times out, is unexpectedly interrupted, the user explicitly requests to "resume" or "retry", or your own SSH/network disconnects during monitoring.
+  - **Recovery Action**: You do not need to modify `submission.json` or attempt to clean up the remote directory. You simply need to **re-execute the exact same** submission command (e.g., `uvx --from dpdispatcher dpdisp submit submission.json --allow-ref`) as is in the same directory.
 
-2. **Fully Completed**
-   A job is considered **fully completed** only when both of the following are true:
+> **Timeline Example (Non-blocking Mode):**
+>
+> - **[Day 1, 10:00]** Submit job: `dpdisp submit --exit-on-submit submis_task.json`
+> - **[Day 1, 10:01]** The command exits immediately and returns 0. At this time, it is only in the **Successfully Submitted** state. The Agent can exit the terminal to execute other tasks.
+> - **[Waiting Period]** *(A long queuing and calculation phase, potentially lasting for days)*
+> - **[Day 3, 15:00]** The Agent returns to the directory to check: triggers the idempotent recovery mechanism, re-runs `dpdisp submit submis_task.json` **without the flag** as is to synchronize the state and trigger file downloading. Only after the download is complete is it marked as **Fully Completed**.
 
-- The backend tasks have finished successfully.
-- All required output files (for example, `log`, `err`, and result files) have been retrieved to the local `task_work_path`.
+## Strict Guardrails
 
-## Resuming Jobs (Failure Handling & Recovery)
+Before performing any operation, as an Agent, you **MUST UNCONDITIONALLY obey** the following security baselines:
 
-DPDispatcher is inherently idempotent and features built-in state tracking. It will automatically resume unfinished tasks without duplicating completed ones.
-
-**When to trigger recovery:**
-
-- A job fails, times out, or gets unexpectedly interrupted.
-- The user explicitly asks to "resume", "retry", or "recover" a previously interrupted or failed job.
-- The Agent's SSH or network connection drops during job monitoring.
-
-**Action:** Do **NOT** modify `submission.json` or attempt to clean up the remote directories. Simply re-execute the exact same submission command (such as `uvx --from dpdispatcher dpdisp submit submission.json --allow-ref`) in the same directory. The tool will safely skip successful tasks and only resubmit or resume the pending/failed ones.
+- **Direct SSH Connections are Strictly Prohibited**: You are absolutely not allowed to attempt connecting directly to the remote HPC using `ssh`, write custom Paramiko/Fabric Python scripts, or manually execute remote commands. All remote connections, file transfers, and job management **MUST AND ONLY** be safely handled by DPDispatcher by generating `submission.json` and calling the `dpdisp submit` tool.
+- **Reading External Reference JSON Files is Strictly Prohibited**: If the user provides a JSON file to supply certain information, you are **ABSOLUTELY PROHIBITED** from reading or printing the contents of that file. The file contains raw sensitive data, and reading it will cause confidential information to leak into the current conversation context.
+- **Reading Configuration Files with Sensitive Data is Strictly Prohibited**: After injecting environment variables via `envsubst` to generate the final `submission.json`, you are **ABSOLUTELY PROHIBITED** from reading or printing the contents of the file. The file contains raw sensitive data, and reading it will cause confidential information to leak into the current conversation context.
 
 ## Example
 
-User request:
+User request: "Please run the simulation located in the `task02` directory on my Slurm cluster. Load my username from `$HPC_USER` and the workspace path from `$HPC_WORKDIR`. We already have a `resource_defaults.json` in the parent workspace directory, please reference it and just add the debug queue."
 
-- "Please run `run_simulation.sh` on my Slurm cluster. Load my username from `$HPC_USER` and the workspace path from `$HPC_WORKDIR`. We already have a `resource_defaults.json` for the base compute settings, please use it and just add the debug queue."
+The Agent discovers that the current directory structure is as follows:
 
-Assume `resource_defaults.json` already exists in the directory.
-Agent-generated `submission.template.json`:
+```text
+<WORKSPACE>/
+├── resource_defaults.json
+├── ...
+└── run_dir/
+    ├── ...
+    └── task02/
+        ├── run_simulation.sh
+        ├── ...
+        └── data/
+            ├── input.dat
+            └── ...
+```
+
+The Agent decides to create the configuration file `submis_task02.template.json` within the `run_dir/` directory (at the same level as the `task02/` folder).
+The Agent has remembered the `$ref` pointing to the parent directory `../`, the `task_work_path` explicitly targeting `"task02"`, and `forward_files` remaining strictly relative to that `task_work_path`.
+Then it writes down:
 
 ```json
 {
@@ -148,24 +159,24 @@ Agent-generated `submission.template.json`:
     "batch_type": "Slurm",
     "context_type": "SSHContext",
     "remote_profile": {
-      "hostname": "login.cluster.edu",
+      "hostname": "<target-host>",
       "username": "${HPC_USER}",
       "port": 22
     },
     "remote_root": "${HPC_WORKDIR}/dpdisp_run"
   },
   "resources": {
-    "$ref": "resource_defaults.json",
+    "$ref": "../resource_defaults.json",
     "queue_name": "debug",
     "group_size": 1
   },
   "task_list": [
     {
       "command": "bash run_simulation.sh",
-      "task_work_path": "task_000",
+      "task_work_path": "task02",
       "forward_files": [
         "run_simulation.sh",
-        "input.dat"
+        "data/input.dat"
       ],
       "backward_files": [
         "result.out",
@@ -177,19 +188,12 @@ Agent-generated `submission.template.json`:
 }
 ```
 
-Then run:
+Then the Agent run the validation and submission commands from within the `<WORKSPACE>` directory:
 
 ```bash
-envsubst '${HPC_USER} ${HPC_WORKDIR}' < submission.template.json > submission.json
-uv run -m json.tool submission.json >/dev/null
-uvx --with dpdispatcher dargs check --allow-ref -f dpdispatcher.entrypoints.submit.submission_args submission.json
-tmux new-session -d -s dpdisp_job "uvx --from dpdispatcher dpdisp submit --allow-ref submission.json"
+cd run_dir/
+envsubst '${HPC_USER} ${HPC_WORKDIR}' < submis_task02.template.json > submis_task02.json
+uvx --with dpdispatcher dargs check --allow-ref -f dpdispatcher.entrypoints.submit.submission_args submis_task02.json
+tmux new-session -d -s dpdisp_task02 "uvx --from dpdispatcher dpdisp submit --allow-ref submis_task02.json"
 tmux ls
 ```
-
-## What to report back to the user
-
-- A short summary of what the user asked for (where to run, command, resources).
-- Submission status (started/running/finished/failed).
-- Output locations (for example `log` and `err` when `task_work_path` is `.`).
-- If the job encounters an interruption or partial failure, provide the user with detailed information about this issue and offer to simply re-run the command to resume the unfinished tasks.
