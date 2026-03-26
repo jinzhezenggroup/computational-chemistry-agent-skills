@@ -155,6 +155,10 @@ DPA3 also supports the mixed type data format for multi-element systems.
 }
 ```
 
+If you do not want to train on virial, set the virial prefactors to 0.
+
+DPA3 uses different default loss prefactors compared to SE_E2_A. See the comparison table in the "Key Differences from SE_E2_A" section below.
+
 The meaning of each parameter can be generated through `dp doc-train-input`.
 Considering the output RST documentation on the screen is very long, use `grep` to find the documentation of a specific parameter:
 
@@ -192,11 +196,16 @@ dp --pt train input.json --restart model.ckpt.pt
 
 ### Step 4: Monitor Training
 
-The learning curve `lcurve.out` has the same format as other DeePMD models:
+The learning curve is written to `lcurve.out` with columns:
 
 ```
-#  step  rmse_val  rmse_trn  rmse_e_val  rmse_e_trn  rmse_f_val  rmse_f_trn  lr
+#  step  rmse_val  rmse_trn  rmse_e_val  rmse_e_trn  rmse_f_val  rmse_f_trn  rmse_v_val  rmse_v_trn  lr
 ```
+
+- `rmse_e_*`: energy RMSE per atom (eV/atom)
+- `rmse_f_*`: force RMSE (eV/A)
+- `rmse_v_*`: virial RMSE (eV/atom, only present if virial data is available)
+- `lr`: current learning rate
 
 ### Step 5: Freeze the Model
 
@@ -263,6 +272,21 @@ Benchmark RMSE (averaged over 6 representative systems, 0.5M steps):
 | `a_sel`           | Max angle neighbors              | 30             |
 | `update_style`    | Residual update style            | "res_residual" |
 | `update_residual` | Residual scaling factor          | 0.1            |
+
+### Activation Function
+
+DPA3 uses `silut:10.0` by default. For datasets where training is unstable, consider switching to `tanh`:
+
+```json
+"descriptor": {
+  "type": "dpa3",
+  "repflow": { ... },
+  "activation_function": "tanh"
+},
+"fitting_net": {
+  "activation_function": "tanh"
+}
+```
 
 ### Optimizer
 
