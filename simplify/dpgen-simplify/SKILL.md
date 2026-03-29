@@ -5,7 +5,7 @@ compatibility: Requires a runnable environment with `dpgen` available in PATH. R
 license: LGPL-3.0-or-later
 metadata:
   author: Yyy
-  version: "0.2.0"
+  version: 0.2.0
   repository: https://github.com/deepmodeling/dpgen
 ---
 
@@ -37,8 +37,8 @@ Run this command only in an activated environment where `dpgen` is available.
 The simplify workflow contains three major stages:
 
 1. `train`
-2. `model_devi`
-3. `fp`
+1. `model_devi`
+1. `fp`
 
 This skill helps the agent do the following:
 
@@ -87,15 +87,15 @@ If the user's real task is not simplify, route to the more appropriate skill or 
 When using this skill, the agent should:
 
 1. confirm that the task is a simplify workflow
-2. check whether existing configs or templates are already available
-3. collect only the missing dataset, training, FP, and machine inputs
-4. generate or patch `param.json`
-5. generate or patch `machine.json`
-6. explain important simplify parameters in plain language when asked
-7. validate the workflow before execution
-8. provide the exact command for running simplify
-9. if requested, help structure repeated experiments
-10. after execution, summarize outputs and next inspection targets
+1. check whether existing configs or templates are already available
+1. collect only the missing dataset, training, FP, and machine inputs
+1. generate or patch `param.json`
+1. generate or patch `machine.json`
+1. explain important simplify parameters in plain language when asked
+1. validate the workflow before execution
+1. provide the exact command for running simplify
+1. if requested, help structure repeated experiments
+1. after execution, summarize outputs and next inspection targets
 
 ## Working policy
 
@@ -177,6 +177,7 @@ project/
 Collect the following information before generating files.
 
 ### Dataset information
+
 - `pick_data`
 - dataset format
 - `type_map`
@@ -184,6 +185,7 @@ Collect the following information before generating files.
 - whether the input data is already labeled
 
 ### Simplify controls
+
 - `init_pick_number`
 - `iter_pick_number`
 - `model_devi_f_trust_lo`
@@ -191,6 +193,7 @@ Collect the following information before generating files.
 - `numb_models` if not already specified
 
 ### Training setup
+
 - `default_training_param`
   - descriptor settings
   - fitting network settings
@@ -199,6 +202,7 @@ Collect the following information before generating files.
   - training step settings
 
 ### FP setup
+
 - `fp_style`
 - if `fp_style != "none"`, collect matching FP runtime settings such as:
   - `fp_task_max`
@@ -207,7 +211,9 @@ Collect the following information before generating files.
   - pseudopotential or backend file paths if required
 
 ### Execution setup
+
 For each stage `train`, `model_devi`, and `fp`, collect or preserve:
+
 - `command`
 - `machine.batch_type`
 - `machine.context_type`
@@ -224,12 +230,12 @@ For each stage `train`, `model_devi`, and `fp`, collect or preserve:
 Construct `param.json` around these logical blocks:
 
 1. element and mass definitions
-2. data source and batch settings
-3. model ensemble count
-4. default DeePMD training parameters
-5. FP backend settings
-6. simplify pick settings
-7. trust thresholds
+1. data source and batch settings
+1. model ensemble count
+1. default DeePMD training parameters
+1. FP backend settings
+1. simplify pick settings
+1. trust thresholds
 
 Key fields usually include:
 
@@ -293,9 +299,9 @@ python -m json.tool machine.json
 ```
 
 3. verify required dataset paths exist
-4. verify stage commands match the selected software stack
-5. if `fp_style` is `none`, do not require FP-specific backend settings
-6. only then run:
+1. verify stage commands match the selected software stack
+1. if `fp_style` is `none`, do not require FP-specific backend settings
+1. only then run:
 
 ```bash
 dpgen simplify param.json machine.json
@@ -306,10 +312,10 @@ dpgen simplify param.json machine.json
 Always provide:
 
 1. final absolute paths to `param.json` and `machine.json`
-2. the exact `dpgen simplify` command to run
-3. a short pre-run checklist
-4. any unresolved required fields
-5. if execution was performed, the main output locations and next files to inspect
+1. the exact `dpgen simplify` command to run
+1. a short pre-run checklist
+1. any unresolved required fields
+1. if execution was performed, the main output locations and next files to inspect
 
 ## Parameter explanation policy
 

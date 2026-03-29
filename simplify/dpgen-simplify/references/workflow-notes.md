@@ -9,13 +9,13 @@ dpgen simplify param.json machine.json
 ## Recommended workflow
 
 1. confirm the task is really simplify
-2. inspect dataset source
-3. define simplify thresholds
-4. build or patch `param.json`
-5. build or patch `machine.json`
-6. validate the workflow
-7. execute if requested
-8. summarize outputs and next checks
+1. inspect dataset source
+1. define simplify thresholds
+1. build or patch `param.json`
+1. build or patch `machine.json`
+1. validate the workflow
+1. execute if requested
+1. summarize outputs and next checks
 
 ## Validation checklist
 
@@ -28,6 +28,7 @@ python -m json.tool machine.json
 ```
 
 Also confirm:
+
 - `pick_data` paths exist
 - stage commands match the intended software stack
 - FP-specific settings are present only when `fp_style != "none"`

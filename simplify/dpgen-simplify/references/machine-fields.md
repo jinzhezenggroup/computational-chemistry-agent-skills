@@ -24,26 +24,32 @@ Do not collapse them into one ambiguous runtime block.
 - custom scheduler flags if needed
 
 ## `train`
+
 Used for model training.
 
 Typical concerns:
+
 - DeePMD environment
 - GPU availability
 - training queue
 - environment activation
 
 ## `model_devi`
+
 Used for model deviation evaluation.
 
 Typical concerns:
+
 - DeePMD runtime
 - consistency with training environment
 - output and log handling
 
 ## `fp`
+
 Used for first-principles calculations.
 
 Typical concerns:
+
 - backend executable
 - pseudopotential / basis support files
 - scheduler settings
@@ -54,7 +60,7 @@ Typical concerns:
 When building `machine.json`:
 
 1. do not invent executable names
-2. do not invent scheduler module names
-3. keep environment activation explicit
-4. keep queue and resource requests explicit
-5. if the user already has a working template, patch it instead of rewriting everything
+1. do not invent scheduler module names
+1. keep environment activation explicit
+1. keep queue and resource requests explicit
+1. if the user already has a working template, patch it instead of rewriting everything
