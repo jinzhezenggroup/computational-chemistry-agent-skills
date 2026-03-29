@@ -40,3 +40,8 @@ cd site
 npm install
 npm run build
 ```
+
+## Deployment variables
+
+- `SITE_URL`: absolute site origin used for canonical/absolute URLs. Defaults to `https://skills.jinzhezeng.group`.
+- `SITE_BASE`: optional base path for subpath deployments such as GitHub Pages.
