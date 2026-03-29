@@ -1,0 +1,351 @@
+---
+name: dpgen-simplify
+description: Prepare, explain, validate, and run DP-GEN simplify workflows for reducing repeated or redundant DeepMD datasets. Use when the user wants to generate or modify `param.json` and `machine.json`, run `dpgen simplify param.json machine.json`, organize repeated simplify experiments, or inspect simplify outputs.
+compatibility: Requires a runnable environment with `dpgen` available in PATH. Real execution also requires Python, DeePMD-kit, and any backend-specific software required by the selected `fp_style`. For scheduler execution, the user must provide a valid runtime environment and scheduler settings.
+license: LGPL-3.0-or-later
+metadata:
+  author: Yyy
+  version: "0.2.0"
+  repository: https://github.com/deepmodeling/dpgen
+---
+
+# DP-GEN Simplify
+
+Use this skill when the user wants to prepare, explain, validate, or execute the `dpgen simplify` workflow.
+
+This skill is for dataset simplification workflows where the user already has candidate data in DeepMD-compatible format and wants to reduce repeated or redundant structures through iterative selection.
+
+## Core Rule (Critical)
+
+DP-GEN simplify always uses **two parameter classes** and therefore **two JSON files**:
+
+- **Workflow parameters** -> `param.json`
+- **Execution / machine parameters** -> `machine.json`
+
+Run exactly:
+
+```bash
+dpgen simplify param.json machine.json
+```
+
+Run this command only in an activated environment where `dpgen` is available.
+
+## What this skill is for
+
+`dpgen simplify` is used to simplify a dataset that contains many repeated or redundant data points.
+
+The simplify workflow contains three major stages:
+
+1. `train`
+2. `model_devi`
+3. `fp`
+
+This skill helps the agent do the following:
+
+- determine whether the user's task is really a simplify task
+- collect the minimum required inputs
+- generate or revise `param.json`
+- generate or revise `machine.json`
+- explain key simplify parameters in plain language
+- validate configs before execution
+- prepare launch commands
+- help structure repeated experiments
+- summarize outputs and iteration behavior after execution
+
+## Use when
+
+Use this skill when the user wants to do one or more of the following:
+
+- simplify a repeated or oversized dataset
+- run `dpgen simplify`
+- generate a valid `param.json` for simplify
+- generate a valid `machine.json` for simplify
+- tune simplify controls such as:
+  - `init_pick_number`
+  - `iter_pick_number`
+  - `model_devi_f_trust_lo`
+  - `model_devi_f_trust_hi`
+- prepare simplify workflows for local or HPC execution
+- compare multiple simplify settings across experiments
+- summarize how many frames are picked during simplify iterations
+
+## Do not use when
+
+Do not use this skill when the user actually wants:
+
+- `dpgen run`
+- `dpgen init_bulk`
+- `dpgen init_surf`
+- `dpgen init_reaction`
+- ordinary DeePMD training without simplify
+- a custom non-DP-GEN sampling algorithm unrelated to `dpgen simplify`
+
+If the user's real task is not simplify, route to the more appropriate skill or workflow.
+
+## Agent responsibilities
+
+When using this skill, the agent should:
+
+1. confirm that the task is a simplify workflow
+2. check whether existing configs or templates are already available
+3. collect only the missing dataset, training, FP, and machine inputs
+4. generate or patch `param.json`
+5. generate or patch `machine.json`
+6. explain important simplify parameters in plain language when asked
+7. validate the workflow before execution
+8. provide the exact command for running simplify
+9. if requested, help structure repeated experiments
+10. after execution, summarize outputs and next inspection targets
+
+## Working policy
+
+### 1. Ask only for missing inputs
+
+Do not ask the user for everything if part of the configuration is already available.
+
+If the user already provides:
+
+- a partial `param.json`
+- a partial `machine.json`
+- a known training template
+- a known cluster template
+
+then patch those files instead of rebuilding everything from scratch.
+
+### 2. Preserve the user's scientific choices
+
+Do not silently change:
+
+- descriptor family
+- fitting net structure
+- fp backend
+- trust thresholds
+- `type_map` ordering
+
+If a value looks scientifically questionable, explain the concern instead of silently replacing it.
+
+### 3. Keep local and scheduler execution explicit
+
+If the user wants local execution, produce local-friendly commands.
+
+If the user wants scheduler execution, produce scheduler-friendly commands and keep queue, partition, and resource requests explicit.
+
+Do not invent scheduler module names or executable paths.
+
+### 4. Do not invent environment activation commands
+
+If the user already has a working activation command such as:
+
+- `conda activate ...`
+- `module load ...`
+- `source ...`
+
+reuse it exactly.
+
+If execution is requested and the activation method is unknown, ask the user for the precise activation command.
+
+Do not guess conda environment names, module names, or site-specific paths.
+
+### 5. Prefer reproducible output layout
+
+When generating a simplify workflow, keep files organized and predictable.
+
+Recommended structure:
+
+```text
+project/
+├── param.json
+├── machine.json
+├── run.sh
+├── logs/
+└── summary/
+```
+
+For repeated experiments:
+
+```text
+project/
+├── base/
+├── exp_01/
+├── exp_02/
+├── exp_03/
+└── summary/
+```
+
+## Minimum required inputs
+
+Collect the following information before generating files.
+
+### Dataset information
+- `pick_data`
+- dataset format
+- `type_map`
+- `mass_map` if needed
+- whether the input data is already labeled
+
+### Simplify controls
+- `init_pick_number`
+- `iter_pick_number`
+- `model_devi_f_trust_lo`
+- `model_devi_f_trust_hi`
+- `numb_models` if not already specified
+
+### Training setup
+- `default_training_param`
+  - descriptor settings
+  - fitting network settings
+  - learning rate settings
+  - loss settings
+  - training step settings
+
+### FP setup
+- `fp_style`
+- if `fp_style != "none"`, collect matching FP runtime settings such as:
+  - `fp_task_max`
+  - `fp_task_min`
+  - `fp_params`
+  - pseudopotential or backend file paths if required
+
+### Execution setup
+For each stage `train`, `model_devi`, and `fp`, collect or preserve:
+- `command`
+- `machine.batch_type`
+- `machine.context_type`
+- `machine.local_root`
+- `machine.remote_root`
+- `resources.number_node`
+- `resources.cpu_per_node`
+- `resources.gpu_per_node`
+- `resources.group_size`
+- any explicit queue / partition / custom scheduler flags if the user already uses them
+
+## How to build `param.json`
+
+Construct `param.json` around these logical blocks:
+
+1. element and mass definitions
+2. data source and batch settings
+3. model ensemble count
+4. default DeePMD training parameters
+5. FP backend settings
+6. simplify pick settings
+7. trust thresholds
+
+Key fields usually include:
+
+- `type_map`
+- `mass_map`
+- `pick_data`
+- `init_data_prefix`
+- `init_data_sys`
+- `sys_batch_size`
+- `numb_models`
+- `default_training_param`
+- `fp_style`
+- `shuffle_poscar`
+- `fp_task_max`
+- `fp_task_min`
+- `fp_pp_path`
+- `fp_pp_files`
+- `fp_params`
+- `init_pick_number`
+- `iter_pick_number`
+- `model_devi_f_trust_lo`
+- `model_devi_f_trust_hi`
+
+If the user is doing grid experiments, keep a base template and derive variants from it.
+
+## How to build `machine.json`
+
+Construct `machine.json` with separate stage blocks for:
+
+- `train`
+- `model_devi`
+- `fp`
+
+For each stage, keep the following explicit:
+
+- `command`
+- machine or context configuration
+- resources
+- queue or partition if needed
+- cpu and gpu counts
+- custom scheduler flags
+- environment activation commands
+
+Do not merge all stages into one vague machine block.
+
+## Validation before run
+
+Before execution, validate the workflow in this order:
+
+1. confirm `dpgen` is available:
+
+```bash
+dpgen --version
+```
+
+2. validate JSON syntax:
+
+```bash
+python -m json.tool param.json
+python -m json.tool machine.json
+```
+
+3. verify required dataset paths exist
+4. verify stage commands match the selected software stack
+5. if `fp_style` is `none`, do not require FP-specific backend settings
+6. only then run:
+
+```bash
+dpgen simplify param.json machine.json
+```
+
+## Output contract
+
+Always provide:
+
+1. final absolute paths to `param.json` and `machine.json`
+2. the exact `dpgen simplify` command to run
+3. a short pre-run checklist
+4. any unresolved required fields
+5. if execution was performed, the main output locations and next files to inspect
+
+## Parameter explanation policy
+
+When the user asks what a simplify parameter means, explain it in plain language.
+
+Use this style:
+
+- `pick_data`: where the candidate data to simplify is stored
+- `init_pick_number`: how many structures are picked at the beginning
+- `iter_pick_number`: how many structures are picked in each later iteration
+- `model_devi_f_trust_lo`: lower edge of the force-deviation trust region
+- `model_devi_f_trust_hi`: upper edge of the force-deviation trust region
+
+## Guardrails
+
+- Never merge workflow and machine parameters into one file.
+- Never run `dpgen simplify` before both JSON files are present.
+- Never hardcode personal cluster, account, queue, or path settings as universal defaults.
+- Never silently change the user's scientific choices.
+- Keep `type_map` ordering consistent with dataset typing.
+- If required inputs are missing, stop and ask instead of guessing.
+- If `fp_style` is `none`, skip FP-specific prompts and keep FP-specific settings disabled or unset.
+- If the user already has working templates, patch them rather than overwriting them blindly.
+
+## References and bundled files
+
+Use these bundled files:
+
+- `assets/param.template.json`
+- `assets/machine.template.json`
+- `references/param-fields.md`
+- `references/machine-fields.md`
+- `references/workflow-notes.md`
+
+External references:
+
+- DP-GEN simplify overview: https://docs.deepmodeling.com/projects/dpgen/en/latest/simplify/simplify.html
+- simplify parameter definitions: https://docs.deepmodeling.com/projects/dpgen/en/latest/simplify/simplify-jdata.html
+- simplify machine definitions: https://docs.deepmodeling.com/projects/dpgen/en/latest/simplify/simplify-mdata.html
