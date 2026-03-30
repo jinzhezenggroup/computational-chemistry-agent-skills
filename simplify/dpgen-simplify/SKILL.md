@@ -1,10 +1,10 @@
 ---
 name: dpgen-simplify
-description: Prepare, explain, validate, and run DP-GEN simplify workflows for reducing repeated or redundant DeepMD datasets. Use when the user wants to generate or modify `param.json` and `machine.json`, run `dpgen simplify param.json machine.json`, organize repeated simplify experiments, or inspect simplify outputs.
-compatibility: Requires a runnable environment with `dpgen` available in PATH. Real execution also requires Python, DeePMD-kit, and any backend-specific software required by the selected `fp_style`. For scheduler execution, the user must provide a valid runtime environment and scheduler settings.
+description: Prepare, explain, validate, and run DP-GEN simplify workflows for reducing repeated or redundant DeepMD datasets. Use when the user wants to generate or modify `param.json` and `machine.json`, run `dpgen simplify param.json machine.json`, organize repeated simplify experiments, or inspect simplify outputs. Prefer local `dpgen` when available; otherwise use `uvx` as a launcher fallback.
+compatibility: Requires a runnable environment with Python. Prefer local `dpgen` in PATH; fallback launcher requires `uv` and internet access (`uvx --from dpgen dpgen ...`). Real execution also requires DeePMD-kit and any backend-specific software required by the selected `fp_style`. For scheduler execution, the user must provide a valid runtime environment and scheduler settings.
 license: LGPL-3.0-or-later
 metadata:
-  author: Yyy
+  author: hyb1109
   version: 0.2.0
   repository: https://github.com/deepmodeling/dpgen
 ---
@@ -28,59 +28,10 @@ Run exactly:
 dpgen simplify param.json machine.json
 ```
 
-Run this command only in an activated environment where `dpgen` is available.
+Run this command with a valid launcher:
 
-## What this skill is for
-
-`dpgen simplify` is used to simplify a dataset that contains many repeated or redundant data points.
-
-The simplify workflow contains three major stages:
-
-1. `train`
-1. `model_devi`
-1. `fp`
-
-This skill helps the agent do the following:
-
-- determine whether the user's task is really a simplify task
-- collect the minimum required inputs
-- generate or revise `param.json`
-- generate or revise `machine.json`
-- explain key simplify parameters in plain language
-- validate configs before execution
-- prepare launch commands
-- help structure repeated experiments
-- summarize outputs and iteration behavior after execution
-
-## Use when
-
-Use this skill when the user wants to do one or more of the following:
-
-- simplify a repeated or oversized dataset
-- run `dpgen simplify`
-- generate a valid `param.json` for simplify
-- generate a valid `machine.json` for simplify
-- tune simplify controls such as:
-  - `init_pick_number`
-  - `iter_pick_number`
-  - `model_devi_f_trust_lo`
-  - `model_devi_f_trust_hi`
-- prepare simplify workflows for local or HPC execution
-- compare multiple simplify settings across experiments
-- summarize how many frames are picked during simplify iterations
-
-## Do not use when
-
-Do not use this skill when the user actually wants:
-
-- `dpgen run`
-- `dpgen init_bulk`
-- `dpgen init_surf`
-- `dpgen init_reaction`
-- ordinary DeePMD training without simplify
-- a custom non-DP-GEN sampling algorithm unrelated to `dpgen simplify`
-
-If the user's real task is not simplify, route to the more appropriate skill or workflow.
+- local: `dpgen simplify param.json machine.json`
+- uvx fallback: `uvx --from dpgen dpgen simplify param.json machine.json`
 
 ## Agent responsibilities
 
@@ -145,6 +96,18 @@ reuse it exactly.
 If execution is requested and the activation method is unknown, ask the user for the precise activation command.
 
 Do not guess conda environment names, module names, or site-specific paths.
+
+### 4.1 Launcher fallback policy (`dpgen` vs `uvx`)
+
+Use this order:
+
+1. Try local launcher: `dpgen --version`
+2. If `dpgen` is not available and network is allowed, use fallback launcher: `uvx --from dpgen dpgen --version`
+3. Use the same launcher choice for execution:
+   - local: `dpgen simplify param.json machine.json`
+   - fallback: `uvx --from dpgen dpgen simplify param.json machine.json`
+
+Do not switch launchers silently after validation. Keep preflight and run commands consistent.
 
 ### 5. Prefer reproducible output layout
 
@@ -291,6 +254,12 @@ Before execution, validate the workflow in this order:
 dpgen --version
 ```
 
+Fallback check when local `dpgen` is unavailable:
+
+```bash
+uvx --from dpgen dpgen --version
+```
+
 2. validate JSON syntax:
 
 ```bash
@@ -307,27 +276,21 @@ python -m json.tool machine.json
 dpgen simplify param.json machine.json
 ```
 
+or fallback launcher:
+
+```bash
+uvx --from dpgen dpgen simplify param.json machine.json
+```
+
 ## Output contract
 
 Always provide:
 
 1. final absolute paths to `param.json` and `machine.json`
-1. the exact `dpgen simplify` command to run
+1. the exact simplify command to run (local `dpgen` or `uvx` fallback)
 1. a short pre-run checklist
 1. any unresolved required fields
 1. if execution was performed, the main output locations and next files to inspect
-
-## Parameter explanation policy
-
-When the user asks what a simplify parameter means, explain it in plain language.
-
-Use this style:
-
-- `pick_data`: where the candidate data to simplify is stored
-- `init_pick_number`: how many structures are picked at the beginning
-- `iter_pick_number`: how many structures are picked in each later iteration
-- `model_devi_f_trust_lo`: lower edge of the force-deviation trust region
-- `model_devi_f_trust_hi`: upper edge of the force-deviation trust region
 
 ## Guardrails
 

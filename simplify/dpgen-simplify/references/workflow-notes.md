@@ -6,6 +6,12 @@
 dpgen simplify param.json machine.json
 ```
 
+Fallback launcher when local `dpgen` is unavailable:
+
+```bash
+uvx --from dpgen dpgen simplify param.json machine.json
+```
+
 ## Recommended workflow
 
 1. confirm this is really a simplify task
@@ -23,6 +29,7 @@ Run these before execution:
 
 ```bash
 dpgen --version
+uvx --from dpgen dpgen --version  # fallback if local dpgen is missing
 python -m json.tool param.json
 python -m json.tool machine.json
 ```
