@@ -34,7 +34,7 @@ const installFolderName = skillDir.split("/").slice(-1)[0] || slug;
 const SKILL_ZIP_PATH = href(`/skill-zips/${slug}.zip`);
 const SKILL_ZIP_URL = `${siteOrigin}${SKILL_ZIP_PATH}`;
 
-const AGENT_PROMPT = `Please install the OpenClaw skill "${fm.name}" on the OpenClaw host.\n\nSteps:\n- Download: ${SKILL_ZIP_URL}\n- Unzip it to get ${installFolderName}/\n- Copy ${installFolderName}/ into the workspace skills directory (<workspace>/skills/)\n- Start a NEW OpenClaw session so the skill is loaded\n\nThen verify:\nopenclaw skills list --eligible\nopenclaw skills info ${fm.name}`;
+const AGENT_PROMPT = `Please install the OpenClaw skill "${fm.name}" on the OpenClaw host.\n\nSteps:\n- Download: ${SKILL_ZIP_URL}\n- Unzip it to get ${installFolderName}/\n- Run: npx -y skills add ./${installFolderName} -a openclaw -y\n- Start a NEW OpenClaw session so the skill is loaded\n\nThen verify:\nopenclaw skills list --eligible\nopenclaw skills info ${fm.name}`;
 ---
 
 <Base title={`${fm.name} · Skill`}>
@@ -99,10 +99,8 @@ wget -O ${slug}.zip ${SKILL_ZIP_URL}
 # ${installFolderName}/
 unzip ${slug}.zip
 
-# Copy into a loaded skills root:
-# <workspace>/skills/${installFolderName}/SKILL.md
-mkdir -p <workspace>/skills
-cp -r ${installFolderName} <workspace>/skills/
+# Install into the current OpenClaw workspace's ./skills/ directory
+npx -y skills add ./${installFolderName} -a openclaw -y
 
 # Start a NEW OpenClaw session so the skill is loaded
 
