@@ -27,16 +27,14 @@ If you use this repository in your research, please cite the following work:
 Copy/paste this message to your OpenClaw agent.
 
 ```md
-Please install ALL skills from computational-chemistry-agent-skills on the OpenClaw host.
-
-Goal
-- Install each skill as its own folder directly under: ~/.openclaw/skills/
-  (OpenClaw discovers skills at <skillsRoot>/*/SKILL.md; it will NOT recursively scan deeper trees.)
+Please install ALL visible skills from computational-chemistry-agent-skills on the OpenClaw host.
 
 Steps
 1) Download repository ZIP: https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/archive/refs/heads/master.zip
 2) Unzip it to get: computational-chemistry-agent-skills-master/
-3) Find every SKILL.md in the repo and copy its parent folder into ~/.openclaw/skills/<folder-name>/
+3) From your OpenClaw workspace root, for each top-level skill matching `*/*/SKILL.md`, run:
+   npx -y skills add <that-skill-folder> -a openclaw -y
+   (Without `-g`, this installs into the current workspace's `./skills/` directory.)
 4) Start a NEW OpenClaw session so skills reload
 
 Verify
