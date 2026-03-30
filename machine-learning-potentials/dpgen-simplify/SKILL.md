@@ -112,7 +112,7 @@ Do not start simplify from a shell where `dpgen` is unavailable.
 Treat simplify execution as two separate environment layers:
 
 1. Outer layer: the shell that launches `dpgen simplify param.json machine.json` (must have `dpgen` in PATH)
-2. Inner layer: stage tasks dispatched by DP-GEN (`train` / `model_devi` / `fp`) on server/runtime side
+1. Inner layer: stage tasks dispatched by DP-GEN (`train` / `model_devi` / `fp`) on server/runtime side
 
 Even if the outer layer is correct, inner stage tasks still need explicit runtime setup in `machine.json`.
 Do not assume the outer shell environment will be inherited by dispatched stage jobs.

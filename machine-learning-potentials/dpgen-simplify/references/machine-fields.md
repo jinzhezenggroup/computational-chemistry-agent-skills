@@ -17,17 +17,20 @@ Do not collapse them into one ambiguous runtime block.
 Use one of these profiles based on where `dpgen` is launched:
 
 1. Server-local Slurm (already logged into cluster login node)
+
    - `context_type = "LocalContext"`
    - `batch_type = "Slurm"`
    - template: `assets/machine.template.server-local-slurm.json`
 
-2. Local workstation -> remote Slurm cluster
+1. Local workstation -> remote Slurm cluster
+
    - `context_type = "SSHContext"`
    - `batch_type = "Slurm"`
    - requires `remote_profile`
    - template: `assets/machine.template.ssh-remote-slurm.json`
 
-3. Local single-machine shell testing
+1. Local single-machine shell testing
+
    - `context_type = "LazyLocalContext"`
    - `batch_type = "Shell"`
    - template: `assets/machine.template.local-shell.json`
