@@ -8,7 +8,7 @@ dpgen simplify param.json machine.json
 
 ## Recommended workflow
 
-1. confirm the task is really simplify
+1. confirm this is really a simplify task
 1. inspect dataset source
 1. define simplify thresholds
 1. build or patch `param.json`
