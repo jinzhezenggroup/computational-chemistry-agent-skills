@@ -209,6 +209,10 @@ def run_pre_commit() -> None:
     run(["uvx", "prek", "run", "-a"], cwd=ROOT, check=False)
 
 
+def worktree_has_changes(pathspec: str) -> bool:
+    return bool(git(["status", "--porcelain", "--", pathspec], cwd=ROOT).strip())
+
+
 def commit_if_changed(
     message: str, author_name: str, author_email: str, author_date: str
 ) -> bool:
@@ -284,7 +288,13 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
             checkout_snapshot(up_repo, sha, job.path, job.dest)
             an, ae, ai, subject = commit_meta(up_repo, sha)
 
-            # Keep state in the same commit to avoid a noisy extra state-only commit.
+            # Skip pure state-only updates: if destination content did not change,
+            # do not touch shared state. Otherwise a later save_state() for another
+            # job could accidentally persist unrelated sync-state churn.
+            if not worktree_has_changes(job.dest):
+                continue
+
+            # Persist state only together with a real destination diff.
             state_jobs[job.name] = {
                 "last_upstream_commit": sha,
                 "last_upstream_ref": logical_ref,
@@ -299,31 +309,6 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
             )
             if commit_if_changed(msg, an, ae, ai):
                 made += 1
-
-        # If no replayed commit but state differs, write one state update commit.
-        if made == 0:
-            prev_commit = (prev.get("last_upstream_commit") or "").strip()
-            prev_ref = (prev.get("last_upstream_ref") or "").strip()
-            if prev_commit != target_sha or prev_ref != logical_ref:
-                state_jobs[job.name] = {
-                    "last_upstream_commit": target_sha,
-                    "last_upstream_ref": logical_ref,
-                    "updated_at": now_iso(),
-                }
-                save_state(state)
-
-                msg = (
-                    f"chore(sync): update state for {job.name}\n\n"
-                    f"Upstream-Ref: {logical_ref}\n"
-                    f"Upstream-Commit: {target_sha}"
-                )
-                if commit_if_changed(
-                    msg,
-                    "GitHub Actions",
-                    "41898282+github-actions[bot]@users.noreply.github.com",
-                    now_iso(),
-                ):
-                    made += 1
 
         print(f"[done] {job.name}: commits={made}, target={target_sha}")
         return made
