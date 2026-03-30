@@ -8,9 +8,9 @@
 """
 Generate/update README skills summary table from tools/**/SKILL.md.
 
-Outputs a managed block in README.md between:
-- <!-- SKILLS_TABLE_START -->
-- <!-- SKILLS_TABLE_END -->
+Outputs managed blocks in README.md between:
+- <!-- SKILLS_BADGE_START --> and <!-- SKILLS_BADGE_END -->
+- <!-- SKILLS_TABLE_START --> and <!-- SKILLS_TABLE_END -->
 """
 
 from __future__ import annotations
@@ -26,6 +26,8 @@ README = ROOT / "README.md"
 
 START_MARK = "<!-- SKILLS_TABLE_START -->"
 END_MARK = "<!-- SKILLS_TABLE_END -->"
+BADGE_START = "<!-- SKILLS_BADGE_START -->"
+BADGE_END = "<!-- SKILLS_BADGE_END -->"
 EXCLUDED_DIRS = {".github"}
 
 
@@ -128,20 +130,63 @@ def build_table(rows: list[SkillMeta]) -> str:
     return "\n".join(header + body)
 
 
-def update_readme(content: str, table: str) -> str:
-    block = f"{START_MARK}\n## Skills Summary\n\n{table}\n{END_MARK}"
+def build_badge(rows: list[SkillMeta]) -> str:
+    count = len(rows)
+    return (
+        "[![Skills]"
+        f"(https://img.shields.io/badge/skills-{count}-blue?style=for-the-badge)]"
+        "(#skills-summary)"
+    )
 
-    pattern = re.compile(rf"{re.escape(START_MARK)}.*?{re.escape(END_MARK)}", re.S)
+
+def update_managed_block(
+    content: str,
+    *,
+    start_mark: str,
+    end_mark: str,
+    body: str,
+    heading: str | None = None,
+    insert_after: str | None = None,
+) -> str:
+    block = body if not heading else f"{heading}\n\n{body}"
+    wrapped = f"{start_mark}\n{block}\n{end_mark}"
+
+    pattern = re.compile(rf"{re.escape(start_mark)}.*?{re.escape(end_mark)}", re.S)
     if pattern.search(content):
-        return pattern.sub(block, content)
+        return pattern.sub(wrapped, content)
+
+    if insert_after and insert_after in content:
+        return content.replace(insert_after, f"{insert_after}\n\n{wrapped}", 1)
 
     if not content.endswith("\n"):
         content += "\n"
-    return content + "\n" + block + "\n"
+    return content + "\n" + wrapped + "\n"
+
+
+def update_readme(content: str, badge: str, table: str) -> str:
+    content = update_managed_block(
+        content,
+        start_mark=BADGE_START,
+        end_mark=BADGE_END,
+        body=badge,
+        insert_after=(
+            "[![GitHub contributors]"
+            "(https://img.shields.io/github/contributors/jinzhezenggroup/computational-chemistry-agent-skills?style=for-the-badge&logo=github)]"
+            "(https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/graphs/contributors)"
+        ),
+    )
+    return update_managed_block(
+        content,
+        start_mark=START_MARK,
+        end_mark=END_MARK,
+        heading="## Skills Summary",
+        body=table,
+    )
 
 
 def main() -> int:
     rows = collect_skills()
+    badge = build_badge(rows)
     table = build_table(rows)
 
     readme_text = (
@@ -149,7 +194,7 @@ def main() -> int:
         if README.exists()
         else "# Skills\n"
     )
-    updated = update_readme(readme_text, table)
+    updated = update_readme(readme_text, badge, table)
     README.write_text(updated, encoding="utf-8")
 
     print(f"Updated {README} with {len(rows)} skills")

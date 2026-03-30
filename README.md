@@ -4,6 +4,10 @@
 [![GitHub Created At](https://img.shields.io/github/created-at/jinzhezenggroup/computational-chemistry-agent-skills?style=for-the-badge&logo=github)](https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/commit/138d93e41935fb954857c29eafad4999144d6e26)
 [![GitHub contributors](https://img.shields.io/github/contributors/jinzhezenggroup/computational-chemistry-agent-skills?style=for-the-badge&logo=github)](https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/graphs/contributors)
 
+<!-- SKILLS_BADGE_START -->
+[![Skills](https://img.shields.io/badge/skills-32-blue?style=for-the-badge)](#skills-summary)
+<!-- SKILLS_BADGE_END -->
+
 This repository hosts [Agent Skills](https://agentskills.io/home) to run computational-chemistry tasks.
 These skills can be installed and used in [OpenClaw](https://github.com/openclaw/openclaw), enabling OpenClaw to run complex computational-chemistry workflows.
 
