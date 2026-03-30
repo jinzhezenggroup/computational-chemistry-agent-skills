@@ -7,9 +7,9 @@ last_upstream_ref = "master"
 updated_at = "2026-03-23T11:09:52.783767+00:00"
 
 [jobs."dpdata-cli"]
-last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"
+last_upstream_commit = "1e79653ddc95c374c2d7081b45f97998d53587e6"
 last_upstream_ref = "master"
-updated_at = "2026-03-25T11:34:51.041687+00:00"
+updated_at = "2026-03-30T12:38:11.703651+00:00"
 
 [jobs."dpdata-driver"]
 last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"
