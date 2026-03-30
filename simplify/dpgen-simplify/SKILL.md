@@ -102,8 +102,8 @@ Do not guess conda environment names, module names, or site-specific paths.
 Use this order:
 
 1. Try local launcher: `dpgen --version`
-2. If `dpgen` is not available and network is allowed, use fallback launcher: `uvx --from dpgen dpgen --version`
-3. Use the same launcher choice for execution:
+1. If `dpgen` is not available and network is allowed, use fallback launcher: `uvx --from dpgen dpgen --version`
+1. Use the same launcher choice for execution:
    - local: `dpgen simplify param.json machine.json`
    - fallback: `uvx --from dpgen dpgen simplify param.json machine.json`
 
