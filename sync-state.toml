@@ -22,6 +22,6 @@ last_upstream_ref = "master"
 updated_at = "2026-03-25T11:34:56.449573+00:00"
 
 [jobs."dpdisp-submit"]
-last_upstream_commit = "b7a3b1266fa67e6c21aff2fac276946225171329"
+last_upstream_commit = "92be874aca92f5506534122b308e10a00b10f03b"
 last_upstream_ref = "master"
-updated_at = "2026-03-25T11:34:42.883004+00:00"
+updated_at = "2026-03-30T12:38:05.122534+00:00"
