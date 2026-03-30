@@ -3,7 +3,6 @@
 [![DOI:10.48550/arXiv.2603.25522](https://img.shields.io/badge/DOI-10.48550%2FarXiv.2603.25522-blue?style=for-the-badge&logo=arxiv&color=b31b1b)](https://doi.org/10.48550/arXiv.2603.25522)
 [![GitHub Created At](https://img.shields.io/github/created-at/jinzhezenggroup/computational-chemistry-agent-skills?style=for-the-badge&logo=github)](https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/commit/138d93e41935fb954857c29eafad4999144d6e26)
 [![GitHub contributors](https://img.shields.io/github/contributors/jinzhezenggroup/computational-chemistry-agent-skills?style=for-the-badge&logo=github)](https://github.com/jinzhezenggroup/computational-chemistry-agent-skills/graphs/contributors)
-
 <!-- SKILLS_BADGE_START -->
 [![Skills](https://img.shields.io/badge/skills-32-blue?style=for-the-badge)](#skills-summary)
 <!-- SKILLS_BADGE_END -->
