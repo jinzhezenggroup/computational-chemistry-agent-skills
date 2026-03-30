@@ -5,6 +5,8 @@ This folder contains the source code for the skills catalog website.
 ## Data generation
 
 The site content is derived from `**/SKILL.md` in this repository.
+With the current repository layout, source skills live under `skills/<category>/<skill>/`.
+If you test installation directly from a local clone with `npx skills add -l <repo>`, use `--full-depth` so the CLI recursively discovers nested skills.
 
 Run the generator from the repo root:
 

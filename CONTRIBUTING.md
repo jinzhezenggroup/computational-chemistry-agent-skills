@@ -12,7 +12,7 @@ Contributions are welcome.
 
 - Follow the Agent Skills specification and existing repository patterns.
 - If you are creating a new skill, you can start from `.github/skills/create-skill/SKILL.md`.
-- Place new skills in the most appropriate top-level category directory.
+- Place new skills under `skills/<category>/` using the most appropriate category directory.
 - Use a dedicated skill directory with `SKILL.md` as the entry point. Add `scripts/`, `references/`, or `assets/` only when they are actually needed.
 - Use clear, specific skill names and descriptions so agents can identify when to use them.
 - Keep `SKILL.md` focused on core instructions. Move long examples, detailed references, or supporting material into separate files when appropriate.

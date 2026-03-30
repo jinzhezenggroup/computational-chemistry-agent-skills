@@ -14,9 +14,9 @@
   - site/src/content/skills/<slug>.md (generated)
 
 Also preserves high-level categorization by directory. For a SKILL located at:
-  tools/openbabel/SKILL.md
+  skills/data-processing/openbabel/SKILL.md
 category will be:
-  tools
+  data-processing
 
 Additionally generates per-skill zip files for download on the static site:
   - site/public/skill-zips/<slug>.zip
@@ -102,8 +102,10 @@ def is_catalog_hidden(fm: dict) -> bool:
 
 
 def derive_category(rel_path: str) -> str | None:
-    # rel_path like "tools/openbabel/SKILL.md" or "molecular-dynamics/lammps-deepmd/SKILL.md"
+    # rel_path like "skills/data-processing/openbabel/SKILL.md"
     parts = rel_path.split("/")
+    if len(parts) >= 3 and parts[0] == "skills":
+        return parts[1]
     if len(parts) >= 2:
         return parts[0]
     return None
@@ -224,7 +226,7 @@ def write_skill_zips(skills: list[Skill]) -> None:
             old.unlink()
 
     for s in skills:
-        # source_path is like tools/openbabel/SKILL.md
+        # source_path is like skills/data-processing/openbabel/SKILL.md
         skill_dir_rel = Path(s.source_path).parent
         skill_dir_abs = ROOT / skill_dir_rel
         install_folder_name = skill_dir_rel.name

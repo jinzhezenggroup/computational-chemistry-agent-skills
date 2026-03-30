@@ -6,7 +6,7 @@
 # ]
 # ///
 """
-Generate/update README skills summary table from tools/**/SKILL.md.
+Generate/update README skills summary table from **/SKILL.md.
 
 Outputs a managed block in README.md between:
 - <!-- SKILLS_TABLE_START -->

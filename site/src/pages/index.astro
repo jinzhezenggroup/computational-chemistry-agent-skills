@@ -70,6 +70,10 @@ while IFS= read -r -d '' f; do
   cp -r "$d" "$DEST/$name"
 done < <(find "$ROOT" -name SKILL.md -print0)
 
+# Alternatively, if you want to install directly with the skills CLI,
+# use recursive discovery for this repository layout:
+# npx skills add -l "$ROOT" --full-depth
+
 # Start a NEW OpenClaw session so skills reload
 
 # Verify

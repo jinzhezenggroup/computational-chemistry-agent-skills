@@ -19,7 +19,7 @@ enabled = true
 upstream_repo = "deepmodeling/dpdispatcher"
 upstream_ref = "master"
 path = "skills/dpdisp-submit"
-dest = "tools/dpdisp-submit"
+dest = "skills/tools/dpdisp-submit"
 
 [[jobs]]
 name = "dpdata-cli"
@@ -27,7 +27,7 @@ enabled = true
 upstream_repo = "deepmodeling/dpdata"
 upstream_ref = "master"
 path = "skills/dpdata-cli"
-dest = "tools/dpdata-cli"
+dest = "skills/tools/dpdata-cli"
 
 [[jobs]]
 name = "dpdata-driver"
@@ -35,7 +35,7 @@ enabled = true
 upstream_repo = "deepmodeling/dpdata"
 upstream_ref = "master"
 path = "skills/dpdata-driver"
-dest = "tools/dpdata-driver"
+dest = "skills/tools/dpdata-driver"
 
 [[jobs]]
 name = "dpdata-minimizer"
@@ -43,7 +43,7 @@ enabled = true
 upstream_repo = "deepmodeling/dpdata"
 upstream_ref = "master"
 path = "skills/dpdata-minimizer"
-dest = "tools/dpdata-minimizer"
+dest = "skills/tools/dpdata-minimizer"
 
 [[jobs]]
 name = "create-skill"
