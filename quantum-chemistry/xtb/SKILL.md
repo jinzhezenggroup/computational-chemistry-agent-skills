@@ -78,6 +78,19 @@ Notes:
 - `GFN1-xTB`: use when there is a user or literature reason
 - `GFN0-xTB`: use when the workflow specifically needs xTB-level stress through the ASE bridge
 
+## Detailed runnable examples
+
+For copy-paste-ready command and script patterns, see:
+
+- `references/commands-and-workflow.md`
+
+Use that reference when the user specifically wants a minimal runnable example for:
+
+- single-point energy / forces
+- geometry optimization
+- dpdata driver labeling
+- dpdata minimization
+
 ## ASE bridge example
 
 ```python
