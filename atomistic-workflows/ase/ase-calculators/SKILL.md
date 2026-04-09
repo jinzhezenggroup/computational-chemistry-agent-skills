@@ -1,6 +1,6 @@
 ---
 name: ase-calculators
-description: Route ASE calculator-backend requests to adapter subskills based on backend choice. Use when ASE workflows need backend-specific calculator setup (for example GPAW or MACE) while keeping workflow logic backend-agnostic.
+description: Route ASE calculator-backend requests to adapter subskills based on backend choice. Use when ASE workflows need backend-specific calculator setup (for example GPAW, MACE, or xTB) while keeping workflow logic backend-agnostic.
 compatibility: Requires Python environment with ASE and selected backend packages installed.
 license: MIT
 catalog-hidden: true
@@ -20,6 +20,7 @@ This skill routes backend selection to one adapter subskill path:
 
 - `ase/ase-calculators/gpaw`
 - `ase/ase-calculators/mace`
+- `ase/ase-calculators/xtb`
 
 ## Scope
 
@@ -39,6 +40,7 @@ This router skill should not:
 
 1. GPAW backend requested -> `ase/ase-calculators/gpaw`
 1. MACE backend requested -> `ase/ase-calculators/mace`
+1. xTB backend requested -> `ase/ase-calculators/xtb`
 1. if backend unspecified, propose options and ask one focused question
 
 ## Shared output contract

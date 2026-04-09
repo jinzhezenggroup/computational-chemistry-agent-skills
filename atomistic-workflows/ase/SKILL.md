@@ -1,7 +1,7 @@
 ---
 name: ase
-description: Unified ASE router skill with a tree of subskills for static/relax/MD/NEB workflows and backend adapters (GPAW, MACE). Use when you need backend-agnostic workflow orchestration while keeping calculator-specific setup isolated in adapter subskills, with reproducible task preparation as output.
-compatibility: Requires Python and ASE. Optional backend dependencies are GPAW and/or MACE depending on selected adapter. Prepares tasks/configuration only; submit and run via dpdisp-submit when execution is requested.
+description: Unified ASE router skill with a tree of subskills for static/relax/MD/NEB workflows and backend adapters (GPAW, MACE, xTB). Use when you need backend-agnostic workflow orchestration while keeping calculator-specific setup isolated in adapter subskills, with reproducible task preparation as output.
+compatibility: Requires Python and ASE. Optional backend dependencies depend on the selected adapter such as GPAW, MACE, or xTB. Prepares tasks/configuration only; submit and run via dpdisp-submit when execution is requested.
 license: MIT
 metadata:
   author: qqgu
