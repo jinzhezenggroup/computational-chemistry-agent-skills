@@ -8,7 +8,6 @@ Use this reference for `ase/ase-calculators` routing.
 
 - `ase/ase-calculators/gpaw`
 - `ase/ase-calculators/mace`
-- `ase/ase-calculators/xtb`
 
 ## Dispatch checklist
 
@@ -19,7 +18,7 @@ Use this reference for `ase/ase-calculators` routing.
 
 ## Example handoff payload
 
-- backend: `gpaw`, `mace`, or `xtb`
+- backend: `gpaw` or `mace`
 - calculator mode/settings
-- device/precision policy or xTB method/solvent policy
+- device/precision policy
 - restart/checkpoint policy
