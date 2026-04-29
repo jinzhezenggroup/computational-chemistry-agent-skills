@@ -64,7 +64,6 @@ uv run --no-project --with dpdata --with ase --with xtb --with typing_extensions
 Example script:
 
 ```python
-import numpy as np
 from dpdata.system import System
 from xtb.ase.calculator import XTB
 
@@ -72,7 +71,7 @@ sys = System("input.xyz", fmt="xyz")
 ls = sys.predict(driver="ase", calculator=XTB(method="GFN2-xTB"))
 
 print("energies=", ls.data["energies"])
-print("forces_shape=", np.array(ls.data["forces"]).shape)
+print("forces_shape=", ls.data["forces"].shape)
 ```
 
 Use this pattern when the user wants xTB-labeled energies/forces in dpdata workflows.
@@ -88,7 +87,6 @@ uv run --no-project --with dpdata --with ase --with xtb --with typing_extensions
 Example script:
 
 ```python
-import numpy as np
 from dpdata.driver import Driver
 from dpdata.system import System
 from xtb.ase.calculator import XTB
@@ -98,7 +96,7 @@ ase_driver = Driver.get_driver("ase")(calculator=XTB(method="GFN2-xTB"))
 ls = sys.minimize(minimizer="ase", driver=ase_driver, fmax=0.05, max_steps=200)
 
 print("energies=", ls.data["energies"])
-print("coords_shape=", np.array(ls.data["coords"]).shape)
+print("coords_shape=", ls.data["coords"].shape)
 ```
 
 Use this pattern when the user wants xTB-driven geometry minimization but wants the result as a dpdata labeled system.
