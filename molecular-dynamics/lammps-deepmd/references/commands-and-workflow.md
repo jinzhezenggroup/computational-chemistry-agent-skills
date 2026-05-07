@@ -2,17 +2,6 @@
 
 This reference expands the main skill with practical operating guidance.
 
-## When to use this skill
-
-Use this skill when a user needs to:
-
-- run LAMMPS with a DeePMD-kit model
-- write or modify `input.lammps`
-- explain what a LAMMPS command does
-- switch between NVE, NVT, and NPT
-- run through `uvx` in an internet-connected environment
-- run through a site-installed `lmp` command in an offline or HPC environment
-
 ## Practical rules for agents
 
 1. Prefer small, explicit input scripts over clever but opaque templates.
@@ -34,6 +23,7 @@ This helps catch obvious issues such as:
 - missing model file
 - unsupported pair style in the local LAMMPS build
 - malformed data file
+- missing per-type masses in the data file or input script
 - immediate numerical instability
 
 Then replace the short run with the intended production length.
@@ -49,6 +39,7 @@ Then replace the short run with the intended production length.
 ## Caution points
 
 - The correct timestep depends on the physical system and the DeePMD model quality.
+- Ensure every atom type has a mass, either in the LAMMPS data file `Masses` section or via explicit `mass` commands after `read_data`.
 - `velocity ... create ...` should usually not be repeated when continuing from a restart.
 - NPT settings need physically sensible damping constants; avoid copying values blindly.
 - Some local LAMMPS builds may support DeePMD under slightly different package configurations. Check `lmp -h` if unsure.

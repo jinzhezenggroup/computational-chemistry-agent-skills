@@ -25,6 +25,7 @@ Use this skill when the user wants to run molecular dynamics in LAMMPS with a De
 1. Confirm the minimum simulation inputs:
    - structure/data file (for example `data.system`)
    - DeePMD model file (for example `graph.pb` or compressed model)
+   - atom type to element mapping, including required per-type masses if the data file does not define them
    - target ensemble (NVE, NVT, NPT, or another explicitly requested setup)
    - temperature, pressure if applicable, timestep, and total number of steps
 1. Write the LAMMPS input script yourself instead of asking the user to hand-write it.
@@ -104,6 +105,8 @@ atom_style      atomic
 neighbor        1.0 bin
 
 read_data       data.system
+mass            1 28.0855
+mass            2 15.999
 pair_style      deepmd graph_compressed.pb
 pair_coeff      * *
 
@@ -170,6 +173,11 @@ run             ${NSTEPS}
 
   - Reads the initial atomic structure, atom types, simulation box, and related information from the LAMMPS data file `data.system`.
   - Replace this filename with the actual user file.
+
+- `mass 1 28.0855`, `mass 2 15.999`
+
+  - Defines per-type atomic masses when the data file does not contain a `Masses` section.
+  - These example values correspond to a two-type Si/O mapping; adjust them to the actual atom type to element mapping. LAMMPS velocity creation and thermostats require masses; without them, runs can fail with `Not all per-type masses are set`.
 
 - `pair_style deepmd graph_compressed.pb`
 

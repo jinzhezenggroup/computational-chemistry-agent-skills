@@ -11,6 +11,8 @@ atom_style      atomic
 neighbor        1.0 bin
 
 read_data       data.system
+mass            1 28.0855
+mass            2 15.999
 pair_style      deepmd graph_compressed.pb
 pair_coeff      * *
 
