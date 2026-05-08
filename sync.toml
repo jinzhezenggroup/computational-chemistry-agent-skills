@@ -52,3 +52,11 @@ upstream_repo = "njzjz/create-skill-agent-skill"
 upstream_ref = "master"
 path = "skills/create-skill"
 dest = ".github/skills/create-skill"
+
+[[jobs]]
+name = "reacnetgenerator"
+enabled = true
+upstream_repo = "deepmodeling/reacnetgenerator"
+upstream_ref = "master"
+path = "skills/reacnetgenerator"
+dest = "analysis/reacnetgenerator"
