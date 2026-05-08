@@ -54,6 +54,14 @@ path = "skills/create-skill"
 dest = ".github/skills/create-skill"
 
 [[jobs]]
+name = "dpgen-simplify"
+enabled = true
+upstream_repo = "deepmodeling/dpgen"
+upstream_ref = "master"
+path = "skills/dpgen-simplify"
+dest = "machine-learning-potentials/dpgen-simplify"
+
+[[jobs]]
 name = "reacnetgenerator"
 enabled = true
 upstream_repo = "deepmodeling/reacnetgenerator"
