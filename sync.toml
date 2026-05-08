@@ -60,3 +60,51 @@ upstream_repo = "deepmodeling/dpgen"
 upstream_ref = "master"
 path = "skills/dpgen-simplify"
 dest = "machine-learning-potentials/dpgen-simplify"
+
+[[jobs]]
+name = "reacnetgenerator"
+enabled = true
+upstream_repo = "deepmodeling/reacnetgenerator"
+upstream_ref = "master"
+path = "skills/reacnetgenerator"
+dest = "analysis/reacnetgenerator"
+
+[[jobs]]
+name = "deepmd-finetune-dpa3"
+enabled = true
+upstream_repo = "deepmodeling/deepmd-kit"
+upstream_ref = "master"
+path = "skills/deepmd-finetune-dpa3"
+dest = "machine-learning-potentials/deepmd-finetune-dpa3"
+
+[[jobs]]
+name = "deepmd-python-inference"
+enabled = true
+upstream_repo = "deepmodeling/deepmd-kit"
+upstream_ref = "master"
+path = "skills/deepmd-python-inference"
+dest = "machine-learning-potentials/deepmd-python-inference"
+
+[[jobs]]
+name = "deepmd-train-dpa3"
+enabled = true
+upstream_repo = "deepmodeling/deepmd-kit"
+upstream_ref = "master"
+path = "skills/deepmd-train-dpa3"
+dest = "machine-learning-potentials/deepmd-train-dpa3"
+
+[[jobs]]
+name = "deepmd-train-se-e2-a"
+enabled = true
+upstream_repo = "deepmodeling/deepmd-kit"
+upstream_ref = "master"
+path = "skills/deepmd-train-se-e2-a"
+dest = "machine-learning-potentials/deepmd-train-se-e2-a"
+
+[[jobs]]
+name = "lammps-deepmd"
+enabled = true
+upstream_repo = "deepmodeling/deepmd-kit"
+upstream_ref = "master"
+path = "skills/lammps-deepmd"
+dest = "molecular-dynamics/lammps-deepmd"
