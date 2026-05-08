@@ -6,6 +6,26 @@ last_upstream_commit = "0934c552d7b2aa5be3378e0d53fdadd134c7f4ce"
 last_upstream_ref = "master"
 updated_at = "2026-03-23T11:09:52.783767+00:00"
 
+[jobs."deepmd-finetune-dpa3"]
+last_upstream_commit = "209191855425eb1c1e52a3ee404376b32eb619e5"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:52:58.663928+00:00"
+
+[jobs."deepmd-python-inference"]
+last_upstream_commit = "209191855425eb1c1e52a3ee404376b32eb619e5"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:53:05.926262+00:00"
+
+[jobs."deepmd-train-dpa3"]
+last_upstream_commit = "b30b50d4e61554ea0318d147108172a0630d0efa"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:53:14.350168+00:00"
+
+[jobs."deepmd-train-se-e2-a"]
+last_upstream_commit = "b30b50d4e61554ea0318d147108172a0630d0efa"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:53:22.978827+00:00"
+
 [jobs."dpdata-cli"]
 last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"
 last_upstream_ref = "master"
@@ -25,3 +45,18 @@ updated_at = "2026-03-25T11:34:56.449573+00:00"
 last_upstream_commit = "b7a3b1266fa67e6c21aff2fac276946225171329"
 last_upstream_ref = "master"
 updated_at = "2026-03-25T11:34:42.883004+00:00"
+
+[jobs."dpgen-simplify"]
+last_upstream_commit = "a8d60bac18cede01c8e8afed06bbffee68d93b76"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:52:44.584596+00:00"
+
+[jobs."lammps-deepmd"]
+last_upstream_commit = "5156c408b817342d190b67b6f0d922447663e5d5"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:53:34.085745+00:00"
+
+[jobs."reacnetgenerator"]
+last_upstream_commit = "84612a228a0c47ba4c22caef7942b30e20aa18dd"
+last_upstream_ref = "master"
+updated_at = "2026-05-08T08:52:51.560676+00:00"
