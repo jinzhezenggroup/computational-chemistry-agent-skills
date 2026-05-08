@@ -52,3 +52,11 @@ upstream_repo = "njzjz/create-skill-agent-skill"
 upstream_ref = "master"
 path = "skills/create-skill"
 dest = ".github/skills/create-skill"
+
+[[jobs]]
+name = "dpgen-simplify"
+enabled = true
+upstream_repo = "deepmodeling/dpgen"
+upstream_ref = "master"
+path = "skills/dpgen-simplify"
+dest = "machine-learning-potentials/dpgen-simplify"
