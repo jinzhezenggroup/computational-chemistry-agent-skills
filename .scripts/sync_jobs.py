@@ -261,7 +261,9 @@ def run_job(job: Job, state: dict[str, dict[str, Any]], rev_override: str = "") 
         f"[job] {job.name}: {job.upstream_repo}@{logical_ref}  {job.path} -> {job.dest}"
     )
 
-    with tempfile.TemporaryDirectory(prefix=f"sync-{job.name}-") as tmp:
+    with tempfile.TemporaryDirectory(
+        prefix=f"sync-{job.name}-", ignore_cleanup_errors=True
+    ) as tmp:
         up_repo = Path(tmp) / "upstream"
         git(
             [
