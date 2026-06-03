@@ -7,14 +7,14 @@ last_upstream_ref = "master"
 updated_at = "2026-03-23T11:09:52.783767+00:00"
 
 [jobs."deepmd-finetune-dpa3"]
-last_upstream_commit = "209191855425eb1c1e52a3ee404376b32eb619e5"
+last_upstream_commit = "65c04205a1509df8bb1ce75702a5e3dda1613e95"
 last_upstream_ref = "master"
-updated_at = "2026-05-08T08:52:58.663928+00:00"
+updated_at = "2026-06-03T14:01:38.375681+00:00"
 
 [jobs."deepmd-python-inference"]
-last_upstream_commit = "209191855425eb1c1e52a3ee404376b32eb619e5"
+last_upstream_commit = "65c04205a1509df8bb1ce75702a5e3dda1613e95"
 last_upstream_ref = "master"
-updated_at = "2026-05-08T08:53:05.926262+00:00"
+updated_at = "2026-06-03T14:01:47.440654+00:00"
 
 [jobs."deepmd-train-dpa3"]
 last_upstream_commit = "b30b50d4e61554ea0318d147108172a0630d0efa"
