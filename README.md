@@ -16,16 +16,14 @@ A website, [https://skills.jinzhezeng.group](https://skills.jinzhezeng.group), i
 
 If you use this repository in your research, please cite the following work:
 
-> Mingwei Ding, Chen Huang, Yibo Hu, Yifan Li, Zitian Lu, Xingtai Yu, Duo Zhang, Wenxi Zhai, Tong Zhu, Qiangqiang Gu, and Jinzhe Zeng. *Automating Computational Chemistry Workflows via OpenClaw and Domain-Specific Skills*. arXiv:2603.25522, 2026. https://doi.org/10.48550/arXiv.2603.25522
+> Mingwei Ding, Chen Huang, Yibo Hu, Yifan Li, Zitian Lu, Xingtai Yu, Duo Zhang, Wenxi Zhai, Tong Zhu, Qiangqiang Gu, and Jinzhe Zeng. *Automating Computational Chemistry Workflows via OpenClaw and Domain-Specific Skills*. _Journal of Chemical Theory and Computation_, 2026. (in press)
 
 ```bibtex
 @article{ding2026automating,
   title   = {Automating Computational Chemistry Workflows via OpenClaw and Domain-Specific Skills},
   author  = {Ding, Mingwei and Huang, Chen and Hu, Yibo and Li, Yifan and Lu, Zitian and Yu, Xingtai and Zhang, Duo and Zhai, Wenxi and Zhu, Tong and Gu, Qiangqiang and Zeng, Jinzhe},
-  journal = {arXiv preprint arXiv:2603.25522},
-  year    = {2026},
-  doi     = {10.48550/arXiv.2603.25522},
-  url     = {https://doi.org/10.48550/arXiv.2603.25522}
+  journal = {Journal of Chemical Theory and Computation},
+  year    = {2026}
 }
 ```
 
