@@ -16,15 +16,10 @@ last_upstream_commit = "65c04205a1509df8bb1ce75702a5e3dda1613e95"
 last_upstream_ref = "master"
 updated_at = "2026-06-03T14:01:47.440654+00:00"
 
-[jobs."deepmd-train-dpa3"]
-last_upstream_commit = "b30b50d4e61554ea0318d147108172a0630d0efa"
+[jobs."deepmd-train"]
+last_upstream_commit = "1050e46ca645c866bbbc327cc8f8d938cfa82371"
 last_upstream_ref = "master"
-updated_at = "2026-05-08T08:53:14.350168+00:00"
-
-[jobs."deepmd-train-se-e2-a"]
-last_upstream_commit = "b30b50d4e61554ea0318d147108172a0630d0efa"
-last_upstream_ref = "master"
-updated_at = "2026-05-08T08:53:22.978827+00:00"
+updated_at = "2026-06-19T07:35:00+00:00"
 
 [jobs."dpdata-cli"]
 last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"

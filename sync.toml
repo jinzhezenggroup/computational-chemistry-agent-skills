@@ -86,20 +86,12 @@ path = "skills/deepmd-python-inference"
 dest = "machine-learning-potentials/deepmd-python-inference"
 
 [[jobs]]
-name = "deepmd-train-dpa3"
+name = "deepmd-train"
 enabled = true
 upstream_repo = "deepmodeling/deepmd-kit"
 upstream_ref = "master"
-path = "skills/deepmd-train-dpa3"
-dest = "machine-learning-potentials/deepmd-train-dpa3"
-
-[[jobs]]
-name = "deepmd-train-se-e2-a"
-enabled = true
-upstream_repo = "deepmodeling/deepmd-kit"
-upstream_ref = "master"
-path = "skills/deepmd-train-se-e2-a"
-dest = "machine-learning-potentials/deepmd-train-se-e2-a"
+path = "skills/deepmd-train"
+dest = "machine-learning-potentials/deepmd-train"
 
 [[jobs]]
 name = "lammps-deepmd"
