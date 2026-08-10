@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run xTBloom Python Inference"
+  short_description: "Build correct single and ragged Python workflows"
+  default_prompt: "Use $xtbloom-run-python-inference to write and verify an xTBloom Python calculation for these structures."
