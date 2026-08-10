@@ -55,3 +55,8 @@ updated_at = "2026-05-08T08:53:34.085745+00:00"
 last_upstream_commit = "84612a228a0c47ba4c22caef7942b30e20aa18dd"
 last_upstream_ref = "master"
 updated_at = "2026-05-08T08:52:51.560676+00:00"
+
+[jobs."xtbloom-integrate-ase-dpdata"]
+last_upstream_commit = "f133ab66e636c023631db621bd252e0b1b20ee46"
+last_upstream_ref = "main"
+updated_at = "2026-08-10T17:47:22.427267+00:00"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Integrate xTBloom with ASE and dpdata"
+  short_description: "Connect ASE, dpdata, labeling, and relaxation"
+  default_prompt: "Use $xtbloom-integrate-ase-dpdata to integrate xTBloom into this ASE or dpdata workflow."
