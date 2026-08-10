@@ -62,6 +62,6 @@ last_upstream_ref = "main"
 updated_at = "2026-08-10T17:47:26.941940+00:00"
 
 [jobs."xtbloom-run-python-inference"]
-last_upstream_commit = "f133ab66e636c023631db621bd252e0b1b20ee46"
+last_upstream_commit = "4f7a1fd4fae24f691d005e58ab283b9fc5a98aca"
 last_upstream_ref = "main"
-updated_at = "2026-08-10T17:47:30.446719+00:00"
+updated_at = "2026-08-10T17:47:31.834592+00:00"

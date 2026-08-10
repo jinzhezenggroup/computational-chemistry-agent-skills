@@ -7,6 +7,21 @@ description: Write, review, and run high-level xTBloom Python GFN2-xTB inference
 
 Build a calculation whose units, backend behavior, lifetime, and failure policy are explicit. Read [references/python-inference.md](references/python-inference.md) for the public API contract and complete examples.
 
+## Run Standalone Programs Ephemerally
+
+Do not require xTBloom to be preinstalled for an agent-generated standalone
+program. Add PEP 723 metadata at the top, then run it with `uv run --script calculation.py`:
+
+```python
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["xtbloom>=0.1.1"]
+# ///
+```
+
+Respect an existing application environment when the user asks to modify one;
+do not replace its dependency policy merely to make the example standalone.
+
 ## Select the Interface
 
 - Use `Calculator` for one system and for repeated geometry updates on one topology.
