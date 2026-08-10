@@ -100,3 +100,22 @@ upstream_repo = "deepmodeling/deepmd-kit"
 upstream_ref = "master"
 path = "skills/lammps-deepmd"
 dest = "molecular-dynamics/lammps-deepmd"
+
+# Sync only xTBloom skills that directly run or integrate calculations. Setup,
+# native API, zero-copy ML, QM/MM coupling-development, and maintainer workflows
+# stay in the upstream repository until this catalog expands its scope.
+[[jobs]]
+name = "xtbloom-integrate-ase-dpdata"
+enabled = true
+upstream_repo = "jinzhezenggroup/xtbloom"
+upstream_ref = "main"
+path = "skills/xtbloom-integrate-ase-dpdata"
+dest = "quantum-chemistry/xtbloom-integrate-ase-dpdata"
+
+[[jobs]]
+name = "xtbloom-run-python-inference"
+enabled = true
+upstream_repo = "jinzhezenggroup/xtbloom"
+upstream_ref = "main"
+path = "skills/xtbloom-run-python-inference"
+dest = "quantum-chemistry/xtbloom-run-python-inference"
