@@ -2,9 +2,9 @@
 
 ## Scope
 
-xTBloom implements molecular GFN2-xTB single-point inference. The ASE and dpdata integrations adapt that inference to their host frameworks. They do not add a lattice descriptor, periodic GFN2, or native xTBloom optimization and dynamics APIs.
+xTBloom implements molecular GFN1/GFN2-xTB single-point inference. The ASE and dpdata integrations adapt that inference to their host frameworks. GFN1-xTB is CPU-only; GFN2-xTB supports CPU and CUDA. The adapters do not add periodic execution or native xTBloom optimization and dynamics APIs.
 
-Only GFN2-xTB is implemented. GFN1-xTB, solvation, lattice/PBC calculations, Hessians, and native molecular dynamics are outside this contract.
+Solvation, lattice/PBC calculations, Hessians, and native molecular dynamics are outside this contract.
 
 ## Units at the Adapter Boundaries
 
@@ -38,14 +38,14 @@ Important constructor settings and defaults:
 
 | Setting                  | Default      | Meaning                                                                             |
 | ------------------------ | ------------ | ----------------------------------------------------------------------------------- |
-| `method`                 | `"GFN2-xTB"` | The only implemented method                                                         |
+| `method`                 | `"GFN2-xTB"` | `"GFN1-xTB"` or `"GFN2-xTB"`                                                        |
 | `charge`                 | `None`       | Sum `atoms.get_initial_charges()` when omitted                                      |
 | `multiplicity`           | `None`       | Derive unpaired electrons from rounded sum of initial magnetic moments when omitted |
 | `electronic_temperature` | `300.0`      | kelvin                                                                              |
 | `max_scc_iterations`     | `250`        | SCC iteration ceiling                                                               |
 | `charge_tolerance`       | `1e-6`       | charge tolerance                                                                    |
 | `energy_tolerance`       | `1e-8`       | Hartree                                                                             |
-| `backend`                | `"auto"`     | prefer CUDA, otherwise CPU                                                          |
+| `backend`                | `"auto"`     | prefer CUDA for GFN2; use CPU for GFN1                                              |
 | `device_id`              | `None`       | selected CUDA device                                                                |
 | `cpu_threads`            | `1`          | CPU batch-parallel worker ceiling                                                   |
 | `cache_api`              | `True`       | retain the underlying xTBloom calculator                                            |

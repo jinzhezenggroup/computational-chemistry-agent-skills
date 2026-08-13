@@ -52,7 +52,8 @@ Never infer a nonzero charge, multiplicity, or periodic interpretation from geom
 ## Implement an ASE Workflow
 
 1. Import `XTBloom` from `xtbloom.ase` and attach it to `atoms.calc`.
-1. Pass `method="GFN2-xTB"` explicitly in generated examples. Only GFN2-xTB is implemented.
+1. Pass `method="GFN1-xTB"` or `method="GFN2-xTB"` explicitly in generated
+   examples. GFN1-xTB is CPU-only; GFN2-xTB supports CPU and CUDA.
 1. Set `backend` explicitly when silently changing backend would violate the request.
 1. Set `charge` and `multiplicity` explicitly when known. Otherwise document ASE's fallback to initial charges and magnetic moments.
 1. Choose `warm_start=True` for compatible geometry sequences such as optimization or dynamics. Choose `warm_start=False` for independent calls whose SCC initialization must not depend on an earlier step.
