@@ -57,11 +57,11 @@ last_upstream_ref = "master"
 updated_at = "2026-05-08T08:52:51.560676+00:00"
 
 [jobs."xtbloom-integrate-ase-dpdata"]
-last_upstream_commit = "4f7a1fd4fae24f691d005e58ab283b9fc5a98aca"
+last_upstream_commit = "32b1c76ca225ae151f6650723a892056b7a6cf6d"
 last_upstream_ref = "main"
-updated_at = "2026-08-10T17:47:26.941940+00:00"
+updated_at = "2026-08-14T00:40:17.434047+00:00"
 
 [jobs."xtbloom-run-python-inference"]
-last_upstream_commit = "4f7a1fd4fae24f691d005e58ab283b9fc5a98aca"
+last_upstream_commit = "32b1c76ca225ae151f6650723a892056b7a6cf6d"
 last_upstream_ref = "main"
-updated_at = "2026-08-10T17:47:31.834592+00:00"
+updated_at = "2026-08-14T00:40:26.600462+00:00"
