@@ -145,11 +145,13 @@ CUDA.
 This workflow does not cover direct device arrays, DLPack result ownership, PyTorch autograd, ASE/dpdata unit conversion, the native C API, or QM/MM force responsibilities. Use their dedicated integration guidance.
 
 Array API/DLPack supports both GFN1-xTB and GFN2-xTB on CPU and CUDA through
-its dedicated zero-copy workflow. PyTorch autograd remains GFN2-xTB-only, so do
-not generate a GFN1 `xtbloom_torch` example. ROCm, lattice/PBC inputs,
-solvation, native geometry optimization, molecular dynamics, native/analytic
-Hessians, and higher-order autograd remain unsupported. Adapter-level
-minimizers are repeated single-point workflows, not native optimization support.
+its dedicated zero-copy workflow. PyTorch autograd also supports both models
+through `method=`, with the narrower positions-only `dE/dR = -F` derivative
+contract; use the zero-copy ML guidance for that interface. ROCm, lattice/PBC
+inputs, solvation, native geometry optimization, molecular dynamics,
+native/analytic Hessians, and higher-order autograd remain unsupported.
+Adapter-level minimizers are repeated single-point workflows, not native
+optimization support.
 
 Authoritative online sources:
 
