@@ -137,18 +137,21 @@ Do not combine `auto_batch_size` with `warm_start=True`: one native context reta
 
 `Structure(..., charge=<value>)` sets molecular charge. Use either `multiplicity` or `uhf = multiplicity - 1`; inconsistent values are errors. Open-shell systems default to two unrestricted spin channels. Set `spin_channels=1` only when the restricted open-shell formulation is intended.
 
-Restricted and unrestricted GFN1-xTB are implemented on CPU. Restricted and
-unrestricted GFN2-xTB are implemented on CPU and CUDA.
+Restricted and unrestricted GFN1-xTB and GFN2-xTB are implemented on CPU and
+CUDA.
 
 ## Scope Boundaries
 
 This workflow does not cover direct device arrays, DLPack result ownership, PyTorch autograd, ASE/dpdata unit conversion, the native C API, or QM/MM force responsibilities. Use their dedicated integration guidance.
 
-Do not generate examples that claim GFN1-xTB on CUDA or through the
-GFN2-only Array API/DLPack and PyTorch surfaces. ROCm, lattice/PBC inputs,
-solvation, native geometry optimization, molecular dynamics, Hessians, and
-higher-order autograd remain unsupported. Adapter-level minimizers are
-repeated single-point workflows, not native optimization support.
+Array API/DLPack supports both GFN1-xTB and GFN2-xTB on CPU and CUDA through
+its dedicated zero-copy workflow. PyTorch autograd also supports both models
+through `method=`, with the narrower positions-only `dE/dR = -F` derivative
+contract; use the zero-copy ML guidance for that interface. ROCm, lattice/PBC
+inputs, solvation, native geometry optimization, molecular dynamics,
+native/analytic Hessians, and higher-order autograd remain unsupported.
+Adapter-level minimizers are repeated single-point workflows, not native
+optimization support.
 
 Authoritative online sources:
 

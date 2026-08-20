@@ -22,9 +22,9 @@ last_upstream_ref = "master"
 updated_at = "2026-06-19T07:35:00+00:00"
 
 [jobs."dpdata-cli"]
-last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"
+last_upstream_commit = "85ae95d3396eb01bcdb25eb399928bf48872900f"
 last_upstream_ref = "master"
-updated_at = "2026-03-25T11:34:51.041687+00:00"
+updated_at = "2026-08-20T18:28:42.800647+00:00"
 
 [jobs."dpdata-driver"]
 last_upstream_commit = "32febda08e269a512db61ff1f4dcf193be29bef8"
@@ -62,6 +62,6 @@ last_upstream_ref = "main"
 updated_at = "2026-08-14T00:40:17.434047+00:00"
 
 [jobs."xtbloom-run-python-inference"]
-last_upstream_commit = "32b1c76ca225ae151f6650723a892056b7a6cf6d"
+last_upstream_commit = "45af658f666af287a5f81f9122502be20d0062c2"
 last_upstream_ref = "main"
-updated_at = "2026-08-14T00:40:26.600462+00:00"
+updated_at = "2026-08-20T18:29:30.199287+00:00"
