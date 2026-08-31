@@ -27,9 +27,10 @@ import csv
 import os
 import sys
 import traceback
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -90,11 +91,11 @@ class SmilesRecord:
 
 def validate_smiles_with_idx(
     smiles: Sequence[str],
-) -> Tuple[List[Tuple[int, str]], List[SmilesRecord]]:
+) -> tuple[list[tuple[int, str]], list[SmilesRecord]]:
     from rdkit import Chem  # type: ignore
 
-    valid: List[Tuple[int, str]] = []
-    bad: List[SmilesRecord] = []
+    valid: list[tuple[int, str]] = []
+    bad: list[SmilesRecord] = []
     for i, s in enumerate(smiles):
         s = (s or "").strip()
         if not s:
@@ -111,8 +112,8 @@ def validate_smiles_with_idx(
     return valid, bad
 
 
-def read_smiles_from_smi(path: Path) -> List[str]:
-    smiles: List[str] = []
+def read_smiles_from_smi(path: Path) -> list[str]:
+    smiles: list[str] = []
     with path.open("r", encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
@@ -125,7 +126,7 @@ def read_smiles_from_smi(path: Path) -> List[str]:
 
 def read_smiles_from_csv(
     path: Path, smiles_col: str
-) -> Tuple[List[str], "pd.DataFrame", str]:
+) -> tuple[list[str], pd.DataFrame, str]:
     """Return (smiles_list, dataframe, actual_smiles_col).
 
     ``actual_smiles_col`` is the column name as it actually appears in the CSV
@@ -161,7 +162,7 @@ def write_skipped_csv(path: Path, rows: Sequence[SmilesRecord]):
             w.writerow([r.idx, r.smiles, r.error])
 
 
-def _default_out_for_input(in_path: Optional[Path], suffix: str) -> Path:
+def _default_out_for_input(in_path: Path | None, suffix: str) -> Path:
     if in_path is None:
         return Path.cwd() / f"rdkit_{suffix}"
     return in_path.with_suffix("").with_suffix(f".{suffix}")
@@ -174,7 +175,7 @@ def _default_out_for_input(in_path: Optional[Path], suffix: str) -> Path:
 # Descriptors are grouped into named presets for convenience.
 # All descriptors listed here are available in rdkit.Chem.Descriptors.
 
-DESCRIPTOR_GROUPS: Dict[str, List[str]] = {
+DESCRIPTOR_GROUPS: dict[str, list[str]] = {
     # Lipinski-style drug-likeness properties
     "lipinski": [
         "MolWt",
@@ -321,8 +322,8 @@ FP_TYPES = [
 def _mol_to_fp_array(mol, fp_type: str, nbits: int, radius: int):
     """Convert a single RDKit Mol to a numpy array for the requested FP type."""
     import numpy as np
-    from rdkit.Chem import rdMolDescriptors  # type: ignore
     from rdkit import DataStructs  # type: ignore
+    from rdkit.Chem import rdMolDescriptors  # type: ignore
 
     if fp_type in ("morgan2", "morgan3"):
         r = 2 if fp_type == "morgan2" else 3
@@ -359,7 +360,9 @@ def _mol_to_fp_array(mol, fp_type: str, nbits: int, radius: int):
         return arr
 
     if fp_type == "topological":
-        from rdkit.Chem.rdMolDescriptors import GetTopologicalTorsionFingerprint  # type: ignore
+        from rdkit.Chem.rdMolDescriptors import (
+            GetTopologicalTorsionFingerprint,  # type: ignore
+        )
 
         fp = GetTopologicalTorsionFingerprint(mol)
         cnts = fp.GetNonzeroElements()
@@ -416,8 +419,8 @@ def cmd_desc(args: argparse.Namespace) -> int:
     )  # resolved later for CSV; default for other paths
     if args.smiles:
         raw_smiles = [args.smiles]
-        in_path: Optional[Path] = None
-        source_df: Optional["pd.DataFrame"] = None
+        in_path: Path | None = None
+        source_df: pd.DataFrame | None = None
     else:
         in_path = Path(args.file).expanduser().resolve()
         if not in_path.exists():
@@ -477,7 +480,7 @@ def cmd_desc(args: argparse.Namespace) -> int:
     records = []
     for orig_idx, smi in valid_pairs:
         mol = Chem.MolFromSmiles(smi)
-        row: Dict[str, object] = {"smiles": smi}
+        row: dict[str, object] = {"smiles": smi}
         for d in desc_names:
             try:
                 val = desc_fn_map[d](mol)
@@ -503,9 +506,9 @@ def cmd_desc(args: argparse.Namespace) -> int:
     ensure_parent_dir(out_path)
     out_df.to_csv(out_path, index=False)
 
-    print(f"[RESULT] desc_csv={str(out_path.resolve())}")
+    print(f"[RESULT] desc_csv={out_path.resolve()!s}")
     if skipped:
-        print(f"[RESULT] skipped_csv={str(skipped_path.resolve())}")
+        print(f"[RESULT] skipped_csv={skipped_path.resolve()!s}")
     return 0
 
 
@@ -524,7 +527,7 @@ def cmd_fp(args: argparse.Namespace) -> int:
     # ---- Resolve input ----
     if args.smiles:
         raw_smiles = [args.smiles]
-        in_path: Optional[Path] = None
+        in_path: Path | None = None
         source_df = None
     else:
         in_path = Path(args.file).expanduser().resolve()
@@ -576,9 +579,9 @@ def cmd_fp(args: argparse.Namespace) -> int:
         raise RuntimeError("No valid SMILES available (all parsing failed or empty).")
 
     # ---- Compute fingerprints ----
-    arrays: List[np.ndarray] = []
-    valid_smiles_out: List[str] = []
-    runtime_skipped: List[SmilesRecord] = []
+    arrays: list[np.ndarray] = []
+    valid_smiles_out: list[str] = []
+    runtime_skipped: list[SmilesRecord] = []
     for orig_idx, smi in valid_pairs:
         mol = Chem.MolFromSmiles(smi)
         try:
@@ -603,7 +606,7 @@ def cmd_fp(args: argparse.Namespace) -> int:
 
     if fmt == "npy":
         np.save(out_path, mat)
-        print(f"[RESULT] fp_npy={str(out_path.resolve())}")
+        print(f"[RESULT] fp_npy={out_path.resolve()!s}")
     else:
         # CSV output: smiles + bit_0 ... bit_N-1
         import pandas as pd  # type: ignore
@@ -613,10 +616,10 @@ def cmd_fp(args: argparse.Namespace) -> int:
         df = pd.DataFrame(mat, columns=col_names)
         df.insert(0, "smiles", valid_smiles_out)
         df.to_csv(out_path, index=False)
-        print(f"[RESULT] fp_csv={str(out_path.resolve())}")
+        print(f"[RESULT] fp_csv={out_path.resolve()!s}")
 
     if all_skipped:
-        print(f"[RESULT] skipped_csv={str(skipped_path.resolve())}")
+        print(f"[RESULT] skipped_csv={skipped_path.resolve()!s}")
     return 0
 
 
@@ -804,7 +807,7 @@ def build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
