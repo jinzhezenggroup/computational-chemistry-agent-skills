@@ -37,9 +37,9 @@ last_upstream_ref = "master"
 updated_at = "2026-03-25T11:34:56.449573+00:00"
 
 [jobs."dpdisp-submit"]
-last_upstream_commit = "b7a3b1266fa67e6c21aff2fac276946225171329"
+last_upstream_commit = "e9094e377075f5311955dea78d599f78fad465a3"
 last_upstream_ref = "master"
-updated_at = "2026-03-25T11:34:42.883004+00:00"
+updated_at = "2026-09-05T18:27:05.948627+00:00"
 
 [jobs."dpgen-simplify"]
 last_upstream_commit = "a8d60bac18cede01c8e8afed06bbffee68d93b76"

@@ -3,7 +3,6 @@ name: dpdisp-submit
 description: >
   Run Shell commands as computational jobs, on local machines or HPC clusters, through Shell, Slurm, PBS, LSF, Bohrium, etc.
   USE WHEN the user needs to submit batch jobs to a cluster, run commands on a remote server, execute tasks via job schedulers (Slurm, PBS, LSF), or safely run long-term/background shell commands that require state tracking and auto-recovery.
-compatibility: Requires uv and access to the internet.
 license: LGPL-3.0-or-later
 metadata:
   author: deepmodeling
@@ -13,6 +12,8 @@ metadata:
 # dpdisp-submit
 
 This Skill guides the Agent to use the DPDispatcher tool to convert Shell commands into computational jobs and submit them to local machines or High-Performance Computing (HPC) clusters (supporting environments such as Shell, Slurm, PBS, LSF, Bohrium, etc.).
+
+Prerequisites: `uv` and internet access.
 
 ## Syntax & Protocol
 
@@ -76,14 +77,26 @@ You **MUST** generate the configuration file based on the acquired Schema protoc
 
 ### Validate & Submit
 
-You **MUST** strictly execute the following command chain in sequence.
-**Note**: If the `$ref` syntax is used in the configuration, you must pass the `--allow-ref` flag to all validation and submission commands, otherwise parsing or validation will fail even if the JSON content is correct.
+You **MUST** choose the command chain that matches the configuration and execute it
+in sequence. Keep the same choice for every later resume or synchronization run.
+
+For a configuration without `$ref`, keep external references disabled:
 
 ```bash
 # Logic and Schema Validation
 uvx --with dpdispatcher dargs check -f dpdispatcher.entrypoints.submit.submission_args submission.json
 # Submit Job
 uvx --from dpdispatcher dpdisp submit submission.json
+```
+
+For a configuration that uses `$ref`, pass `--allow-ref` to both validation and
+submission; omitting it makes a valid referenced configuration fail:
+
+```bash
+# Logic and Schema Validation
+uvx --with dpdispatcher dargs check --allow-ref -f dpdispatcher.entrypoints.submit.submission_args submission.json
+# Submit Job
+uvx --from dpdispatcher dpdisp submit --allow-ref submission.json
 ```
 
 ### Reporting Standard
