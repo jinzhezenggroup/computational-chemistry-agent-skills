@@ -42,9 +42,9 @@ last_upstream_ref = "master"
 updated_at = "2026-09-13T06:41:58.676242+00:00"
 
 [jobs."dpgen-simplify"]
-last_upstream_commit = "a8d60bac18cede01c8e8afed06bbffee68d93b76"
+last_upstream_commit = "545fa1e5b6c081fdc79ddca1020437ee60642eda"
 last_upstream_ref = "master"
-updated_at = "2026-05-08T08:52:44.584596+00:00"
+updated_at = "2026-09-13T06:42:07.021318+00:00"
 
 [jobs."lammps-deepmd"]
 last_upstream_commit = "5156c408b817342d190b67b6f0d922447663e5d5"
