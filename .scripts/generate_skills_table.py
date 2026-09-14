@@ -44,7 +44,7 @@ class SkillMeta:
 def parse_front_matter(text: str) -> dict:
     if not text.startswith("---\n"):
         return {}
-    m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
+    m = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
     if not m:
         return {}
     raw = m.group(1)
@@ -151,7 +151,7 @@ def update_managed_block(
     block = body if not heading else f"{heading}\n\n{body}"
     wrapped = f"{start_mark}\n{block}\n{end_mark}"
 
-    pattern = re.compile(rf"{re.escape(start_mark)}.*?{re.escape(end_mark)}", re.S)
+    pattern = re.compile(rf"{re.escape(start_mark)}.*?{re.escape(end_mark)}", re.DOTALL)
     if pattern.search(content):
         return pattern.sub(wrapped, content)
 

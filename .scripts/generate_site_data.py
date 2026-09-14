@@ -60,7 +60,7 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
     """Return (front_matter_dict, body_markdown)."""
     if not text.startswith("---\n"):
         return {}, text
-    m = re.match(r"^---\n(.*?)\n---\n(.*)$", text, re.S)
+    m = re.match(r"^---\n(.*?)\n---\n(.*)$", text, re.DOTALL)
     if not m:
         return {}, text
     fm_raw, body = m.group(1), m.group(2)
