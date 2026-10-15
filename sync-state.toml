@@ -12,9 +12,9 @@ last_upstream_ref = "master"
 updated_at = "2026-06-03T14:01:38.375681+00:00"
 
 [jobs."deepmd-python-inference"]
-last_upstream_commit = "65c04205a1509df8bb1ce75702a5e3dda1613e95"
+last_upstream_commit = "cc7fdd785cc1c746268ba96b7244c5757147f75c"
 last_upstream_ref = "master"
-updated_at = "2026-06-03T14:01:47.440654+00:00"
+updated_at = "2026-10-25T06:40:49.506539+00:00"
 
 [jobs."deepmd-train"]
 last_upstream_commit = "1050e46ca645c866bbbc327cc8f8d938cfa82371"
