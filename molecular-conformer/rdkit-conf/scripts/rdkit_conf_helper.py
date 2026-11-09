@@ -35,10 +35,9 @@ import importlib.util
 import os
 import sys
 import traceback
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
-
 
 # ---------------------------------------------------------------------------
 # Utilities
@@ -103,11 +102,11 @@ class ConformerResult:
 
 def validate_smiles_with_idx(
     smiles: Sequence[str],
-) -> Tuple[List[Tuple[int, str]], List[SmilesRecord]]:
+) -> tuple[list[tuple[int, str]], list[SmilesRecord]]:
     from rdkit import Chem  # type: ignore
 
-    valid: List[Tuple[int, str]] = []
-    bad: List[SmilesRecord] = []
+    valid: list[tuple[int, str]] = []
+    bad: list[SmilesRecord] = []
     for i, s in enumerate(smiles):
         s = (s or "").strip()
         if not s:
@@ -124,9 +123,9 @@ def validate_smiles_with_idx(
     return valid, bad
 
 
-def read_smiles_from_smi(path: Path) -> List[Tuple[str, str]]:
+def read_smiles_from_smi(path: Path) -> list[tuple[str, str]]:
     """Return list of (smiles, name). Name is the second token or 'mol_{i}'."""
-    entries: List[Tuple[str, str]] = []
+    entries: list[tuple[str, str]] = []
     with path.open("r", encoding="utf-8", errors="replace") as f:
         for i, line in enumerate(f):
             line = line.strip()
@@ -140,8 +139,8 @@ def read_smiles_from_smi(path: Path) -> List[Tuple[str, str]]:
 
 
 def read_smiles_from_csv(
-    path: Path, smiles_col: str, name_col: Optional[str]
-) -> Tuple[List[Tuple[str, str]], str]:
+    path: Path, smiles_col: str, name_col: str | None
+) -> tuple[list[tuple[str, str]], str]:
     """Return (list of (smiles, name), actual_smiles_col)."""
     try:
         import pandas as pd  # type: ignore
@@ -162,7 +161,7 @@ def read_smiles_from_csv(
             )
 
     # Resolve optional name column
-    actual_name_col: Optional[str] = None
+    actual_name_col: str | None = None
     if name_col:
         if name_col in df.columns:
             actual_name_col = name_col
@@ -176,7 +175,7 @@ def read_smiles_from_csv(
                     f"falling back to row-index names."
                 )
 
-    entries: List[Tuple[str, str]] = []
+    entries: list[tuple[str, str]] = []
     for i, row in df.iterrows():
         smi = str(row[smiles_col])
         if actual_name_col:
@@ -210,7 +209,7 @@ def write_fallback_csv(path: Path, rows: Sequence[ConformerResult]):
             w.writerow([r.idx, r.smiles, r.name, r.dim, r.ff, r.note])
 
 
-def _default_out_for_input(in_path: Optional[Path], suffix: str) -> Path:
+def _default_out_for_input(in_path: Path | None, suffix: str) -> Path:
     if in_path is None:
         return Path.cwd() / f"rdkit_conf_{suffix}"
     return in_path.with_suffix("").with_suffix(f".{suffix}")
@@ -295,7 +294,7 @@ def _embed_3d_multi(
     return False
 
 
-def _optimize_ff_conf(mol, conf_id: int, ff: str) -> Tuple[bool, str, Optional[float]]:
+def _optimize_ff_conf(mol, conf_id: int, ff: str) -> tuple[bool, str, float | None]:
     """
     Run force-field optimization on a single conformer (``conf_id``).
     Returns (success, ff_name_used, energy).
@@ -362,7 +361,7 @@ def generate_conformer(
     random_seed: int,
     max_attempts: int,
     use_random_coords: bool,
-) -> Tuple[object, int, str, str]:
+) -> tuple[object, int, str, str]:
     """
     Full pipeline: multi-conformer 3D embedding -> FF minimization per conformer
     -> keep lowest-energy conformer -> 2D fallback on total failure.
@@ -400,7 +399,7 @@ def generate_conformer(
             note = f"3d_ok;embedded={n_embedded};kept=first;ff=none"
         else:
             # Optimize every conformer and collect energies
-            energies: List[Tuple[float, int]] = []  # (energy, conf_id)
+            energies: list[tuple[float, int]] = []  # (energy, conf_id)
             ff_used = "none"
             for cid in conf_ids:
                 ok, ff_name, energy = _optimize_ff_conf(mol, cid, ff)
@@ -476,8 +475,8 @@ def cmd_conf(args: argparse.Namespace) -> int:
 
     # ---- Resolve input ----
     if args.smiles:
-        raw_entries: List[Tuple[str, str]] = [(args.smiles, args.name or "mol_0")]
-        in_path: Optional[Path] = None
+        raw_entries: list[tuple[str, str]] = [(args.smiles, args.name or "mol_0")]
+        in_path: Path | None = None
     else:
         in_path = Path(args.file).expanduser().resolve()
         if not in_path.exists():
@@ -526,8 +525,8 @@ def cmd_conf(args: argparse.Namespace) -> int:
         raise RuntimeError("No valid SMILES available (all parsing failed or empty).")
 
     # ---- Generate conformers ----
-    results: List[ConformerResult] = []
-    fallbacks: List[ConformerResult] = []
+    results: list[ConformerResult] = []
+    fallbacks: list[ConformerResult] = []
 
     ensure_parent_dir(out_path)
 
@@ -607,11 +606,11 @@ def cmd_conf(args: argparse.Namespace) -> int:
         flush=True,
     )
 
-    print(f"[RESULT] conf_{fmt}={str(out_path.resolve())}")
+    print(f"[RESULT] conf_{fmt}={out_path.resolve()!s}")
     if fallbacks:
-        print(f"[RESULT] fallback_csv={str(fallback_path.resolve())}")
+        print(f"[RESULT] fallback_csv={fallback_path.resolve()!s}")
     if skipped:
-        print(f"[RESULT] skipped_csv={str(skipped_path.resolve())}")
+        print(f"[RESULT] skipped_csv={skipped_path.resolve()!s}")
 
     return 0
 
@@ -747,7 +746,7 @@ def build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
