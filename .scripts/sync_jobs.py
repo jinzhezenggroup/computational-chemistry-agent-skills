@@ -16,12 +16,11 @@ import re
 import shutil
 import subprocess
 import tempfile
+import tomllib
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
-
-import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 SYNC_TOML = ROOT / "sync.toml"
@@ -58,7 +57,7 @@ def git(args: list[str], cwd: Path | None = None, check: bool = True) -> str:
 
 
 def now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def ensure_clean_worktree() -> None:
