@@ -29,9 +29,9 @@ import csv
 import os
 import sys
 import traceback
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
 
 
 def _eprint(*args, **kwargs):
@@ -103,14 +103,14 @@ class SmilesRecord:
     error: str
 
 
-def validate_smiles(smiles: Sequence[str]) -> Tuple[List[str], List[SmilesRecord]]:
+def validate_smiles(smiles: Sequence[str]) -> tuple[list[str], list[SmilesRecord]]:
     """
     Validate SMILES via RDKit. If RDKit is unavailable, only basic empty filtering is performed.
     To satisfy the 'bad SMILES won't crash' goal, it handles exceptions per entry.
     """
     Chem = _try_import_rdkit()
-    valid: List[str] = []
-    bad: List[SmilesRecord] = []
+    valid: list[str] = []
+    bad: list[SmilesRecord] = []
     for i, s in enumerate(smiles):
         s = (s or "").strip()
         if not s:
@@ -132,10 +132,10 @@ def validate_smiles(smiles: Sequence[str]) -> Tuple[List[str], List[SmilesRecord
 
 def validate_smiles_with_idx(
     smiles: Sequence[str],
-) -> Tuple[List[Tuple[int, str]], List[SmilesRecord]]:
+) -> tuple[list[tuple[int, str]], list[SmilesRecord]]:
     Chem = _try_import_rdkit()
-    valid: List[Tuple[int, str]] = []
-    bad: List[SmilesRecord] = []
+    valid: list[tuple[int, str]] = []
+    bad: list[SmilesRecord] = []
     for i, s in enumerate(smiles):
         s = (s or "").strip()
         if not s:
@@ -155,8 +155,8 @@ def validate_smiles_with_idx(
     return valid, bad
 
 
-def read_smiles_from_smi(path: Path) -> List[str]:
-    smiles: List[str] = []
+def read_smiles_from_smi(path: Path) -> list[str]:
+    smiles: list[str] = []
     with path.open("r", encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
@@ -168,7 +168,7 @@ def read_smiles_from_smi(path: Path) -> List[str]:
     return smiles
 
 
-def read_smiles_from_csv(path: Path, smiles_col: str) -> List[str]:
+def read_smiles_from_csv(path: Path, smiles_col: str) -> list[str]:
     try:
         import pandas as pd  # type: ignore
     except Exception as e:
@@ -201,7 +201,7 @@ def write_skipped_csv(path: Path, rows: Sequence[SmilesRecord]):
             w.writerow([r.idx, r.smiles, r.error])
 
 
-def _default_out_for_input(in_path: Optional[Path], suffix: str) -> Path:
+def _default_out_for_input(in_path: Path | None, suffix: str) -> Path:
     if in_path is None:
         return Path.cwd() / f"unimol_{suffix}"
     return in_path.with_suffix("").with_suffix(f".{suffix}")
@@ -263,9 +263,9 @@ def cmd_repr(args: argparse.Namespace) -> int:
     import numpy as np  # type: ignore
 
     batch = int(args.batch_size)
-    embs: List[np.ndarray] = []
+    embs: list[np.ndarray] = []
 
-    def safe_get_batch(pairs: Sequence[Tuple[int, str]]) -> List[np.ndarray]:
+    def safe_get_batch(pairs: Sequence[tuple[int, str]]) -> list[np.ndarray]:
         smis = [s for _, s in pairs]
         try:
             d = repr_model.get_repr(list(smis))
@@ -273,7 +273,7 @@ def cmd_repr(args: argparse.Namespace) -> int:
             return [np.asarray(x, dtype=np.float32) for x in cls]
         except Exception:
             # Fallback: Isolate entries to ensure "bad SMILES won't crash"
-            out: List[np.ndarray] = []
+            out: list[np.ndarray] = []
             for orig_idx, s in pairs:
                 try:
                     d1 = repr_model.get_repr([s])
@@ -303,9 +303,9 @@ def cmd_repr(args: argparse.Namespace) -> int:
     if skipped:
         write_skipped_csv(skipped_path, skipped)
 
-    print(f"[RESULT] repr_npy={str(out_path.resolve())}")
+    print(f"[RESULT] repr_npy={out_path.resolve()!s}")
     if skipped:
-        print(f"[RESULT] skipped_csv={str(skipped_path.resolve())}")
+        print(f"[RESULT] skipped_csv={skipped_path.resolve()!s}")
     return 0
 
 
@@ -354,9 +354,9 @@ def cmd_train(args: argparse.Namespace) -> int:
         "multilabel_classification",
         "multilabel_regression",
     }
-    target_cols: List[str]
+    target_cols: list[str]
     if is_multilabel:
-        requested_cols: List[str] = []
+        requested_cols: list[str] = []
         if args.target_cols:
             requested_cols = [
                 x.strip() for x in str(args.target_cols).split(",") if x.strip()
@@ -382,7 +382,7 @@ def cmd_train(args: argparse.Namespace) -> int:
                 "Please provide --target-cols (comma-separated), e.g. --target-cols target_0,target_1."
             )
 
-        resolved: List[str] = []
+        resolved: list[str] = []
         seen = set()
         for c in requested_cols:
             rc = _resolve_col(c, "Target")
@@ -416,7 +416,7 @@ def cmd_train(args: argparse.Namespace) -> int:
     )
     trainer.fit(str(data_path))
 
-    print(f"[RESULT] model_dir={str(out_dir.resolve())}")
+    print(f"[RESULT] model_dir={out_dir.resolve()!s}")
     return 0
 
 
@@ -515,9 +515,9 @@ def cmd_predict(args: argparse.Namespace) -> int:
 
     out_df.to_csv(out_csv, index=False)
 
-    print(f"[RESULT] pred_csv={str(out_csv.resolve())}")
+    print(f"[RESULT] pred_csv={out_csv.resolve()!s}")
     if skipped:
-        print(f"[RESULT] skipped_csv={str(skipped_path.resolve())}")
+        print(f"[RESULT] skipped_csv={skipped_path.resolve()!s}")
     return 0
 
 
@@ -637,7 +637,7 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
